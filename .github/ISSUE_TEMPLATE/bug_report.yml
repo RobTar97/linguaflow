@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a reproducible problem in LinguaFlow.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve LinguaFlow. Do not include private learner data.
+  - type: dropdown
+    id: flow
+    attributes:
+      label: Affected flow
+      options:
+        - Setup and languages
+        - Learner practice
+        - Teacher studio
+        - Join room
+        - Active room
+        - Topic content or translation
+        - Accessibility
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and reproduction steps
+      placeholder: "1. …\n2. …\n3. …"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, OS, and viewport
+      placeholder: Firefox 128, Windows 11, 1440 × 900
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add screenshots with names or personal information removed.

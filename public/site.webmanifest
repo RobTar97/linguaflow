@@ -1,0 +1,17 @@
+{
+  "name": "LinguaFlow",
+  "short_name": "LinguaFlow",
+  "description": "Open-source conversation practice for English, Polish, and Japanese learners and teachers.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f5",
+  "theme_color": "#c93e1f",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+name: Topic card proposal
+description: Suggest or contribute a conversation topic.
+title: "[Topic]: "
+labels: ["content"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Working title
+    validations:
+      required: true
+  - type: dropdown
+    id: level
+    attributes:
+      label: CEFR level
+      options: [A1, A2, B1, B2, C1]
+    validations:
+      required: true
+  - type: dropdown
+    id: pair
+    attributes:
+      label: Language pair
+      options: ["EN ↔ PL", "EN ↔ JA", "PL ↔ JA"]
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Main prompt and follow-ups
+      description: Draft in a language you can review confidently.
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Why this supports conversation at the chosen level
+    validations:
+      required: true
+  - type: checkboxes
+    id: review
+    attributes:
+      label: Review
+      options:
+        - label: I have read the content guide.
+          required: true
+        - label: The topic does not require sensitive personal disclosure.
+          required: true

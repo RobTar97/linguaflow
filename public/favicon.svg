@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="LinguaFlow">
+  <rect width="64" height="64" rx="18" fill="#faf8f5"/>
+  <path d="M13 21c0-8.3 6.7-15 15-15h7c8.8 0 16 7.2 16 16v5c0 8.8-7.2 16-16 16H25l-10 8 2.5-11A15 15 0 0 1 13 29z" fill="#2563eb" transform="translate(-3 5)"/>
+  <path d="M13 21c0-8.3 6.7-15 15-15h7c8.8 0 16 7.2 16 16v5c0 8.8-7.2 16-16 16H25l-10 8 2.5-11A15 15 0 0 1 13 29z" fill="#c93e1f"/>
+  <circle cx="32" cy="25" r="8" fill="#fff7ed"/>
+  <circle cx="43" cy="15" r="3" fill="#ffd7a8"/>
+</svg>

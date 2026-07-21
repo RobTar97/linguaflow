@@ -1,0 +1,219 @@
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import type {
+  LearningRoom,
+  WorkspaceProfile,
+} from "../domain/types";
+import { browserStorage } from "../platform/storage";
+import { RoomServiceError, roomService } from "../platform/roomService";
+import { LearningWorkspaceContext } from "./context";
+import {
+  workspaceDefaults,
+  type LearningWorkspaceValue,
+  type WorkspaceRoute,
+} from "./contracts";
+
+const PROFILE_KEY = "linguaflow-profile-v2";
+const SAVED_KEY = "linguaflow-saved";
+const ACTIVE_ROOM_KEY = "linguaflow-active-room";
+
+function createRoomCode() {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const letters = Array.from({ length: 3 }, () =>
+    alphabet[Math.floor(Math.random() * alphabet.length)],
+  ).join("");
+  const digits = Math.floor(100 + Math.random() * 900);
+  return `${letters}-${digits}`;
+}
+
+function initialProfile() {
+  return browserStorage.get<WorkspaceProfile | null>(PROFILE_KEY, null);
+}
+
+function initialRoute(
+  profile: WorkspaceProfile | null,
+  activeRoom: LearningRoom | null = null,
+): WorkspaceRoute {
+  if (!profile?.setupComplete) return "setup";
+  if (profile.role === "teacher") {
+    return activeRoom && roomService.canControl(activeRoom.code)
+      ? "teacher-room"
+      : "teacher";
+  }
+  if (profile.role === "student") return activeRoom ? "student-room" : "join";
+  return "explore";
+}
+
+export function LearningWorkspaceProvider({ children }: { children: ReactNode }) {
+  const [profile, setProfile] = useState<WorkspaceProfile | null>(initialProfile);
+  const [route, setRoute] = useState<WorkspaceRoute>(() =>
+    initialRoute(
+      initialProfile(),
+      browserStorage.get<LearningRoom | null>(ACTIVE_ROOM_KEY, null),
+    ),
+  );
+  const [savedIds, setSavedIds] = useState<string[]>(() =>
+    browserStorage.get<string[]>(SAVED_KEY, []),
+  );
+  const [activeRoom, setActiveRoom] = useState<LearningRoom | null>(() =>
+    browserStorage.get<LearningRoom | null>(ACTIVE_ROOM_KEY, null),
+  );
+
+  useEffect(() => {
+    document.documentElement.lang =
+      profile?.goal.interfaceLocale.toLowerCase() ?? "en";
+  }, [profile?.goal.interfaceLocale]);
+
+  const value = useMemo<LearningWorkspaceValue>(
+    () => ({
+      profile,
+      route,
+      savedIds,
+      activeRoom,
+      canControlActiveRoom: Boolean(
+        activeRoom && roomService.canControl(activeRoom.code),
+      ),
+      completeSetup(nextProfile) {
+        setProfile(nextProfile);
+        browserStorage.set(PROFILE_KEY, nextProfile);
+        setRoute(initialRoute(nextProfile));
+      },
+      updateGoal(goal) {
+        setProfile((current) => {
+          if (!current) return current;
+          const next = { ...current, goal: { ...current.goal, ...goal } };
+          browserStorage.set(PROFILE_KEY, next);
+          return next;
+        });
+      },
+      switchRole(role) {
+        setProfile((current) => {
+          const base =
+            current ??
+            ({
+              name: "",
+              role,
+              goal: workspaceDefaults.goal,
+              setupComplete: true,
+            } satisfies WorkspaceProfile);
+          const next = { ...base, role };
+          browserStorage.set(PROFILE_KEY, next);
+          return next;
+        });
+        setRoute(role === "teacher" ? "teacher" : role === "student" ? "join" : "explore");
+      },
+      navigate: setRoute,
+      toggleSaved(topicId) {
+        setSavedIds((current) => {
+          const next = current.includes(topicId)
+            ? current.filter((id) => id !== topicId)
+            : [...current, topicId];
+          browserStorage.set(SAVED_KEY, next);
+          return next;
+        });
+      },
+      async createRoom(input) {
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+          const room: LearningRoom = {
+            code: createRoomCode(),
+            name: input.name,
+            topicId: input.topicId,
+            teacherName: profile?.name || "Teacher",
+            targetLanguage: input.targetLanguage,
+            supportLanguage: input.supportLanguage,
+            level: input.level,
+            questionIndex: 0,
+            participants: [],
+            createdAt: new Date().toISOString(),
+          };
+          try {
+            const created = await roomService.create(room, crypto.randomUUID());
+            browserStorage.set(ACTIVE_ROOM_KEY, created);
+            setActiveRoom(created);
+            setRoute("teacher-room");
+            return created;
+          } catch (error) {
+            if (!(error instanceof RoomServiceError) || error.status !== 409) {
+              throw error;
+            }
+          }
+        }
+        throw new Error("Could not reserve a unique room code. Please try again.");
+      },
+      async joinRoom(code, studentName) {
+        const normalized = code.trim().toUpperCase();
+        const participant = {
+          id: crypto.randomUUID(),
+          name: studentName.trim() || profile?.name || "Student",
+          status: "ready" as const,
+        };
+        try {
+          const joined = await roomService.join(normalized, participant);
+          browserStorage.set(ACTIVE_ROOM_KEY, joined);
+          setActiveRoom(joined);
+          setRoute("student-room");
+          return { room: joined };
+        } catch (error) {
+          return {
+            error:
+              error instanceof Error
+                ? error.message
+                : "We could not find that room.",
+          };
+        }
+      },
+      async refreshRoom() {
+        if (!activeRoom) return null;
+        try {
+          const refreshed = await roomService.get(activeRoom.code);
+          browserStorage.set(ACTIVE_ROOM_KEY, refreshed);
+          setActiveRoom((current) =>
+            current && JSON.stringify(current) === JSON.stringify(refreshed)
+              ? current
+              : refreshed,
+          );
+          return refreshed;
+        } catch (error) {
+          if (error instanceof RoomServiceError && error.status === 404) {
+            browserStorage.remove(ACTIVE_ROOM_KEY);
+            setActiveRoom(null);
+          }
+          return null;
+        }
+      },
+      async updateRoomQuestion(index) {
+        if (!activeRoom) return;
+        const next = await roomService.setQuestion(activeRoom.code, index);
+        browserStorage.set(ACTIVE_ROOM_KEY, next);
+        setActiveRoom(next);
+      },
+      async leaveRoom(endForEveryone = false) {
+        if (endForEveryone && activeRoom) {
+          await roomService.end(activeRoom.code);
+        }
+        setActiveRoom(null);
+        browserStorage.remove(ACTIVE_ROOM_KEY);
+        setRoute(
+          profile?.role === "teacher"
+            ? "teacher"
+            : profile?.role === "student"
+              ? "join"
+              : "explore",
+        );
+      },
+      resetWorkspace() {
+        browserStorage.remove(PROFILE_KEY);
+        browserStorage.remove(ACTIVE_ROOM_KEY);
+        setProfile(null);
+        setActiveRoom(null);
+        setRoute("setup");
+      },
+    }),
+    [activeRoom, profile, route, savedIds],
+  );
+
+  return (
+    <LearningWorkspaceContext.Provider value={value}>
+      {children}
+    </LearningWorkspaceContext.Provider>
+  );
+}

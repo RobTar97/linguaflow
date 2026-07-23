@@ -1,7 +1,7 @@
 {
   "name": "linguaflow",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Open-source English, Polish, and Japanese conversation practice for learners and teachers.",
   "license": "MIT",
   "keywords": [

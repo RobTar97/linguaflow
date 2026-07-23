@@ -2,6 +2,15 @@
 
 All notable project changes are documented here.
 
+## 0.2.1 — 2026-07-24
+
+### Changed
+
+- Cloudflare deployment now remains safely disabled until the repository owner
+  explicitly configures credentials and enables the deployment variable.
+- Dependabot groups compatible minor and patch updates while leaving major
+  upgrades for deliberate, separately tested maintenance work.
+
 ## 0.2.0 — 2026-07-23
 
 ### Added

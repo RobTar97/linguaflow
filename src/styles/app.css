@@ -1,13 +1,12 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap");
-
 :root {
   font-family:
-    "DM Sans",
-    "Noto Sans JP",
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
+    "Hiragino Sans",
+    "Yu Gothic UI",
+    Meiryo,
     sans-serif;
   color: #18181b;
   background: #faf8f5;
@@ -44,6 +43,8 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --font-display:
+    "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
 }
 
 * {
@@ -159,7 +160,7 @@ a:focus-visible {
 }
 
 .logo-text {
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.045em;
@@ -335,7 +336,7 @@ a:focus-visible {
 
 .browse-intro h1 {
   margin: 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(26px, 2.5vw, 36px);
   line-height: 1.14;
   letter-spacing: -0.045em;
@@ -560,7 +561,7 @@ a:focus-visible {
   display: -webkit-box;
   overflow: hidden;
   color: var(--ink);
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: 15px;
   line-height: 1.35;
   letter-spacing: -0.02em;
@@ -721,7 +722,7 @@ a:focus-visible {
 .detail-heading h2 {
   max-width: 620px;
   margin: 9px 0 7px;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(22px, 2.2vw, 30px);
   line-height: 1.18;
   letter-spacing: -0.045em;
@@ -982,7 +983,7 @@ a:focus-visible {
 
 .empty-state h2 {
   margin: 17px 0 7px;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
 }
 
@@ -1023,7 +1024,7 @@ a:focus-visible {
 
 .sheet-heading h2 {
   margin: 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
 }
 
 .sheet-heading button,
@@ -1119,7 +1120,7 @@ a:focus-visible {
 
 .session-topic h2 {
   margin: 4px 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: 19px;
   letter-spacing: -0.03em;
 }
@@ -1209,7 +1210,7 @@ a:focus-visible {
 .session-question-wrap p {
   max-width: 27ch;
   margin: 19px 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(23px, 4vw, 34px);
   font-weight: 700;
   line-height: 1.35;
@@ -1491,7 +1492,7 @@ a:focus-visible {
 .setup-step h1 {
   max-width: 660px;
   margin: 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(30px, 5vw, 46px);
   line-height: 1.1;
   letter-spacing: -0.05em;
@@ -1749,7 +1750,7 @@ a:focus-visible {
 .studio-heading h1,
 .room-session-header h1 {
   margin: 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(28px, 4vw, 42px);
   line-height: 1.1;
   letter-spacing: -0.05em;
@@ -1835,7 +1836,7 @@ a:focus-visible {
 
 .section-heading-row h2 {
   margin: 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
 }
 
@@ -1915,7 +1916,7 @@ a:focus-visible {
 
 .room-preview h2 {
   margin: 5px 0 7px;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: 21px;
   letter-spacing: -0.03em;
 }
@@ -1992,7 +1993,7 @@ a:focus-visible {
 
 .join-room-card h1 {
   margin: 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: 30px;
   line-height: 1.16;
   letter-spacing: -0.045em;
@@ -2020,7 +2021,7 @@ a:focus-visible {
 
 .room-code-input input {
   border: 0;
-  font-family: Manrope, sans-serif;
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -2053,7 +2054,7 @@ a:focus-visible {
 
 .room-code-card > strong {
   color: var(--brand-dark);
-  font-family: Manrope, sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   letter-spacing: 0.09em;
 }
@@ -2152,7 +2153,7 @@ a:focus-visible {
 .presentation-question > p {
   max-width: 31ch;
   margin: 24px 0;
-  font-family: Manrope, "Noto Sans JP", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(27px, 4vw, 43px);
   font-weight: 700;
   line-height: 1.32;

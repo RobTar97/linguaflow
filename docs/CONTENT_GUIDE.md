@@ -12,12 +12,18 @@ Each topic in `src/content` contains:
 - exactly two supported languages;
 - one category;
 - localized title, description, and main prompt;
-- at least four localized follow-up questions;
-- at least four localized vocabulary items;
+- at least five localized follow-up questions;
+- five or six localized vocabulary concepts;
 - an artwork atlas and cell index.
 
-The current editorial standard is five follow-ups and five vocabulary items in
-English, Polish, and Japanese.
+The current editorial standard is five or six follow-ups and five vocabulary
+concepts in English, Polish, and Japanese. The public catalog contains 36
+topics, 12 for each language pair.
+
+Small collections live in `topics.ts`, `moreTopics.ts`, and
+`expandedTopics.ts`. Add a new collection when a focused contribution would
+make an existing file difficult to review, then register it once in
+`topicCatalog.ts`. Feature code must never import a content collection directly.
 
 ## Writing sequence
 
@@ -67,6 +73,8 @@ stereotyped cultural imagery.
 npm run check:content
 ```
 
-The validator checks duplicate IDs, valid language pairs, localized titles,
-follow-up counts, and vocabulary counts. Human review is still required for
-level, pedagogy, translation quality, cultural context, and safety.
+The validator checks the total catalog size, duplicate IDs, pair coverage,
+localized titles, follow-up counts, and vocabulary counts. Tests also confirm
+that prompts, follow-ups, and vocabulary are searchable across scripts. Human
+review is still required for level, pedagogy, translation quality, cultural
+context, and safety.

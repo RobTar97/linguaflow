@@ -11,7 +11,7 @@ const levels: Level[] = ["A1", "A2", "B1", "B2", "C1"];
 
 describe("topicCatalog", () => {
   it("contains a healthy starter library", () => {
-    expect(topicCatalog.all()).toHaveLength(24);
+    expect(topicCatalog.all()).toHaveLength(36);
   });
 
   it("passes authored-content validation", () => {
@@ -24,7 +24,19 @@ describe("topicCatalog", () => {
         nativeLanguage: first,
         targetLanguage: second,
       }).length,
-    ).toBeGreaterThanOrEqual(6);
+    ).toBeGreaterThanOrEqual(12);
+  });
+
+  it("searches prompts, follow-ups, and vocabulary in every language", () => {
+    expect(topicCatalog.browse({ search: "オーバーツーリズム" })[0]?.id).toBe(
+      "ethical-tourism",
+    );
+    expect(topicCatalog.browse({ search: "niesprawiedliwą krytykę" })[0]?.id).toBe(
+      "giving-feedback",
+    );
+    expect(topicCatalog.browse({ search: "weekly plan" })[0]?.id).toBe(
+      "study-routines",
+    );
   });
 
   it.each(levels)("contains at least one %s topic", (level) => {

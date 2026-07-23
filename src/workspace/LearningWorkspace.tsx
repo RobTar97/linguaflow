@@ -18,10 +18,12 @@ const ACTIVE_ROOM_KEY = "linguaflow-active-room";
 
 function createRoomCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-  const letters = Array.from({ length: 3 }, () =>
-    alphabet[Math.floor(Math.random() * alphabet.length)],
+  const random = crypto.getRandomValues(new Uint32Array(4));
+  const letters = Array.from(
+    { length: 3 },
+    (_, index) => alphabet[random[index] % alphabet.length],
   ).join("");
-  const digits = Math.floor(100 + Math.random() * 900);
+  const digits = 100 + (random[3] % 900);
   return `${letters}-${digits}`;
 }
 

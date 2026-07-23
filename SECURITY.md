@@ -33,3 +33,12 @@ for sensitive learner records. See `docs/PRIVACY.md` for the complete boundary.
 Teacher question changes and room deletion require a random teacher token that
 is never returned to joining students. Public deployments should retain the
 included content-security, framing, permissions, and MIME-sniffing headers.
+
+The public API contains no Cloudflare credential or third-party API key. It
+enforces same-origin mutations, strict payload validation, request-size limits,
+per-client rate limits, and generic backend errors. Read the complete
+[security model](docs/SECURITY_MODEL.md) before operating a deployment.
+
+Cloudflare account IDs and API tokens must be stored only as encrypted Actions
+secrets. They must never use a `VITE_` prefix, because Vite embeds those values
+in public browser assets.

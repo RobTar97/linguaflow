@@ -6,6 +6,9 @@
 - [ ] `npm run check` passes.
 - [ ] `npx wrangler deploy --dry-run` succeeds.
 - [ ] Topic validation covers every supported pair and CEFR level.
+- [ ] `npm run audit:secrets` reports no credential patterns.
+- [ ] `npm audit --audit-level=high` reports no known high-severity dependency
+      vulnerabilities.
 - [ ] Changelog, package version, and git tag match.
 
 ## Product QA
@@ -28,4 +31,6 @@
 - [ ] Branch protection requires the CI check.
 - [ ] Cloudflare GitHub secrets are configured.
 - [ ] Production domain, repository description, and social preview are set.
+- [ ] CodeQL, Dependabot, private vulnerability reporting, and secret scanning
+      are enabled.
 - [ ] A rollback path and responsible maintainer are identified.

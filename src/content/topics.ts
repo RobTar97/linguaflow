@@ -51,7 +51,7 @@ export const categoryCopy: Record<Category, LocalizedText> = {
   Environment: text("Environment", "Środowisko", "環境"),
 };
 
-export const topics: Topic[] = [
+const authoredTopics: Topic[] = [
   {
     id: "remote-work",
     level: "B2",
@@ -108,7 +108,7 @@ export const topics: Topic[] = [
   {
     id: "morning-routines",
     level: "A2",
-    languages: ["EN", "JA"],
+    languages: ["PL", "JA"],
     category: "Daily Life",
     artIndex: 1,
     title: text("Morning Routines", "Poranne zwyczaje", "朝の習慣"),
@@ -196,7 +196,7 @@ export const topics: Topic[] = [
   {
     id: "travel-plans",
     level: "A2",
-    languages: ["EN", "PL"],
+    languages: ["PL", "JA"],
     category: "Travel & Culture",
     artIndex: 3,
     title: text("Travel Plans", "Plany podróży", "旅行の計画"),
@@ -590,6 +590,109 @@ export const topics: Topic[] = [
     ]),
   },
 ];
+
+const supplementalQuestions: Record<string, [string, string, string]> = {
+  "morning-routines": [
+    "What helps you leave home on time?",
+    "Co pomaga Ci wyjść z domu na czas?",
+    "時間どおりに家を出るために何をしていますか？",
+  ],
+  "japanese-festivals": [
+    "Have you ever taken part in a local festival?",
+    "Czy brałeś kiedyś udział w lokalnym festiwalu?",
+    "地域のお祭りに参加したことがありますか？",
+  ],
+  "travel-plans": [
+    "Which local food would you like to try?",
+    "Jakiego lokalnego jedzenia chciałbyś spróbować?",
+    "どんな地元料理を食べてみたいですか？",
+  ],
+  "future-of-ai": [
+    "Who should be responsible when an AI system makes a mistake?",
+    "Kto powinien odpowiadać za błąd popełniony przez system AI?",
+    "AIが間違えた場合、誰が責任を負うべきですか？",
+  ],
+  "books-that-changed-me": [
+    "Do you prefer paper books, e-books, or audiobooks?",
+    "Wolisz książki papierowe, e-booki czy audiobooki?",
+    "紙の本、電子書籍、オーディオブックのどれが好きですか？",
+  ],
+  "making-friends": [
+    "How do you keep in touch with friends?",
+    "Jak utrzymujesz kontakt z przyjaciółmi?",
+    "友達とどうやって連絡を取り続けますか？",
+  ],
+  "food-and-culture": [
+    "Why is eating together important in some cultures?",
+    "Dlaczego w niektórych kulturach wspólne jedzenie jest ważne?",
+    "文化によって、一緒に食事をすることが大切なのはなぜですか？",
+  ],
+  "weekend-getaways": [
+    "What would you do if the weather suddenly changed?",
+    "Co zrobiłbyś, gdyby pogoda nagle się zmieniła?",
+    "天気が急に変わったら、どうしますか？",
+  ],
+  "healthy-habits": [
+    "How do you remember to continue a new habit?",
+    "Jak pamiętasz o kontynuowaniu nowego nawyku?",
+    "新しい習慣を続けるために、どんな工夫をしますか？",
+  ],
+  "learning-from-mistakes": [
+    "Is it easier to learn from your own mistake or someone else's?",
+    "Łatwiej uczyć się na własnym błędzie czy na błędzie innej osoby?",
+    "自分の失敗と他の人の失敗では、どちらから学びやすいですか？",
+  ],
+  "greener-cities": [
+    "Which environmental change should cities make first?",
+    "Którą zmianę ekologiczną miasta powinny wprowadzić najpierw?",
+    "都市が最初に行うべき環境対策は何ですか？",
+  ],
+};
+
+const supplementalVocabulary: Record<
+  string,
+  [string, string, string, string]
+> = {
+  "morning-routines": ["on time", "na czas", "時間どおりに", "phrase"],
+  "japanese-festivals": ["parade", "parada", "行列", "noun"],
+  "travel-plans": ["accommodation", "nocleg", "宿泊先", "noun"],
+  "future-of-ai": ["decision", "decyzja", "判断", "noun"],
+  "books-that-changed-me": ["recommend", "polecić", "勧める", "verb"],
+  "making-friends": ["keep in touch", "utrzymywać kontakt", "連絡を取り合う", "verb"],
+  "food-and-culture": ["local dish", "lokalne danie", "郷土料理", "noun"],
+  "weekend-getaways": ["overnight", "z noclegiem", "一泊の", "adjective"],
+  "healthy-habits": ["routine", "rutyna", "日課", "noun"],
+  "learning-from-mistakes": ["try again", "spróbować ponownie", "やり直す", "verb"],
+  "greener-cities": ["green space", "teren zielony", "緑地", "noun"],
+};
+
+export const topics: Topic[] = authoredTopics.map((topic) => {
+  const question = supplementalQuestions[topic.id];
+  const word = supplementalVocabulary[topic.id];
+  if (!question && !word) return topic;
+
+  const vocabularyItem = (locale: Locale) => {
+    if (!word) return [];
+    const [EN, PL, JA, part] = word;
+    if (locale === "EN") return [{ word: EN, translation: PL, part }];
+    if (locale === "PL") return [{ word: PL, translation: EN, part }];
+    return [{ word: JA, translation: EN, part }];
+  };
+
+  return {
+    ...topic,
+    followUps: {
+      EN: [...topic.followUps.EN, ...(question ? [question[0]] : [])],
+      PL: [...topic.followUps.PL, ...(question ? [question[1]] : [])],
+      JA: [...topic.followUps.JA, ...(question ? [question[2]] : [])],
+    },
+    vocabulary: {
+      EN: [...topic.vocabulary.EN, ...vocabularyItem("EN")],
+      PL: [...topic.vocabulary.PL, ...vocabularyItem("PL")],
+      JA: [...topic.vocabulary.JA, ...vocabularyItem("JA")],
+    },
+  };
+});
 
 export const uiCopy = {
   EN: {

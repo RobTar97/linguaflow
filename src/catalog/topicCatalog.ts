@@ -1,5 +1,6 @@
 import { categoryCopy, topics as coreTopics } from "../content/topics";
 import { moreTopics } from "../content/moreTopics";
+import { expandedTopics } from "../content/expandedTopics";
 import type {
   Category,
   LanguageCode,
@@ -30,7 +31,7 @@ export interface TopicCatalog {
   validate(): string[];
 }
 
-const topics = [...coreTopics, ...moreTopics];
+const topics = [...coreTopics, ...moreTopics, ...expandedTopics];
 
 function supportsGoal(
   topic: Topic,
@@ -69,6 +70,11 @@ export const topicCatalog: TopicCatalog = {
       const searchable = [
         ...Object.values(topic.title),
         ...Object.values(topic.description),
+        ...Object.values(topic.mainPrompt),
+        ...Object.values(topic.followUps).flat(),
+        ...Object.values(topic.vocabulary).flatMap((items) =>
+          items.flatMap(({ word, translation }) => [word, translation]),
+        ),
         ...Object.values(categoryCopy[topic.category]),
       ]
         .join(" ")
@@ -100,13 +106,39 @@ export const topicCatalog: TopicCatalog = {
       if (topic.languages[0] === topic.languages[1]) {
         issues.push(`${topic.id}: language pair must contain two languages`);
       }
+      if (!Number.isInteger(topic.artIndex) || topic.artIndex < 0 || topic.artIndex > 11) {
+        issues.push(`${topic.id}: artwork index must be between 0 and 11`);
+      }
       for (const locale of ["EN", "PL", "JA"] as Locale[]) {
         if (!topic.title[locale]?.trim()) issues.push(`${topic.id}: missing ${locale} title`);
-        if (topic.followUps[locale]?.length < 4) {
-          issues.push(`${topic.id}: ${locale} needs at least 4 follow-up questions`);
+        if (!topic.description[locale]?.trim()) {
+          issues.push(`${topic.id}: missing ${locale} description`);
         }
-        if (topic.vocabulary[locale]?.length < 4) {
-          issues.push(`${topic.id}: ${locale} needs at least 4 vocabulary items`);
+        if (!topic.mainPrompt[locale]?.trim()) {
+          issues.push(`${topic.id}: missing ${locale} main prompt`);
+        }
+        if (topic.followUps[locale]?.length < 5) {
+          issues.push(`${topic.id}: ${locale} needs at least 5 follow-up questions`);
+        }
+        if (topic.followUps[locale]?.some((question) => !question.trim())) {
+          issues.push(`${topic.id}: ${locale} contains an empty follow-up question`);
+        }
+        if (new Set(topic.followUps[locale]).size !== topic.followUps[locale].length) {
+          issues.push(`${topic.id}: ${locale} contains duplicate follow-up questions`);
+        }
+        if (
+          topic.vocabulary[locale]?.length < 5 ||
+          topic.vocabulary[locale]?.length > 6
+        ) {
+          issues.push(`${topic.id}: ${locale} needs 5 or 6 vocabulary items`);
+        }
+        if (
+          topic.vocabulary[locale]?.some(
+            ({ word, translation, part }) =>
+              !word.trim() || !translation.trim() || !part.trim(),
+          )
+        ) {
+          issues.push(`${topic.id}: ${locale} contains incomplete vocabulary`);
         }
       }
     }

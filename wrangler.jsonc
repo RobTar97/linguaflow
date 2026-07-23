@@ -14,6 +14,10 @@
       {
         "name": "ROOMS",
         "class_name": "RoomCoordinator"
+      },
+      {
+        "name": "RATE_LIMITER",
+        "class_name": "ApiRateLimiter"
       }
     ]
   },
@@ -21,6 +25,10 @@
     {
       "tag": "v1",
       "new_sqlite_classes": ["RoomCoordinator"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["ApiRateLimiter"]
     }
   ]
 }

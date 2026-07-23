@@ -12,6 +12,7 @@ flowchart LR
   WS --> API[Room service client]
   API --> WORKER[Cloudflare Worker API]
   WORKER --> DO[Durable Object per room code]
+  WORKER --> RATE[Durable Object per client rate key]
   CAT --> CONTENT[Authored topic content]
   WS --> DOMAIN[Domain types]
   CAT --> DOMAIN
@@ -74,6 +75,12 @@ the same-origin Worker API. Each room code maps to one SQLite-backed Durable
 Object, which serializes joins and teacher updates and automatically expires
 after eight hours. Teacher mutations require a browser-held secret token. See
 ADR 0003.
+
+The Worker validates origin, content type, body size, room schema, participant
+schema, and teacher authorization before state changes. A separate
+`ApiRateLimiter` Durable Object class is sharded by a SHA-256-derived client key
+and keeps independent read, write, and room-creation counters. This keeps abuse
+control out of feature components and avoids a global singleton.
 
 ## Adding a backend
 

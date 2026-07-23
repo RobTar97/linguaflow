@@ -23,11 +23,17 @@ Rooms automatically expire after eight hours. Ending a room deletes its state
 immediately. LinguaFlow does not provide attendance records or permanent
 conversation history.
 
+The API derives a short SHA-256 value from the connecting network address to
+select a one-minute rate-limit bucket. The raw address is not written to
+LinguaFlow application storage. Cloudflare still processes ordinary network
+metadata as the hosting provider.
+
 ## Not collected by this repository
 
 - email addresses or account passwords;
 - audio, video, or conversation transcripts;
 - precise location, advertising identifiers, or analytics cookies;
+- third-party web fonts or browser-side AI/API requests;
 - payment information.
 
 Deployers are responsible for publishing contact details and any additional

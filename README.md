@@ -1,166 +1,241 @@
+<div align="center">
+
+![LinguaFlow — multilingual conversation practice](artifacts/linguaflow-github-banner.jpg)
+
 # LinguaFlow
 
-An open-source conversation workspace for English, Polish, and Japanese
-learners, teachers, and classrooms. LinguaFlow turns level-appropriate topics
-into guided speaking sessions with translated prompts, useful vocabulary, and
-live room synchronization on Cloudflare.
+**Conversation prompts that help people start talking—and keep talking.**
 
-![LinguaFlow learner topic browser](artifacts/linguaflow-learner-workspace.png)
+Open-source, level-aware speaking practice for English, Polish, and Japanese
+learners, teachers, and classrooms.
 
-Teachers can move from a goal-aware recommendation list into a room without
-leaving the workspace:
+[![CI](https://img.shields.io/github/actions/workflow/status/RobTar97/linguaflow/ci.yml?branch=main&style=flat-square&label=checks)](https://github.com/RobTar97/linguaflow/actions/workflows/ci.yml)
+[![MIT license](https://img.shields.io/badge/license-MIT-18181b?style=flat-square)](LICENSE)
+[![36 topics](https://img.shields.io/badge/library-36_topics-e9532b?style=flat-square)](docs/CONTENT_GUIDE.md)
+[![EN · PL · JA](https://img.shields.io/badge/languages-EN_·_PL_·_JA-2563eb?style=flat-square)](#language-coverage)
+[![Cloudflare Workers](https://img.shields.io/badge/deploy-Cloudflare_Workers-f38020?style=flat-square)](docs/DEPLOYMENT.md)
 
-![LinguaFlow teacher studio](artifacts/linguaflow-teacher-studio.png)
+[Quick start](#quick-start) · [How it works](#how-it-works) ·
+[Teaching](docs/TEACHER_GUIDE.md) · [Contributing](CONTRIBUTING.md) ·
+[Deploy](docs/DEPLOYMENT.md) · [Security](SECURITY.md)
+
+</div>
 
 ## Why LinguaFlow?
 
-Language practice often fails before the first sentence: learners do not know
-what to discuss, teachers spend time preparing prompts, and mixed-language
-groups need just enough translation support without turning the session into a
-worksheet. LinguaFlow provides a reusable conversation scaffold for all three.
+Speaking practice often stalls before the first sentence. Learners need a useful
+question, teachers need material they can trust, and multilingual groups need
+translation support that does not take over the conversation.
 
-The first public release includes:
+LinguaFlow turns an interface language, support language, target language, and
+CEFR level into a focused speaking workspace:
 
-- learner, teacher, and room-join paths;
-- explicit interface, support, and target-language setup;
-- 24 authored topics from A1 through C1;
-- English, Polish, and Japanese content and interface copy;
-- EN ↔ PL, EN ↔ JA, and PL ↔ JA topic coverage;
-- central prompts, five follow-ups, and bilingual vocabulary;
-- saved topics and local workspace persistence;
-- cross-device teacher rooms, participant presence, and synchronized questions;
-- responsive layouts, keyboard focus states, and reduced-motion support;
-- content validation tests and an original illustration system.
+- **Learners** browse, search, save, and practise topics independently.
+- **Teachers** select a topic, create a live room, and guide the active question.
+- **Students** join from another device with a short code—no account required.
+
+There is no AI answer generation, advertising, tracking SDK, external font
+request, or paid API dependency. The curriculum is human-authored and reviewable
+as TypeScript.
+
+## What is included
+
+| | Current public library |
+|---|---:|
+| Conversation topics | **36** |
+| Main + follow-up questions | **228** |
+| Translated vocabulary entries | **543** |
+| Language pairs | **3** |
+| CEFR levels | **A1–C1** |
+| Interface languages | **English, Polish, Japanese** |
+
+Each topic includes a central prompt, five or six follow-up questions, useful
+vocabulary, category and level metadata, multilingual copy, and original
+artwork. Search covers titles, descriptions, prompts, questions, and vocabulary
+in all three languages.
+
+![Learner topic browser with filters and topic details](artifacts/linguaflow-learner-workspace.png)
+
+## How it works
+
+| Role | Flow |
+|---|---|
+| Learner | Choose a learning goal → browse or search → open a topic → follow the guided questions |
+| Teacher | Choose a level and language pair → select a topic → create a room → share its code → advance the discussion |
+| Student | Open LinguaFlow on any device → enter a display name and room code → follow the synchronized question |
+
+![Teacher workspace with recommended lesson topics](artifacts/linguaflow-teacher-studio.png)
+
+![Synchronized student room on mobile](artifacts/linguaflow-live-student-mobile.png)
+
+### Language choices are intentionally separate
+
+- **Interface language** controls navigation and instructions.
+- **Support language** provides translations and explanations.
+- **Target language** is the language participants are encouraged to speak.
+- **CEFR level** controls the expected complexity.
+
+Support and target languages cannot be identical. The setup flow explains each
+choice before saving it.
+
+![Three-step LinguaFlow onboarding](artifacts/linguaflow-onboarding-release.png)
+
+## Language coverage
+
+| Pair | Topics | Guided questions | Typical uses |
+|---|---:|---:|---|
+| English ↔ Polish | 12 | 76 | independent practice, tutoring, mixed-language groups |
+| English ↔ Japanese | 12 | 76 | conversation classes, exchange sessions, self-study |
+| Polish ↔ Japanese | 12 | 76 | direct practice without routing every explanation through English |
+
+Topics span daily life, work and careers, travel and culture, relationships,
+technology, health, education, and the environment.
 
 ## Quick start
 
-Requirements: Node.js 22 or newer and npm 10 or newer.
+Requirements: Node.js 22+ and npm 10+.
 
 ```bash
+git clone https://github.com/RobTar97/linguaflow.git
+cd linguaflow
 npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite. On first launch, choose how you want to use
-LinguaFlow and set:
+Open the URL printed by Vite. Development mode uses a browser-local room
+adapter, so curriculum and UI work does not require a Cloudflare account.
 
-1. your interface language;
-2. your support language;
-3. the language you want to practise;
-4. your CEFR level.
-
-![LinguaFlow onboarding](artifacts/linguaflow-onboarding-release.png)
-
-Run the full project check before opening a pull request:
+Run the complete release gate:
 
 ```bash
 npm run check
 ```
 
-`npm run dev` uses a browser-local room adapter for fast frontend work. Use
-`npm run preview:cloudflare` to test the real Worker and Durable Object room
-backend locally.
+To exercise the real Worker, rate limiter, and Durable Objects locally:
 
-## Product flows
+```bash
+npm run preview:cloudflare
+```
 
-| Role | Entry | Core flow |
-|---|---|---|
-| Learner | Practice | Set a goal → browse or save topics → review prompts → start a guided conversation |
-| Teacher | Teach | Choose a recommended topic → set the room language and level → share the code → advance questions |
-| Student | Join room | Open LinguaFlow on any device → enter a name and room code → follow the synchronized question |
+## Deploy to Cloudflare
 
-The role switcher stays available in the main navigation, so one installation
-can be used for independent practice, lesson preparation, and classroom demos.
+LinguaFlow deploys as one Cloudflare Worker with static assets and two
+SQLite-backed Durable Object classes. It requires no application secret,
+external database, or client-side environment variable.
 
-![LinguaFlow synchronized student room](artifacts/linguaflow-live-student-mobile.png)
+```bash
+npm install
+npx wrangler login
+npm run deploy
+```
 
-## Language model
+For automated deployment, add `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID` as encrypted GitHub Actions secrets—never as source
+files, workflow literals, `VITE_*` variables, or repository variables. Follow
+the [complete deployment and rollback guide](docs/DEPLOYMENT.md).
 
-LinguaFlow treats three choices separately:
+## Architecture
 
-- **Interface language** controls navigation and instructions.
-- **Support language** supplies translations and explanations.
-- **Target language** is the language participants should speak.
+```mermaid
+flowchart LR
+  B["React browser app"] -->|"same-origin /api"| W["Cloudflare Worker"]
+  W --> A["Static assets"]
+  W --> R["RoomCoordinator<br/>one object per room"]
+  W --> L["ApiRateLimiter<br/>sharded per client"]
+  R --> E["8-hour expiry"]
+  B --> S["Local preferences<br/>and teacher token"]
+  C["Authored EN / PL / JA curriculum"] --> B
+```
 
-Support and target languages cannot be the same. A topic is eligible when it
-contains both languages, regardless of direction.
+The browser never receives Cloudflare credentials. Room reads are protected by
+an unguessable short access code; teacher mutations additionally require a
+browser-held random token. Mutating requests are same-origin only and pass
+strict schema, size, and rate checks. See the
+[architecture](docs/ARCHITECTURE.md) and
+[security model](docs/SECURITY_MODEL.md).
+
+## Security and privacy by default
+
+- no secrets are committed or compiled into browser assets;
+- no external API keys are required by the application;
+- common credential patterns are rejected by `npm run audit:secrets`;
+- GitHub Actions dependencies are pinned to immutable commit SHAs;
+- API mutations require a matching origin;
+- payloads, names, status values, and question indexes are validated;
+- request bodies are capped at 32 KB and abusive clients are rate-limited;
+- rooms expire after eight hours and can be ended immediately;
+- CSP, framing, MIME-sniffing, referrer, and permissions headers ship by default;
+- no audio, video, transcript, email address, password, analytics cookie, or
+  precise location is collected.
+
+Room codes are classroom access codes, not identity authentication. Use first
+names, initials, or classroom nicknames—never sensitive learner records. Read
+[SECURITY.md](SECURITY.md) and [the privacy boundary](docs/PRIVACY.md) before
+running an institutional deployment.
 
 ## Repository map
 
 ```text
 src/
-  catalog/       topic querying, recommendations, and validation
-  content/       authored multilingual topic data
-  domain/        shared product types
-  features/      learner, setup, teacher, and room experiences
+  catalog/       search, filtering, recommendations, validation
+  content/       authored EN/PL/JA curriculum
+  domain/        stable product types
+  features/      setup, learner, teacher, and room experiences
   i18n/          workspace interface copy
-  motion/        reusable animation presets
-  platform/      browser integrations such as storage
-  styles/        design tokens and responsive application styles
+  motion/        reusable accessible animation presets
+  platform/      browser storage and room-service adapters
+  styles/        tokens, layouts, states, responsive behavior
   ui/            shared presentational components
-  workspace/     role, route, profile, saved-topic, and room state
-worker/           Cloudflare room API and Durable Object coordinator
-docs/            product, architecture, content, motion, and role guides
-plans/           completed motion-audit records
-public/images/   project-owned topic artwork
+  workspace/     profile, role, route, saved-topic, and room state
+worker/           same-origin API, room coordinator, rate limiter
+scripts/          local release and security checks
+docs/             product, architecture, content, role, and deployment guides
+public/           metadata, headers, original artwork, social assets
 ```
 
-Start with [the architecture guide](docs/ARCHITECTURE.md) before making a
-cross-feature change. Topic contributors can go directly to
-[the content guide](docs/CONTENT_GUIDE.md).
+Start with [the architecture guide](docs/ARCHITECTURE.md) for code changes or
+[the content guide](docs/CONTENT_GUIDE.md) to add a conversation topic.
 
-## Useful commands
+## Commands
 
 | Command | Purpose |
 |---|---|
-| `npm run dev` | Start the development server |
-| `npm run build` | Type-check and create a production build |
+| `npm run dev` | Start fast frontend development |
+| `npm run test` | Run catalog and behavior tests |
+| `npm run check:content` | Validate the complete topic library |
+| `npm run audit:secrets` | Scan project text for common credential patterns |
 | `npm run lint` | Run ESLint |
-| `npm run test` | Run the Vitest suite once |
-| `npm run check:content` | Validate the authored topic catalog |
-| `npm run types:worker` | Type-check the Cloudflare Worker |
-| `npm run preview:cloudflare` | Run the complete Cloudflare app locally |
-| `npm run check` | Run every release check |
-| `npm run deploy` | Verify and deploy to Cloudflare Workers |
-
-## Release boundaries
-
-Live rooms work across devices through a Cloudflare Durable Object and expire
-after eight hours. A room code grants student access; a private teacher token
-stored in the teacher’s browser protects question controls. This first release
-does not include user accounts, attendance records, permanent room history, or
-institutional administration. Do not use room or participant names for
-sensitive student information.
-
-See [the product guide](docs/PRODUCT.md) and [roadmap](docs/ROADMAP.md) for the
-supported scope and next milestones.
-
-## Deploy to Cloudflare
-
-The application deploys as one Cloudflare Worker containing the Vite assets,
-room API, and SQLite-backed Durable Object namespace. No database ID or third-
-party backend is required.
-
-```bash
-npx wrangler login
-npm run deploy
-```
-
-For GitHub deployment, follow [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). The
-included workflow deploys `main` after CI when the Cloudflare repository
-secrets are configured.
+| `npm run build` | Type-check and create production assets |
+| `npm run types:worker` | Type-check the Worker and Durable Objects |
+| `npm run preview:cloudflare` | Run the complete production architecture locally |
+| `npm run check` | Run every required release gate |
+| `npm run deploy` | Check and deploy to Cloudflare Workers |
 
 ## Contributing
 
-Contributions are welcome across code, accessibility, translations, topic
-writing, teaching practice, and documentation. Read
-[CONTRIBUTING.md](CONTRIBUTING.md), follow the
-[Code of Conduct](CODE_OF_CONDUCT.md), and use the supplied issue templates.
+Code, accessibility fixes, teaching feedback, translations, new topics, and
+documentation improvements are welcome.
 
-Security concerns should follow [SECURITY.md](SECURITY.md), not a public issue.
-General project help is described in [SUPPORT.md](SUPPORT.md), and the release
-data boundary is documented in [docs/PRIVACY.md](docs/PRIVACY.md).
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
+2. Choose an issue form or propose a focused change.
+3. Keep curriculum natural in English, Polish, and Japanese.
+4. Run `npm run check`.
+5. Open a pull request using the supplied checklist.
 
-## License
+Community expectations are defined in the [Code of Conduct](CODE_OF_CONDUCT.md).
+General help belongs in [support channels](SUPPORT.md). Security concerns should
+use GitHub private vulnerability reporting, not a public issue.
 
-MIT. See [LICENSE](LICENSE).
+## Project status
+
+LinguaFlow is suitable for conversation practice, lesson preparation, workshops,
+and small live classroom rooms. It does not yet provide user accounts,
+institutional administration, permanent attendance, moderation tools, or
+conversation recording. These boundaries are intentional and tracked in the
+[roadmap](docs/ROADMAP.md).
+
+## License and maintenance
+
+Released under the [MIT License](LICENSE). Maintained by
+[@RobTar97](https://github.com/RobTar97); ownership rules are recorded in
+[`.github/CODEOWNERS`](.github/CODEOWNERS).

@@ -1,7 +1,7 @@
 {
   "name": "linguaflow",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Open-source English, Polish, and Japanese conversation practice for learners and teachers.",
   "license": "MIT",
   "keywords": [
@@ -15,6 +15,9 @@
     "node": ">=22",
     "npm": ">=10"
   },
+  "overrides": {
+    "sharp": "0.35.3"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,7 +29,8 @@
     "types:worker": "tsc -p tsconfig.worker.json",
     "lint": "eslint .",
     "test": "vitest run --maxWorkers=1",
-    "check": "npm run lint && npm run test && npm run build && npm run types:worker",
+    "audit:secrets": "node scripts/check-secrets.mjs",
+    "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run types:worker",
     "check:content": "vitest run --maxWorkers=1 src/catalog/topicCatalog.test.ts"
   },
   "dependencies": {
@@ -36,8 +40,8 @@
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.33.0",
     "@cloudflare/workers-types": "^5.20260719.1",
+    "@eslint/js": "^9.33.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.2",
@@ -49,6 +53,6 @@
     "typescript-eslint": "^8.39.1",
     "vite": "^7.1.2",
     "vitest": "^3.2.4",
-    "wrangler": "^4.112.0"
+    "wrangler": "^4.113.0"
   }
 }

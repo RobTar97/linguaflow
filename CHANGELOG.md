@@ -2,6 +2,13 @@
 
 All notable project changes are documented here.
 
+## 0.2.2 — 2026-07-24
+
+### Security
+
+- Removed modulo bias from cryptographically generated room codes by using
+  rejection sampling for every random character and digit.
+
 ## 0.2.1 — 2026-07-24
 
 ### Changed

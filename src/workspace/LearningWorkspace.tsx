@@ -5,6 +5,7 @@ import type {
 } from "../domain/types";
 import { browserStorage } from "../platform/storage";
 import { RoomServiceError, roomService } from "../platform/roomService";
+import { secureRandomInt } from "../platform/secureRandom";
 import { LearningWorkspaceContext } from "./context";
 import {
   workspaceDefaults,
@@ -18,12 +19,11 @@ const ACTIVE_ROOM_KEY = "linguaflow-active-room";
 
 function createRoomCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-  const random = crypto.getRandomValues(new Uint32Array(4));
   const letters = Array.from(
     { length: 3 },
-    (_, index) => alphabet[random[index] % alphabet.length],
+    () => alphabet[secureRandomInt(alphabet.length)],
   ).join("");
-  const digits = 100 + (random[3] % 900);
+  const digits = 100 + secureRandomInt(900);
   return `${letters}-${digits}`;
 }
 

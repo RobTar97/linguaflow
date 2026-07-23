@@ -71,3 +71,7 @@ Actions → Secrets**:
 
 They must not be placed in repository variables, workflow YAML literals,
 `.env`, `.dev.vars`, screenshots, issues, logs, or `VITE_*` values.
+
+After storing both secrets, create the non-sensitive Actions variable
+`CLOUDFLARE_DEPLOY_ENABLED=true`. This explicit switch prevents new forks and
+unconfigured repositories from attempting a production deployment.

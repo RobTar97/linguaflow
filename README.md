@@ -131,7 +131,8 @@ npm run deploy
 
 For automated deployment, add `CLOUDFLARE_API_TOKEN` and
 `CLOUDFLARE_ACCOUNT_ID` as encrypted GitHub Actions secrets—never as source
-files, workflow literals, `VITE_*` variables, or repository variables. Follow
+files, workflow literals, `VITE_*` variables, or repository variables. Then set
+the non-sensitive repository variable `CLOUDFLARE_DEPLOY_ENABLED=true`. Follow
 the [complete deployment and rollback guide](docs/DEPLOYMENT.md).
 
 ## Architecture

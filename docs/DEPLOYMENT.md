@@ -33,8 +33,11 @@ also be started manually. Add these encrypted repository secrets under
   Workers editing template and restricted to the deployment account;
 - `CLOUDFLARE_ACCOUNT_ID`: the target Cloudflare account ID.
 
-The workflow runs the complete release check before deployment. Pull requests
-run CI but do not deploy production.
+After both secrets exist, add the Actions repository variable
+`CLOUDFLARE_DEPLOY_ENABLED` with the value `true`. Until that opt-in exists,
+the deployment job is skipped cleanly on new repositories and forks. The
+workflow runs the complete release check before deployment. Pull requests run
+CI but do not deploy production.
 
 Store both values as **encrypted Actions secrets**, not Actions variables.
 Never place either value in `wrangler.jsonc`, a committed `.env` file, a

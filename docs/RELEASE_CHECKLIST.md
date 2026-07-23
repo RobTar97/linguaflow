@@ -30,6 +30,7 @@
 - [ ] GitHub issue forms and pull-request template render correctly.
 - [ ] Branch protection requires the CI check.
 - [ ] Cloudflare GitHub secrets are configured.
+- [ ] `CLOUDFLARE_DEPLOY_ENABLED=true` is set only after both secrets exist.
 - [ ] Production domain, repository description, and social preview are set.
 - [ ] CodeQL, Dependabot, private vulnerability reporting, and secret scanning
       are enabled.

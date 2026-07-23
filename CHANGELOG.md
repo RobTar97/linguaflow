@@ -10,6 +10,8 @@ All notable project changes are documented here.
   explicitly configures credentials and enables the deployment variable.
 - Dependabot groups compatible minor and patch updates while leaving major
   upgrades for deliberate, separately tested maintenance work.
+- Updated checkout and Node setup actions to their Node 24-backed releases,
+  retaining immutable commit-SHA pinning.
 
 ## 0.2.0 — 2026-07-23
 

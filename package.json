@@ -1,7 +1,7 @@
 {
   "name": "linguaflow",
   "private": true,
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Open-source English, Polish, and Japanese conversation practice for learners and teachers.",
   "license": "MIT",
   "keywords": [
@@ -25,13 +25,15 @@
     "preview": "npm run preview:cloudflare",
     "preview:static": "vite preview",
     "preview:cloudflare": "npm run build && wrangler dev",
-    "deploy": "npm run check && wrangler deploy",
+    "deploy": "npm run check:deploy && npm run check && wrangler deploy",
     "types:worker": "tsc -p tsconfig.worker.json",
     "lint": "eslint .",
     "test": "vitest run --maxWorkers=1",
     "audit:secrets": "node scripts/check-secrets.mjs",
+    "audit:seo": "node scripts/check-seo-output.mjs",
     "audit:performance": "node scripts/check-performance-budget.mjs",
-    "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run audit:performance && npm run types:worker",
+    "check:deploy": "node scripts/check-deploy-config.mjs",
+    "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run audit:seo && npm run audit:performance && npm run types:worker",
     "check:content": "vitest run --maxWorkers=1 src/catalog/topicCatalog.test.ts"
   },
   "dependencies": {
@@ -43,6 +45,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260729.1",
     "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.3",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.2",

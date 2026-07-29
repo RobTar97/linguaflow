@@ -17,7 +17,8 @@ learners, teachers, and classrooms.
 
 [Quick start](#quick-start) · [How it works](#how-it-works) ·
 [Teaching](docs/TEACHER_GUIDE.md) · [Contributing](CONTRIBUTING.md) ·
-[Deploy](docs/DEPLOYMENT.md) · [Security](SECURITY.md)
+[Deploy](docs/DEPLOYMENT.md) · [Search readiness](docs/SEO.md) ·
+[Security](SECURITY.md)
 
 </div>
 
@@ -33,6 +34,11 @@ CEFR level into a focused speaking workspace:
 - **Learners** browse, search, save, and practise topics independently.
 - **Teachers** send self-paced practice links or guide a synchronized live room.
 - **Students** open an invite link (or enter its short code)—no account required.
+
+The public `/` and localized topic pages are crawlable static HTML. The
+interactive learner and teacher workspace lives at `/app/` and is deliberately
+noindexed so search engines discover the durable curriculum pages instead of
+session state.
 
 There is no AI answer generation, advertising, tracking SDK, external font
 request, or paid API dependency. The curriculum is human-authored and reviewable
@@ -55,6 +61,8 @@ vocabulary, category and level metadata, multilingual copy, and original
 artwork. Gentle optional sound cues confirm question changes and successful
 classroom actions without carrying essential information. Search covers titles,
 descriptions, prompts, questions, and vocabulary in all three languages.
+Production builds also generate 144 crawlable localized topic resources from
+the same validated catalog.
 
 ![Learner topic browser with filters and topic details](artifacts/linguaflow-learner-workspace.png)
 
@@ -192,7 +200,7 @@ src/
   ui/            shared presentational components
   workspace/     profile, role, route, saved-topic, and room state
 worker/           same-origin API, room coordinator, rate limiter
-scripts/          local release and security checks
+scripts/          release, security, SEO generation, and deployment checks
 docs/             product, architecture, content, role, and deployment guides
 public/           metadata, headers, original artwork, audio, social assets
 ```
@@ -209,7 +217,9 @@ contributors should read the [sound-design guide](docs/SOUND_DESIGN.md).
 | `npm run test` | Run catalog and behavior tests |
 | `npm run check:content` | Validate the complete topic library |
 | `npm run audit:secrets` | Scan project text for common credential patterns |
-| `npm run audit:performance` | Enforce production bundle, image, and audio budgets |
+| `npm run audit:seo` | Validate generated pages, metadata, schema, sitemap, and crawl files |
+| `npm run audit:performance` | Enforce production bundle, HTML, image, and audio budgets |
+| `npm run check:deploy` | Require a final HTTPS `PUBLIC_SITE_URL` before deployment |
 | `npm run lint` | Run ESLint |
 | `npm run build` | Type-check and create production assets |
 | `npm run types:worker` | Type-check the Worker and Durable Objects |

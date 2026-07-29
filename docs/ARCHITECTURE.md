@@ -1,7 +1,9 @@
 # Architecture
 
-LinguaFlow is a client-side React application organized around product
-boundaries rather than technical file types.
+LinguaFlow combines a statically generated public curriculum site with a
+client-side React workspace at `/app/`. Both are organized around product
+boundaries rather than technical file types and are generated from the same
+validated topic catalog.
 
 ```mermaid
 flowchart LR
@@ -14,6 +16,7 @@ flowchart LR
   WORKER --> DO[Durable Object per room code]
   WORKER --> RATE[Durable Object per client rate key]
   CAT --> CONTENT[Authored topic content]
+  CAT --> SEO[Static localized search pages]
   WS --> DOMAIN[Domain types]
   CAT --> DOMAIN
   UI --> MOTION[Motion presets]
@@ -35,7 +38,10 @@ to review.
 ### `catalog`
 
 The read API over content. It owns search, filtering, recommendations, and
-validation. Feature code should not reimplement topic eligibility rules.
+validation. Feature code should not reimplement topic eligibility rules. The
+production build also reads this boundary to generate canonical language hubs,
+topic resources, schema, sitemap, robots, and AI-discovery files without
+duplicating curriculum data.
 
 ### `workspace`
 

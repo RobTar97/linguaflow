@@ -26,8 +26,6 @@ function match(html, pattern) {
 
 function textContent(html) {
   return html
-    .replace(/<script[\s\S]*?<\/script\s*>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style\s*>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/&[a-z0-9#]+;/gi, " ")
     .replace(/\s+/g, " ")
@@ -108,7 +106,11 @@ for (const file of indexablePages) {
 }
 
 const homepage = await readFile(join(DIST_DIR, "index.html"), "utf8");
-const homepageWords = textContent(homepage).split(/\s+/).filter(Boolean).length;
+const homepageMain = match(homepage, /<main[^>]*>([\s\S]*?)<\/main\s*>/i);
+if (!homepageMain) {
+  failures.push("Homepage is missing its public main content.");
+}
+const homepageWords = textContent(homepageMain).split(/\s+/).filter(Boolean).length;
 if (homepageWords < 500) {
   failures.push(`Homepage contains ${homepageWords} visible words; expected at least 500.`);
 }

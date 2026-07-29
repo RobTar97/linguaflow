@@ -10,6 +10,7 @@ teaching feedback, tests, or documentation.
 2. For a substantial product or architecture change, open a proposal first.
 3. Keep one pull request focused on one coherent outcome.
 4. Never include learner names, classroom recordings, API keys, or private data.
+5. Read [GOVERNANCE.md](GOVERNANCE.md) for decision and maintainer expectations.
 
 ## Local development
 
@@ -39,6 +40,8 @@ smoke test. `npm run dev` intentionally uses a local room adapter.
 - Keep room API behavior behind `roomService`; do not call Worker routes from UI components.
 - Preserve teacher authorization and eight-hour room expiry in backend changes.
 - Reuse motion presets and respect `prefers-reduced-motion`.
+- Keep self-paced links independent and live-room state teacher-controlled.
+- Keep questions in the target language and optional help in the support language.
 - Include tests for catalog, state, or behavior changes where practical.
 
 ### Topic cards and translations

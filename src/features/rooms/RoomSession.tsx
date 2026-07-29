@@ -3,17 +3,20 @@ import {
   ArrowRight,
   Check,
   Clipboard,
+  Link2,
   LogOut,
   MessageCircle,
   Radio,
   Users,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { topicCatalog } from "../../catalog/topicCatalog";
 import { categoryCopy } from "../../content/topics";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
-import { motionEase, questionVariants } from "../../motion/presets";
+import { motionEaseInOut, questionVariants } from "../../motion/presets";
+import { buildJoinUrl } from "../../platform/shareLinks";
+import { roomService, type RoomConnectionStatus } from "../../platform/roomService";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
 import { useLearningWorkspace } from "../../workspace/context";
 
@@ -27,16 +30,35 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
   } = useLearningWorkspace();
   const reduceMotion = useReducedMotion();
   const copy = workspaceCopy[profile!.goal.interfaceLocale];
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"code" | "link" | null>(null);
   const [controlError, setControlError] = useState("");
+  const [connectionStatus, setConnectionStatus] =
+    useState<RoomConnectionStatus>("connecting");
+  const refreshRoomRef = useRef(refreshRoom);
+  const roomCode = activeRoom?.code;
 
   useEffect(() => {
-    if (!activeRoom) return;
+    refreshRoomRef.current = refreshRoom;
+  }, [refreshRoom]);
+
+  useEffect(() => {
+    if (!roomCode) return;
+    const stop = roomService.subscribe(
+      roomCode,
+      (room) => void refreshRoomRef.current(room),
+      setConnectionStatus,
+      () => void refreshRoomRef.current(),
+    );
     const interval = window.setInterval(() => {
-      if (document.visibilityState === "visible") void refreshRoom();
-    }, 2500);
-    return () => window.clearInterval(interval);
-  }, [activeRoom, refreshRoom]);
+      if (document.visibilityState === "visible") {
+        void refreshRoomRef.current();
+      }
+    }, import.meta.env.DEV ? 1_500 : 10_000);
+    return () => {
+      stop();
+      window.clearInterval(interval);
+    };
+  }, [roomCode]);
 
   if (!activeRoom) return null;
   const topic = topicCatalog.get(activeRoom.topicId)!;
@@ -71,8 +93,14 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
 
   async function copyCode() {
     await navigator.clipboard?.writeText(activeRoom!.code);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1200);
+    setCopied("code");
+    window.setTimeout(() => setCopied(null), 1200);
+  }
+
+  async function copyInviteLink() {
+    await navigator.clipboard?.writeText(buildJoinUrl(activeRoom!.code));
+    setCopied("link");
+    window.setTimeout(() => setCopied(null), 1200);
   }
 
   return (
@@ -84,6 +112,16 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
             <p className="eyebrow">
               <Radio size={15} />
               {mode === "teacher" ? copy.liveSync : copy.waitingTeacher}
+              <span
+                className={`sync-state is-${connectionStatus}`}
+                role="status"
+              >
+                {connectionStatus === "live"
+                  ? copy.syncedLive
+                  : connectionStatus === "fallback"
+                    ? copy.syncFallback
+                    : copy.syncReconnecting}
+              </span>
             </p>
             <h1>{activeRoom.name}</h1>
             <p>
@@ -94,10 +132,16 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
           <div className="room-code-card">
             <span>{copy.roomCode}</span>
             <strong>{activeRoom.code}</strong>
-            <button type="button" onClick={copyCode}>
-              {copied ? <Check size={17} /> : <Clipboard size={17} />}
-              {copied ? copy.copied : copy.copyCode}
-            </button>
+            <div>
+              <button type="button" onClick={copyInviteLink}>
+                {copied === "link" ? <Check size={17} /> : <Link2 size={17} />}
+                {copied === "link" ? copy.inviteCopied : copy.copyInviteLink}
+              </button>
+              <button type="button" onClick={copyCode}>
+                {copied === "code" ? <Check size={17} /> : <Clipboard size={17} />}
+                {copied === "code" ? copy.copied : copy.copyCode}
+              </button>
+            </div>
           </div>
         </header>
 
@@ -116,7 +160,10 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
                 animate={{
                   transform: `scaleX(${(questionIndex + 1) / questions.length})`,
                 }}
-                transition={{ duration: reduceMotion ? 0 : 0.24, ease: motionEase }}
+                transition={{
+                  duration: reduceMotion ? 0 : 0.24,
+                  ease: motionEaseInOut,
+                }}
               />
             </div>
             <div className="presentation-question">
@@ -124,7 +171,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
                 <MessageCircle size={18} />
                 {copy.currentQuestion}
               </span>
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="sync">
                 <motion.p
                   key={questionIndex}
                   variants={questionVariants(Boolean(reduceMotion))}

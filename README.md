@@ -11,7 +11,7 @@ learners, teachers, and classrooms.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/RobTar97/linguaflow/ci.yml?branch=main&style=flat-square&label=checks)](https://github.com/RobTar97/linguaflow/actions/workflows/ci.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-18181b?style=flat-square)](LICENSE)
-[![36 topics](https://img.shields.io/badge/library-36_topics-e9532b?style=flat-square)](docs/CONTENT_GUIDE.md)
+[![48 topics](https://img.shields.io/badge/library-48_topics-e9532b?style=flat-square)](docs/CONTENT_GUIDE.md)
 [![EN · PL · JA](https://img.shields.io/badge/languages-EN_·_PL_·_JA-2563eb?style=flat-square)](#language-coverage)
 [![Cloudflare Workers](https://img.shields.io/badge/deploy-Cloudflare_Workers-f38020?style=flat-square)](docs/DEPLOYMENT.md)
 
@@ -31,8 +31,8 @@ LinguaFlow turns an interface language, support language, target language, and
 CEFR level into a focused speaking workspace:
 
 - **Learners** browse, search, save, and practise topics independently.
-- **Teachers** select a topic, create a live room, and guide the active question.
-- **Students** join from another device with a short code—no account required.
+- **Teachers** send self-paced practice links or guide a synchronized live room.
+- **Students** open an invite link (or enter its short code)—no account required.
 
 There is no AI answer generation, advertising, tracking SDK, external font
 request, or paid API dependency. The curriculum is human-authored and reviewable
@@ -42,9 +42,10 @@ as TypeScript.
 
 | | Current public library |
 |---|---:|
-| Conversation topics | **36** |
-| Main + follow-up questions | **228** |
-| Translated vocabulary entries | **543** |
+| Conversation topics | **48** |
+| Main + follow-up questions | **288** |
+| Translated vocabulary entries | **723** |
+| Visual categories | **12** |
 | Language pairs | **3** |
 | CEFR levels | **A1–C1** |
 | Interface languages | **English, Polish, Japanese** |
@@ -61,8 +62,9 @@ in all three languages.
 | Role | Flow |
 |---|---|
 | Learner | Choose a learning goal → browse or search → open a topic → follow the guided questions |
-| Teacher | Choose a level and language pair → select a topic → create a room → share its code → advance the discussion |
-| Student | Open LinguaFlow on any device → enter a display name and room code → follow the synchronized question |
+| Teacher · self-paced | Choose a topic and language direction → copy its practice link → learners advance independently |
+| Teacher · live | Choose a topic → create a room → share its invite link → advance everyone’s question |
+| Student | Open the invite, add a display name, and follow the teacher’s synchronized question |
 
 ![Teacher workspace with recommended lesson topics](artifacts/linguaflow-teacher-studio.png)
 
@@ -84,16 +86,16 @@ choice before saving it.
 
 | Pair | Topics | Guided questions | Typical uses |
 |---|---:|---:|---|
-| English ↔ Polish | 12 | 76 | independent practice, tutoring, mixed-language groups |
-| English ↔ Japanese | 12 | 76 | conversation classes, exchange sessions, self-study |
-| Polish ↔ Japanese | 12 | 76 | direct practice without routing every explanation through English |
+| English ↔ Polish | 16 | 96 | independent practice, tutoring, mixed-language groups |
+| English ↔ Japanese | 16 | 96 | conversation classes, exchange sessions, self-study |
+| Polish ↔ Japanese | 16 | 96 | direct practice without routing every explanation through English |
 
 Topics span daily life, work and careers, travel and culture, relationships,
-technology, health, education, and the environment.
+technology, health, education, environment, food, arts, science, and society.
 
 ## Quick start
 
-Requirements: Node.js 22+ and npm 10+.
+Requirements: Node.js 22.13+ and npm 10+.
 
 ```bash
 git clone https://github.com/RobTar97/linguaflow.git
@@ -139,11 +141,11 @@ the [complete deployment and rollback guide](docs/DEPLOYMENT.md).
 
 ```mermaid
 flowchart LR
-  B["React browser app"] -->|"same-origin /api"| W["Cloudflare Worker"]
+  B["React browser app"] -->|"same-origin HTTP + WebSocket"| W["Cloudflare Worker"]
   W --> A["Static assets"]
   W --> R["RoomCoordinator<br/>one object per room"]
   W --> L["ApiRateLimiter<br/>sharded per client"]
-  R --> E["8-hour expiry"]
+  R --> E["Live synchronization<br/>and 8-hour expiry"]
   B --> S["Local preferences<br/>and teacher token"]
   C["Authored EN / PL / JA curriculum"] --> B
 ```
@@ -205,6 +207,7 @@ Start with [the architecture guide](docs/ARCHITECTURE.md) for code changes or
 | `npm run test` | Run catalog and behavior tests |
 | `npm run check:content` | Validate the complete topic library |
 | `npm run audit:secrets` | Scan project text for common credential patterns |
+| `npm run audit:performance` | Enforce production bundle and image budgets |
 | `npm run lint` | Run ESLint |
 | `npm run build` | Type-check and create production assets |
 | `npm run types:worker` | Type-check the Worker and Durable Objects |
@@ -224,6 +227,8 @@ documentation improvements are welcome.
 5. Open a pull request using the supplied checklist.
 
 Community expectations are defined in the [Code of Conduct](CODE_OF_CONDUCT.md).
+Project decisions and maintainer responsibilities are defined in
+[GOVERNANCE.md](GOVERNANCE.md).
 General help belongs in [support channels](SUPPORT.md). Security concerns should
 use GitHub private vulnerability reporting, not a public issue.
 

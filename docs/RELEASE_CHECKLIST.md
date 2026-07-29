@@ -16,9 +16,13 @@
 - [ ] Fresh onboarding works in EN, PL, and JA.
 - [ ] Support and target languages cannot be identical.
 - [ ] Topic search, filters, saves, and conversation mode work.
+- [ ] All category artwork loads and question text is discoverable by search.
+- [ ] A self-paced link preserves topic, support language, target language, and
+      level while each browser advances independently.
 - [ ] Teacher creates a live room on the deployed Worker.
 - [ ] A separate browser joins and appears in the participant list.
-- [ ] Teacher question changes synchronize to the student.
+- [ ] Teacher question changes synchronize to the student over WebSocket.
+- [ ] Temporary WebSocket loss falls back to periodic room refresh.
 - [ ] Ending a room makes the code unavailable.
 - [ ] Desktop, mobile, keyboard, and reduced-motion checks pass.
 - [ ] Browser consoles and Cloudflare logs are clean.

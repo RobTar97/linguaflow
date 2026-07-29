@@ -49,6 +49,25 @@ export const categoryCopy: Record<Category, LocalizedText> = {
   ),
   Education: text("Education", "Edukacja", "教育"),
   Environment: text("Environment", "Środowisko", "環境"),
+  "Food & Cooking": text("Food & Cooking", "Jedzenie i gotowanie", "食・料理"),
+  "Arts & Media": text("Arts & Media", "Sztuka i media", "芸術・メディア"),
+  "Science & Nature": text("Science & Nature", "Nauka i natura", "科学・自然"),
+  "Society & Ideas": text("Society & Ideas", "Społeczeństwo i idee", "社会・アイデア"),
+};
+
+export const categoryDescriptions: Record<Category, LocalizedText> = {
+  "Daily Life": text("Habits, home, and everyday choices", "Nawyki, dom i codzienne wybory", "習慣、家、日々の選択"),
+  "Work & Career": text("Jobs, teamwork, and professional growth", "Praca, współpraca i rozwój zawodowy", "仕事、チーム、キャリア"),
+  "Travel & Culture": text("Places, traditions, and ways of life", "Miejsca, tradycje i style życia", "場所、伝統、暮らし"),
+  "People & Relationships": text("Connection, family, and communication", "Relacje, rodzina i komunikacja", "つながり、家族、会話"),
+  Technology: text("Digital life, tools, and the future", "Cyfrowe życie, narzędzia i przyszłość", "デジタル生活、道具、未来"),
+  "Health & Wellness": text("Energy, balance, and healthy routines", "Energia, równowaga i zdrowe nawyki", "元気、バランス、健康習慣"),
+  Education: text("Learning, teaching, and curiosity", "Nauka, nauczanie i ciekawość", "学び、教えること、好奇心"),
+  Environment: text("Cities, climate, and sustainable choices", "Miasta, klimat i odpowiedzialne wybory", "街、気候、持続可能な選択"),
+  "Food & Cooking": text("Recipes, taste, and food culture", "Przepisy, smaki i kultura jedzenia", "レシピ、味、食文化"),
+  "Arts & Media": text("Music, films, books, and expression", "Muzyka, filmy, książki i ekspresja", "音楽、映画、本、表現"),
+  "Science & Nature": text("Discovery, wildlife, and the universe", "Odkrycia, przyroda i wszechświat", "発見、生き物、宇宙"),
+  "Society & Ideas": text("Communities, trust, and shared decisions", "Społeczności, zaufanie i wspólne decyzje", "地域、信頼、共通の決定"),
 };
 
 const authoredTopics: Topic[] = [

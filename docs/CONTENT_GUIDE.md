@@ -17,11 +17,11 @@ Each topic in `src/content` contains:
 - an artwork atlas and cell index.
 
 The current editorial standard is five or six follow-ups and five vocabulary
-concepts in English, Polish, and Japanese. The public catalog contains 36
-topics, 12 for each language pair.
+concepts in English, Polish, and Japanese. The public catalog contains 48
+topics, 16 for each language pair, across 12 visual categories.
 
-Small collections live in `topics.ts`, `moreTopics.ts`, and
-`expandedTopics.ts`. Add a new collection when a focused contribution would
+Small collections live in `topics.ts`, `moreTopics.ts`, `expandedTopics.ts`,
+and `categoryTopics.ts`. Add a new collection when a focused contribution would
 make an existing file difficult to review, then register it once in
 `topicCatalog.ts`. Feature code must never import a content collection directly.
 
@@ -62,7 +62,7 @@ For each locale, verify:
 
 ## Adding artwork
 
-Topic artwork uses a 4 × 3 atlas. Set `atlas` to `1` or `2` and `artIndex` from
+Topic artwork uses a 4 × 3 atlas. Set `atlas` to `1`, `2`, or `3` and `artIndex` from
 `0` through `11`. Artwork should remain legible in both 16:9 cards and wider
 detail crops. Avoid embedded text, flags as language shorthand, logos, and
 stereotyped cultural imagery.

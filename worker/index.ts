@@ -10,6 +10,7 @@ interface Env {
 interface StoredRoom {
   room: LearningRoom;
   teacherToken: string;
+  participantTokens: Record<string, string>;
   expiresAt: number;
 }
 
@@ -112,6 +113,28 @@ export class ApiRateLimiter extends DurableObject<Env> {
 }
 
 export class RoomCoordinator extends DurableObject<Env> {
+  private broadcast(room: LearningRoom) {
+    const message = JSON.stringify({ type: "room", room });
+    for (const socket of this.ctx.getWebSockets()) {
+      try {
+        socket.send(message);
+      } catch {
+        socket.close(1011, "Room update failed");
+      }
+    }
+  }
+
+  private closeRoomSockets() {
+    const message = JSON.stringify({ type: "ended" });
+    for (const socket of this.ctx.getWebSockets()) {
+      try {
+        socket.send(message);
+      } finally {
+        socket.close(1000, "Room ended");
+      }
+    }
+  }
+
   private async storedRoom() {
     const stored = await this.ctx.storage.get<StoredRoom>("room");
     if (!stored) return null;
@@ -154,6 +177,7 @@ export class RoomCoordinator extends DurableObject<Env> {
       const stored: StoredRoom = {
         room: cleanRoom(body.room),
         teacherToken: body.teacherToken,
+        participantTokens: {},
         expiresAt,
       };
       await this.ctx.storage.put("room", stored);
@@ -164,6 +188,18 @@ export class RoomCoordinator extends DurableObject<Env> {
     const stored = await this.storedRoom();
     if (!stored) return json({ error: "Room not found or expired." }, 404);
 
+    if (
+      request.method === "GET" &&
+      url.pathname.endsWith("/live") &&
+      request.headers.get("Upgrade")?.toLowerCase() === "websocket"
+    ) {
+      const pair = new WebSocketPair();
+      const [client, server] = Object.values(pair);
+      this.ctx.acceptWebSocket(server);
+      server.send(JSON.stringify({ type: "room", room: stored.room }));
+      return new Response(null, { status: 101, webSocket: client });
+    }
+
     if (request.method === "GET") {
       return json({ room: stored.room, expiresAt: stored.expiresAt });
     }
@@ -171,6 +207,7 @@ export class RoomCoordinator extends DurableObject<Env> {
     if (request.method === "POST" && url.pathname.endsWith("/join")) {
       const body = (await request.json().catch(() => null)) as {
         participant?: RoomParticipant;
+        participantToken?: unknown;
       } | null;
       const participant = body?.participant;
       if (
@@ -181,7 +218,10 @@ export class RoomCoordinator extends DurableObject<Env> {
         typeof participant.name !== "string" ||
         !participant.name.trim() ||
         participant.name.trim().length > 50 ||
-        !["ready", "speaking", "listening"].includes(participant.status)
+        !["ready", "speaking", "listening"].includes(participant.status) ||
+        typeof body?.participantToken !== "string" ||
+        body.participantToken.length < 32 ||
+        body.participantToken.length > 256
       ) {
         return json({ error: "A student name is required." }, 400);
       }
@@ -193,6 +233,10 @@ export class RoomCoordinator extends DurableObject<Env> {
       const existing = stored.room.participants.find(
         (item) => item.id === cleanParticipant.id,
       );
+      const existingToken = stored.participantTokens?.[cleanParticipant.id];
+      if (existing && existingToken && existingToken !== body.participantToken) {
+        return json({ error: "Participant authorization required." }, 403);
+      }
       if (!existing && stored.room.participants.length >= 50) {
         return json({ error: "This room is full." }, 409);
       }
@@ -201,7 +245,10 @@ export class RoomCoordinator extends DurableObject<Env> {
             item.id === cleanParticipant.id ? cleanParticipant : item,
           )
         : [...stored.room.participants, cleanParticipant];
+      stored.participantTokens ??= {};
+      stored.participantTokens[cleanParticipant.id] = body.participantToken;
       await this.ctx.storage.put("room", stored);
+      this.broadcast(stored.room);
       return json({ room: stored.room });
     }
 
@@ -222,13 +269,40 @@ export class RoomCoordinator extends DurableObject<Env> {
       }
       stored.room.questionIndex = body.questionIndex;
       await this.ctx.storage.put("room", stored);
+      this.broadcast(stored.room);
       return json({ room: stored.room });
+    }
+
+    const participantPath = url.pathname.match(
+      /\/participants\/([0-9a-f-]{16,80})$/,
+    );
+    if (request.method === "DELETE" && participantPath) {
+      const participantId = participantPath[1];
+      const authorization = request.headers.get("Authorization");
+      const participantToken = stored.participantTokens?.[participantId];
+      if (
+        !participantToken ||
+        authorization !== `Bearer ${participantToken}`
+      ) {
+        return json({ error: "Participant authorization required." }, 403);
+      }
+      const nextParticipants = stored.room.participants.filter(
+        (participant) => participant.id !== participantId,
+      );
+      if (nextParticipants.length !== stored.room.participants.length) {
+        stored.room.participants = nextParticipants;
+        delete stored.participantTokens[participantId];
+        await this.ctx.storage.put("room", stored);
+        this.broadcast(stored.room);
+      }
+      return new Response(null, { status: 204 });
     }
 
     if (request.method === "DELETE") {
       if (!this.authorized(request, stored)) {
         return json({ error: "Teacher authorization required." }, 403);
       }
+      this.closeRoomSockets();
       await this.ctx.storage.deleteAll();
       return new Response(null, { status: 204 });
     }
@@ -252,12 +326,20 @@ export default {
 
     if (
       url.pathname !== "/api/rooms" &&
-      !/^\/api\/rooms\/[A-Z]{3}-[0-9]{3}(?:\/join)?$/.test(url.pathname)
+      !/^\/api\/rooms\/[A-Z]{3}-[0-9]{3}(?:\/(?:join|live|participants\/[0-9a-f-]{16,80}))?$/.test(
+        url.pathname,
+      )
     ) {
       return json({ error: "Not found." }, 404);
     }
 
+    const isLiveSocket =
+      url.pathname.endsWith("/live") &&
+      request.headers.get("Upgrade")?.toLowerCase() === "websocket";
     const isMutation = request.method !== "GET" && request.method !== "HEAD";
+    if (isLiveSocket && request.headers.get("Origin") !== url.origin) {
+      return json({ error: "Cross-origin requests are not allowed." }, 403);
+    }
     if (isMutation) {
       const origin = request.headers.get("Origin");
       if (origin !== url.origin) {

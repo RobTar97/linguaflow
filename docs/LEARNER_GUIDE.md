@@ -12,11 +12,18 @@
 During a guided conversation, answer aloud before moving on. Short pauses,
 restarts, and mistakes are part of useful speaking practice.
 
+### Opening a teacher’s practice link
+
+A self-paced link opens the assigned topic with the teacher’s support language,
+target language, and level already selected. You control **Next question**.
+Your progress is private to that browser tab and does not move anyone else.
+
 ## Joining a teacher
 
-Switch to **Join room**, enter your name, and type the code shown by the
-teacher. The room displays the current target-language question and optional
-support translation.
+Open the teacher’s invite link, enter your display name, and join. If links
+cannot be opened, switch to **Join room** and type the short code instead. The
+room displays the current target-language question and optional support
+translation. In a live room, only the teacher controls the shared question.
 
 On a Cloudflare deployment, rooms synchronize across devices. A room expires
 after eight hours or when the teacher ends it. Use a first name, initial, or

@@ -1,6 +1,7 @@
 import { categoryCopy, topics as coreTopics } from "../content/topics";
 import { moreTopics } from "../content/moreTopics";
 import { expandedTopics } from "../content/expandedTopics";
+import { categoryTopics } from "../content/categoryTopics";
 import type {
   Category,
   LanguageCode,
@@ -31,7 +32,25 @@ export interface TopicCatalog {
   validate(): string[];
 }
 
-const topics = [...coreTopics, ...moreTopics, ...expandedTopics];
+const topics = [...coreTopics, ...moreTopics, ...expandedTopics, ...categoryTopics];
+
+const searchIndex = new Map(
+  topics.map((topic) => [
+    topic.id,
+    [
+      ...Object.values(topic.title),
+      ...Object.values(topic.description),
+      ...Object.values(topic.mainPrompt),
+      ...Object.values(topic.followUps).flat(),
+      ...Object.values(topic.vocabulary).flatMap((items) =>
+        items.flatMap(({ word, translation }) => [word, translation]),
+      ),
+      ...Object.values(categoryCopy[topic.category]),
+    ]
+      .join(" ")
+      .toLocaleLowerCase(),
+  ]),
+);
 
 function supportsGoal(
   topic: Topic,
@@ -67,19 +86,7 @@ export const topicCatalog: TopicCatalog = {
         return false;
       }
       if (!search) return true;
-      const searchable = [
-        ...Object.values(topic.title),
-        ...Object.values(topic.description),
-        ...Object.values(topic.mainPrompt),
-        ...Object.values(topic.followUps).flat(),
-        ...Object.values(topic.vocabulary).flatMap((items) =>
-          items.flatMap(({ word, translation }) => [word, translation]),
-        ),
-        ...Object.values(categoryCopy[topic.category]),
-      ]
-        .join(" ")
-        .toLocaleLowerCase();
-      return searchable.includes(search);
+      return searchIndex.get(topic.id)?.includes(search) ?? false;
     });
   },
   recommend(goal) {

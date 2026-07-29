@@ -19,6 +19,8 @@ import type {
   WorkspaceRole,
 } from "../../domain/types";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
+import { motionEase } from "../../motion/presets";
+import { readShareIntent } from "../../platform/shareLinks";
 import { useLearningWorkspace } from "../../workspace/context";
 import { workspaceDefaults } from "../../workspace/contracts";
 import { Brand } from "../../ui/Brand";
@@ -48,20 +50,28 @@ const roleOptions = [
 
 export default function SetupFlow() {
   const { profile, completeSetup } = useLearningWorkspace();
+  const shareIntent = readShareIntent();
+  const practiceIntent = shareIntent?.kind === "practice" ? shareIntent : null;
   const [step, setStep] = useState(0);
   const [name, setName] = useState(profile?.name ?? "");
-  const [role, setRole] = useState<WorkspaceRole>(profile?.role ?? "learner");
+  const [role, setRole] = useState<WorkspaceRole>(
+    profile?.role ?? (shareIntent?.kind === "join" ? "student" : "learner"),
+  );
   const [interfaceLocale, setInterfaceLocale] = useState<Locale>(
     profile?.goal.interfaceLocale ?? workspaceDefaults.goal.interfaceLocale,
   );
   const [nativeLanguage, setNativeLanguage] = useState<LanguageCode>(
-    profile?.goal.nativeLanguage ?? workspaceDefaults.goal.nativeLanguage,
+    profile?.goal.nativeLanguage ??
+      practiceIntent?.supportLanguage ??
+      workspaceDefaults.goal.nativeLanguage,
   );
   const [targetLanguage, setTargetLanguage] = useState<LanguageCode>(
-    profile?.goal.targetLanguage ?? workspaceDefaults.goal.targetLanguage,
+    profile?.goal.targetLanguage ??
+      practiceIntent?.targetLanguage ??
+      workspaceDefaults.goal.targetLanguage,
   );
   const [level, setLevel] = useState<Level>(
-    profile?.goal.level ?? workspaceDefaults.goal.level,
+    profile?.goal.level ?? practiceIntent?.level ?? workspaceDefaults.goal.level,
   );
   const reduceMotion = useReducedMotion();
   const copy = workspaceCopy[interfaceLocale];
@@ -118,7 +128,7 @@ export default function SetupFlow() {
             </li>
           ))}
         </ol>
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           <motion.div
             key={step}
             className="setup-step"
@@ -131,7 +141,7 @@ export default function SetupFlow() {
               opacity: 0,
               transform: reduceMotion ? "none" : "translateY(-8px)",
             }}
-            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+            transition={{ duration: 0.16, ease: motionEase }}
           >
             {step === 0 ? (
               <>

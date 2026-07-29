@@ -2,6 +2,30 @@
 
 All notable project changes are documented here.
 
+## 0.3.0 — 2026-07-29
+
+### Added
+
+- Four visual categories—food, arts, science, and society—and twelve
+  fully-localized topics, bringing the library to 48 topics and 288 questions.
+- Illustrated category discovery and question-level search previews.
+- Shareable self-paced practice links that preserve topic, language direction,
+  and level without creating learner accounts or shared progress.
+- Shareable live-room invite links and hibernating Durable Object WebSocket
+  synchronization with periodic-refresh resilience.
+- Enforced JavaScript, CSS, document-asset, and image performance budgets.
+- Public project governance and an architecture decision for practice links and
+  synchronized live rooms.
+
+### Changed
+
+- Prompts and vocabulary now consistently use the target language while
+  navigation uses the interface language and optional help uses the support
+  language.
+- Topic, question, and setup transitions no longer serialize outgoing and
+  incoming content; collection layout animation and paint-heavy hover motion
+  were removed.
+
 ## 0.2.2 — 2026-07-24
 
 ### Security

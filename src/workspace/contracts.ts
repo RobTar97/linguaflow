@@ -40,7 +40,7 @@ export interface LearningWorkspaceValue {
     code: string,
     studentName: string,
   ): Promise<{ room?: LearningRoom; error?: string }>;
-  refreshRoom(): Promise<LearningRoom | null>;
+  refreshRoom(snapshot?: LearningRoom): Promise<LearningRoom | null>;
   updateRoomQuestion(index: number): Promise<void>;
   leaveRoom(endForEveryone?: boolean): Promise<void>;
   resetWorkspace(): void;

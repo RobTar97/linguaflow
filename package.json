@@ -1,7 +1,7 @@
 {
   "name": "linguaflow",
   "private": true,
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Open-source English, Polish, and Japanese conversation practice for learners and teachers.",
   "license": "MIT",
   "keywords": [
@@ -12,7 +12,7 @@
     "react"
   ],
   "engines": {
-    "node": ">=22",
+    "node": ">=22.13.0",
     "npm": ">=10"
   },
   "overrides": {
@@ -30,7 +30,8 @@
     "lint": "eslint .",
     "test": "vitest run --maxWorkers=1",
     "audit:secrets": "node scripts/check-secrets.mjs",
-    "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run types:worker",
+    "audit:performance": "node scripts/check-performance-budget.mjs",
+    "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run audit:performance && npm run types:worker",
     "check:content": "vitest run --maxWorkers=1 src/catalog/topicCatalog.test.ts"
   },
   "dependencies": {
@@ -40,19 +41,19 @@
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260719.1",
-    "@eslint/js": "^9.33.0",
+    "@cloudflare/workers-types": "^5.20260729.1",
+    "@eslint/js": "^10.0.1",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.2",
-    "eslint": "^9.33.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint": "^10.8.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^16.3.0",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.39.1",
+    "typescript-eslint": "^8.65.0",
     "vite": "^7.1.2",
     "vitest": "^3.2.4",
-    "wrangler": "^4.113.0"
+    "wrangler": "^4.115.0"
   }
 }

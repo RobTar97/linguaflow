@@ -1,14 +1,18 @@
 import { ArrowRight, Hash, LoaderCircle, Users } from "lucide-react";
 import { useState } from "react";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
+import { readShareIntent } from "../../platform/shareLinks";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
 import { useLearningWorkspace } from "../../workspace/context";
 
 export default function JoinRoom() {
   const { profile, joinRoom } = useLearningWorkspace();
   const copy = workspaceCopy[profile!.goal.interfaceLocale];
+  const invite = readShareIntent();
   const [name, setName] = useState(profile?.name ?? "");
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(
+    invite?.kind === "join" ? invite.code : "",
+  );
   const [error, setError] = useState("");
   const [joining, setJoining] = useState(false);
 

@@ -9,12 +9,13 @@ This roadmap describes direction, not delivery dates.
 - learner browsing and guided sessions;
 - teacher room builder;
 - cross-device Cloudflare room synchronization;
+- self-paced practice and live invite links;
+- explicit participant leave and reconnect identity;
 - content validation, documentation, and accessibility baseline.
 
 ## Classroom hardening
 
 - authenticated teacher and learner profiles;
-- participant reconnect and explicit leave behavior;
 - teacher locks, moderation, and session expiry;
 - privacy and data-retention controls.
 

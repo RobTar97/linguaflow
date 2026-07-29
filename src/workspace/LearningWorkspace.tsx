@@ -6,6 +6,7 @@ import type {
 import { browserStorage } from "../platform/storage";
 import { RoomServiceError, roomService } from "../platform/roomService";
 import { secureRandomInt } from "../platform/secureRandom";
+import { readShareIntent } from "../platform/shareLinks";
 import { LearningWorkspaceContext } from "./context";
 import {
   workspaceDefaults,
@@ -36,6 +37,7 @@ function initialRoute(
   activeRoom: LearningRoom | null = null,
 ): WorkspaceRoute {
   if (!profile?.setupComplete) return "setup";
+  if (readShareIntent()?.kind === "join" && !activeRoom) return "join";
   if (profile.role === "teacher") {
     return activeRoom && roomService.canControl(activeRoom.code)
       ? "teacher-room"
@@ -144,7 +146,7 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
       async joinRoom(code, studentName) {
         const normalized = code.trim().toUpperCase();
         const participant = {
-          id: crypto.randomUUID(),
+          id: roomService.participantId(normalized),
           name: studentName.trim() || profile?.name || "Student",
           status: "ready" as const,
         };
@@ -163,10 +165,10 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
           };
         }
       },
-      async refreshRoom() {
+      async refreshRoom(snapshot) {
         if (!activeRoom) return null;
         try {
-          const refreshed = await roomService.get(activeRoom.code);
+          const refreshed = snapshot ?? (await roomService.get(activeRoom.code));
           browserStorage.set(ACTIVE_ROOM_KEY, refreshed);
           setActiveRoom((current) =>
             current && JSON.stringify(current) === JSON.stringify(refreshed)
@@ -191,6 +193,8 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
       async leaveRoom(endForEveryone = false) {
         if (endForEveryone && activeRoom) {
           await roomService.end(activeRoom.code);
+        } else if (activeRoom && profile?.role === "student") {
+          await roomService.leave(activeRoom.code);
         }
         setActiveRoom(null);
         browserStorage.remove(ACTIVE_ROOM_KEY);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { topicCatalog } from "./topicCatalog";
+import { topicCatalog, topicCategories } from "./topicCatalog";
 import type { LanguageCode, Level } from "../domain/types";
 
 const pairs: Array<[LanguageCode, LanguageCode]> = [
@@ -11,7 +11,7 @@ const levels: Level[] = ["A1", "A2", "B1", "B2", "C1"];
 
 describe("topicCatalog", () => {
   it("contains a healthy starter library", () => {
-    expect(topicCatalog.all()).toHaveLength(36);
+    expect(topicCatalog.all()).toHaveLength(48);
   });
 
   it("passes authored-content validation", () => {
@@ -24,7 +24,14 @@ describe("topicCatalog", () => {
         nativeLanguage: first,
         targetLanguage: second,
       }).length,
-    ).toBeGreaterThanOrEqual(12);
+    ).toBe(16);
+  });
+
+  it("offers twelve useful categories with multiple topics each", () => {
+    expect(topicCategories).toHaveLength(12);
+    for (const category of topicCategories) {
+      expect(topicCatalog.browse({ category }).length).toBeGreaterThanOrEqual(2);
+    }
   });
 
   it("searches prompts, follow-ups, and vocabulary in every language", () => {
@@ -36,6 +43,12 @@ describe("topicCatalog", () => {
     );
     expect(topicCatalog.browse({ search: "weekly plan" })[0]?.id).toBe(
       "study-routines",
+    );
+    expect(topicCatalog.browse({ search: "市民科学" })[0]?.id).toBe(
+      "citizen-science",
+    );
+    expect(topicCatalog.browse({ search: "finansowanie publiczne" })[0]?.id).toBe(
+      "art-in-public-life",
     );
   });
 

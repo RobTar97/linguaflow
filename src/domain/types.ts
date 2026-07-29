@@ -9,7 +9,11 @@ export type Category =
   | "Technology"
   | "Health & Wellness"
   | "Education"
-  | "Environment";
+  | "Environment"
+  | "Food & Cooking"
+  | "Arts & Media"
+  | "Science & Nature"
+  | "Society & Ideas";
 
 export type LocalizedText = Record<Locale, string>;
 
@@ -30,7 +34,7 @@ export interface Topic {
   followUps: Record<Locale, string[]>;
   vocabulary: Record<Locale, VocabularyItem[]>;
   artIndex: number;
-  atlas?: 1 | 2;
+  atlas?: 1 | 2 | 3;
 }
 
 export type WorkspaceRole = "learner" | "teacher" | "student";

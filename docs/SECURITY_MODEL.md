@@ -58,12 +58,16 @@ request size, origin, and rate limits.
 - Teacher actions require a separate UUID token held only by the creating
   browser. The token is sent in an `Authorization` header and is never returned
   in room responses.
+- Participant removal requires a separate browser-held UUID token created when
+  joining. Public participant IDs alone cannot remove someone from a room.
 - Tokens and room references are removed from the browser when a teacher ends a
   room.
 
 ### Request handling
 
 - Mutation requests must have an `Origin` equal to the deployment origin.
+- WebSocket upgrades require `GET`, an upgrade header, and the same deployment
+  origin before they reach a room object.
 - JSON is required for mutation bodies other than `DELETE`.
 - Bodies are limited to 32 KB even when `Content-Length` is absent.
 - Room codes, language codes, CEFR levels, names, participant status, topic IDs,
@@ -81,6 +85,10 @@ The supplied headers restrict scripts, network connections, fonts, images,
 forms, framing, referrers, device permissions, and MIME interpretation. The
 frontend is self-contained and makes no browser request to an analytics,
 advertising, font, or AI provider.
+
+Self-paced URLs contain only a topic ID, language direction, and level. Live
+invite URLs contain only the temporary room code. Neither URL includes a
+teacher token, learner identity, answer, or transcript.
 
 ## Retention
 

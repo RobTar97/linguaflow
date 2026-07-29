@@ -7,7 +7,7 @@ to accept contributions.
 
 Use the following repository description:
 
-> Open-source EN/PL/JA conversation practice with 36 CEFR-aligned topics and
+> Open-source EN/PL/JA conversation practice with 48 CEFR-aligned topics and
 > live teacher-led rooms on Cloudflare.
 
 Recommended topics:

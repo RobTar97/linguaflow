@@ -1,6 +1,7 @@
 import type { Variants } from "framer-motion";
 
 export const motionEase = [0.23, 1, 0.32, 1] as const;
+export const motionEaseInOut = [0.77, 0, 0.175, 1] as const;
 
 export const contentListVariants: Variants = {
   hidden: {},
@@ -14,7 +15,7 @@ export function contentItemVariants(
   return {
     hidden: {
       opacity: 0,
-      transform: reduceMotion ? "none" : "translateY(8px)",
+      transform: reduceMotion ? "none" : "translateY(4px)",
     },
     visible: {
       opacity: 1,
@@ -42,12 +43,12 @@ export function questionVariants(reduceMotion: boolean): Variants {
     visible: {
       opacity: 1,
       transform: "none",
-      transition: { duration: reduceMotion ? 0.12 : 0.18, ease: motionEase },
+      transition: { duration: reduceMotion ? 0.1 : 0.14, ease: motionEase },
     },
     exit: {
       opacity: 0,
-      transform: reduceMotion ? "none" : "translateY(-7px)",
-      transition: { duration: reduceMotion ? 0.1 : 0.14, ease: motionEase },
+      transform: "none",
+      transition: { duration: 0.1, ease: motionEase },
     },
   };
 }

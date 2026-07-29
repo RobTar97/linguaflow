@@ -6,6 +6,7 @@ import {
   Presentation,
   Radio,
   LoaderCircle,
+  Link2,
   Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -13,6 +14,7 @@ import { topicCatalog } from "../../catalog/topicCatalog";
 import { categoryCopy, localeNames } from "../../content/topics";
 import type { LanguageCode, Level } from "../../domain/types";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
+import { buildPracticeUrl } from "../../platform/shareLinks";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
 import { useLearningWorkspace } from "../../workspace/context";
 
@@ -40,6 +42,7 @@ export default function TeacherStudio() {
   const [level, setLevel] = useState<Level>(goal.level);
   const [creating, setCreating] = useState(false);
   const [roomError, setRoomError] = useState("");
+  const [practiceCopied, setPracticeCopied] = useState(false);
   const topic = topicCatalog.get(selectedTopicId)!;
 
   async function handleCreateRoom() {
@@ -58,6 +61,19 @@ export default function TeacherStudio() {
     } finally {
       setCreating(false);
     }
+  }
+
+  async function copyPracticeLink() {
+    await navigator.clipboard?.writeText(
+      buildPracticeUrl({
+        topicId: selectedTopicId,
+        targetLanguage,
+        supportLanguage,
+        level,
+      }),
+    );
+    setPracticeCopied(true);
+    window.setTimeout(() => setPracticeCopied(false), 1_500);
   }
 
   return (
@@ -229,6 +245,26 @@ export default function TeacherStudio() {
                 <span>
                   <Users size={15} /> 2–12
                 </span>
+              </div>
+              <div className="teaching-paths">
+                <div>
+                  <strong>{copy.selfPaced}</strong>
+                  <span>{copy.selfPacedHint}</span>
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    onClick={() => void copyPracticeLink()}
+                  >
+                    {practiceCopied ? <Check size={17} /> : <Link2 size={17} />}
+                    {practiceCopied
+                      ? copy.practiceLinkCopied
+                      : copy.copyPracticeLink}
+                  </button>
+                </div>
+                <div>
+                  <strong>{copy.liveTogether}</strong>
+                  <span>{copy.liveTogetherHint}</span>
+                </div>
               </div>
               <button
                 className="primary-button"

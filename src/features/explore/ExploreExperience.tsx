@@ -21,15 +21,22 @@ import {
   type CSSProperties,
 } from "react";
 import { topicCatalog, topicCategories, cefrLevels } from "../../catalog/topicCatalog";
-import { categoryCopy, localeNames, uiCopy } from "../../content/topics";
+import {
+  categoryCopy,
+  categoryDescriptions,
+  localeNames,
+  uiCopy,
+} from "../../content/topics";
 import type { Category, Level, Locale, Topic } from "../../domain/types";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
 import {
   contentItemVariants,
   contentListVariants,
   motionEase,
+  motionEaseInOut,
   questionVariants,
 } from "../../motion/presets";
+import { readShareIntent } from "../../platform/shareLinks";
 import { useLearningWorkspace } from "../../workspace/context";
 
 const topics = topicCatalog.all();
@@ -61,17 +68,50 @@ function ExploreExperience() {
   const goal = profile!.goal;
   const locale = goal.interfaceLocale;
   const view = route === "saved" ? "saved" : "browse";
-  const [selectedId, setSelectedId] = useState(topics[0].id);
+  const practiceIntent = useMemo(() => {
+    const intent = readShareIntent();
+    if (intent?.kind !== "practice") return null;
+    const topic = topicCatalog.get(intent.topicId);
+    return topic &&
+      topic.languages.includes(intent.targetLanguage) &&
+      topic.languages.includes(intent.supportLanguage)
+      ? intent
+      : null;
+  }, []);
+  const activeTargetLanguage =
+    practiceIntent?.targetLanguage ?? goal.targetLanguage;
+  const activeSupportLanguage =
+    practiceIntent?.supportLanguage ?? goal.nativeLanguage;
+  const [selectedId, setSelectedId] = useState(
+    practiceIntent?.topicId ?? topics[0].id,
+  );
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Category | "all">("all");
-  const [level, setLevel] = useState<Level | "all">(goal.level);
+  const [level, setLevel] = useState<Level | "all">(
+    practiceIntent?.level ?? goal.level,
+  );
   const [pair, setPair] = useState<(typeof pairs)[number] | "all">(
-    pairForLanguages(goal.nativeLanguage, goal.targetLanguage),
+    pairForLanguages(activeSupportLanguage, activeTargetLanguage),
   );
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
-  const [sessionOpen, setSessionOpen] = useState(false);
+  const [sessionOpen, setSessionOpen] = useState(Boolean(practiceIntent));
   const copy = uiCopy[locale];
+
+  const categoryCounts = useMemo(() => {
+    const [first, second] =
+      pair === "all" ? [undefined, undefined] : pair.split("-");
+    return new Map(
+      categories.map((item) => [
+        item,
+        topicCatalog.browse({
+          category: item,
+          nativeLanguage: first as Locale | undefined,
+          targetLanguage: second as Locale | undefined,
+        }).length,
+      ]),
+    );
+  }, [pair]);
 
   const visibleTopics = useMemo(() => {
     const [first, second] = pair === "all" ? [undefined, undefined] : pair.split("-");
@@ -102,6 +142,13 @@ function ExploreExperience() {
     setLevel(goal.level);
     setPair(pairForLanguages(goal.nativeLanguage, goal.targetLanguage));
     setQuery("");
+  }
+
+  function closeSession() {
+    setSessionOpen(false);
+    if (practiceIntent && typeof window !== "undefined") {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }
 
   return (
@@ -136,10 +183,12 @@ function ExploreExperience() {
               <div className="active-learning-goal">
                 <Languages size={15} />
                 <span>
-                  {localeNames[goal.nativeLanguage]} →{" "}
-                  <strong>{localeNames[goal.targetLanguage]}</strong>
+                  {localeNames[activeSupportLanguage]} →{" "}
+                  <strong>{localeNames[activeTargetLanguage]}</strong>
                 </span>
-                <span className="level-tag">{goal.level}</span>
+                <span className="level-tag">
+                  {practiceIntent?.level ?? goal.level}
+                </span>
                 <button type="button" onClick={() => navigate("setup")}>
                   Change
                 </button>
@@ -154,6 +203,18 @@ function ExploreExperience() {
               {copy.filters}
             </button>
           </div>
+
+          {view === "browse" ? (
+            <CategoryExplorer
+              locale={locale}
+              selected={category}
+              counts={categoryCounts}
+              onSelect={(nextCategory) => {
+                setCategory(nextCategory);
+                setLevel("all");
+              }}
+            />
+          ) : null}
 
           <FilterBar
             locale={locale}
@@ -176,41 +237,50 @@ function ExploreExperience() {
             </span>
           </div>
 
-          {visibleTopics.length ? (
-            <motion.div
-              className="topic-grid"
-              layout
-              variants={contentListVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <AnimatePresence mode="popLayout" initial={false}>
-                {visibleTopics.map((topic, index) => (
-                  <TopicCard
-                    key={topic.id}
-                    topic={topic}
-                    locale={locale}
-                    selected={topic.id === selected.id}
-                    saved={savedIds.includes(topic.id)}
-                    onSelect={() => selectTopic(topic)}
-                    onSave={() => toggleSaved(topic.id)}
-                    savedLabel={copy.savedLabel}
-                    saveLabel={copy.save}
-                    motionIndex={index}
-                  />
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          ) : (
-            <EmptyState
-              saved={view === "saved" && savedIds.length === 0}
-              copy={copy}
-              onAction={() => {
-                clearFilters();
-                navigate("explore");
-              }}
-            />
-          )}
+          <AnimatePresence mode="sync" initial={false}>
+            {visibleTopics.length ? (
+              <motion.div
+                key="topic-results"
+                className="topic-grid"
+                variants={contentListVariants}
+                initial="hidden"
+                animate="visible"
+                exit={{ opacity: 0, transition: { duration: 0.1 } }}
+              >
+                <AnimatePresence initial={false}>
+                  {visibleTopics.map((topic, index) => (
+                    <TopicCard
+                      key={topic.id}
+                      topic={topic}
+                      locale={locale}
+                      selected={topic.id === selected.id}
+                      saved={savedIds.includes(topic.id)}
+                      onSelect={() => selectTopic(topic)}
+                      onSave={() => toggleSaved(topic.id)}
+                      savedLabel={copy.savedLabel}
+                      saveLabel={copy.save}
+                      motionIndex={index}
+                      matchingQuestion={findMatchingQuestion(
+                        topic,
+                        query,
+                        locale,
+                      )}
+                    />
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            ) : (
+              <EmptyState
+                key="empty-results"
+                saved={view === "saved" && savedIds.length === 0}
+                copy={copy}
+                onAction={() => {
+                  clearFilters();
+                  navigate("explore");
+                }}
+              />
+            )}
+          </AnimatePresence>
         </section>
 
         <aside
@@ -225,6 +295,7 @@ function ExploreExperience() {
             onStart={() => setSessionOpen(true)}
             onCloseMobile={() => setMobileDetailOpen(false)}
             copy={copy}
+            questionLocale={activeTargetLanguage}
           />
         </aside>
       </main>
@@ -251,8 +322,10 @@ function ExploreExperience() {
           <ConversationMode
             topic={selected}
             locale={locale}
+            questionLocale={activeTargetLanguage}
+            supportLocale={activeSupportLanguage}
             copy={copy}
-            onClose={() => setSessionOpen(false)}
+            onClose={closeSession}
           />
         ) : null}
       </AnimatePresence>
@@ -371,6 +444,94 @@ function Header({
   );
 }
 
+function CategoryExplorer({
+  locale,
+  selected,
+  counts,
+  onSelect,
+}: {
+  locale: Locale;
+  selected: Category | "all";
+  counts: Map<Category, number>;
+  onSelect: (category: Category | "all") => void;
+}) {
+  return (
+    <section className="category-explorer" aria-labelledby="category-heading">
+      <div className="category-explorer-heading">
+        <div>
+          <p className="section-label" id="category-heading">
+            <SlidersHorizontal size={16} />
+            {uiCopy[locale].allCategories}
+          </p>
+          <p>
+            {selected === "all"
+              ? uiCopy[locale].subheading
+              : categoryDescriptions[selected][locale]}
+          </p>
+        </div>
+        {selected !== "all" ? (
+          <button type="button" onClick={() => onSelect("all")}>
+            {uiCopy[locale].clear}
+          </button>
+        ) : null}
+      </div>
+      <div className="category-grid">
+        {categories.map((item, index) => {
+          const column = index % 4;
+          const row = Math.floor(index / 4);
+          const style = {
+            "--category-x": `${column * 33.333}%`,
+            "--category-y": `${row * 50}%`,
+          } as CSSProperties;
+          return (
+            <button
+              className={selected === item ? "is-selected" : ""}
+              type="button"
+              key={item}
+              onClick={() => onSelect(selected === item ? "all" : item)}
+              aria-pressed={selected === item}
+              disabled={(counts.get(item) ?? 0) === 0}
+            >
+              <span
+                className="category-art"
+                style={style}
+                role="img"
+                aria-label={categoryCopy[item][locale]}
+              />
+              <span>
+                <strong>{categoryCopy[item][locale]}</strong>
+                <small>
+                  {counts.get(item) ?? 0} {uiCopy[locale].topics}
+                </small>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function findMatchingQuestion(topic: Topic, query: string, locale: Locale) {
+  const normalized = query.trim().toLocaleLowerCase();
+  if (normalized.length < 2) return undefined;
+  const localeOrder = [
+    locale,
+    ...(["EN", "PL", "JA"] as Locale[]).filter((item) => item !== locale),
+  ];
+  for (const questionLocale of localeOrder) {
+    const questions = [
+      topic.mainPrompt[questionLocale],
+      ...topic.followUps[questionLocale],
+    ];
+    const match = questions.find((question) =>
+      question.toLocaleLowerCase().includes(normalized),
+    );
+    if (match) return match;
+  }
+  return undefined;
+}
+
 interface FilterProps {
   locale: Locale;
   category: Category | "all";
@@ -461,6 +622,7 @@ function TopicCard({
   saveLabel,
   savedLabel,
   motionIndex,
+  matchingQuestion,
 }: {
   topic: Topic;
   locale: Locale;
@@ -471,11 +633,11 @@ function TopicCard({
   saveLabel: string;
   savedLabel: string;
   motionIndex: number;
+  matchingQuestion?: string;
 }) {
   const reduceMotion = useReducedMotion();
   return (
     <motion.article
-      layout
       variants={contentItemVariants(Boolean(reduceMotion), motionIndex)}
       initial="hidden"
       animate="visible"
@@ -487,6 +649,12 @@ function TopicCard({
         <span className="topic-card-content">
           <strong>{topic.title[locale]}</strong>
           <span className="topic-description">{topic.description[locale]}</span>
+          {matchingQuestion ? (
+            <span className="matching-question">
+              <MessageCircle size={13} aria-hidden="true" />
+              {matchingQuestion}
+            </span>
+          ) : null}
           <span className="topic-card-tags">
             <span className="category-tag">
               {categoryCopy[topic.category][locale]}
@@ -542,6 +710,7 @@ function TopicDetail({
   onStart,
   onCloseMobile,
   copy,
+  questionLocale,
 }: {
   topic: Topic;
   locale: Locale;
@@ -550,6 +719,7 @@ function TopicDetail({
   onStart: () => void;
   onCloseMobile: () => void;
   copy: (typeof uiCopy)[Locale];
+  questionLocale: Locale;
 }) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const reduceMotion = useReducedMotion();
@@ -561,7 +731,7 @@ function TopicDetail({
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="sync">
       <motion.div
         key={topic.id}
         className="detail-panel"
@@ -569,12 +739,16 @@ function TopicDetail({
           opacity: 0,
           transform: reduceMotion ? "none" : "translateX(12px)",
         }}
-        animate={{ opacity: 1, transform: "none" }}
+        animate={{
+          opacity: 1,
+          transform: "none",
+          transition: { duration: 0.16, ease: motionEase },
+        }}
         exit={{
           opacity: 0,
-          transform: reduceMotion ? "none" : "translateX(-8px)",
+          transform: "none",
+          transition: { duration: 0.1, ease: motionEase },
         }}
-        transition={{ duration: 0.2, ease: motionEase }}
       >
         <button
           className="mobile-back"
@@ -624,7 +798,7 @@ function TopicDetail({
             <MessageCircle size={17} />
             {copy.mainPrompt}
           </p>
-          <p className="main-question">{topic.mainPrompt[locale]}</p>
+          <p className="main-question">{topic.mainPrompt[questionLocale]}</p>
         </section>
 
         <section className="detail-section">
@@ -633,7 +807,7 @@ function TopicDetail({
             {copy.followUps}
           </p>
           <ol className="question-list">
-            {topic.followUps[locale].map((question, index) => (
+            {topic.followUps[questionLocale].map((question, index) => (
               <li key={question}>
                 <span className="question-number">{index + 1}</span>
                 <span>{question}</span>
@@ -659,7 +833,7 @@ function TopicDetail({
             {copy.vocabulary}
           </p>
           <div className="vocabulary-grid">
-            {topic.vocabulary[locale].map((item) => (
+            {topic.vocabulary[questionLocale].map((item) => (
               <div className="vocabulary-item" key={`${item.word}-${item.translation}`}>
                 <span>
                   <strong>{item.word}</strong>
@@ -700,8 +874,18 @@ function EmptyState({
   copy: (typeof uiCopy)[Locale];
   onAction: () => void;
 }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <div className="empty-state">
+    <motion.div
+      className="empty-state"
+      initial={{ opacity: 0, transform: reduceMotion ? "none" : "scale(0.99)" }}
+      animate={{
+        opacity: 1,
+        transform: "none",
+        transition: { duration: reduceMotion ? 0.1 : 0.16, ease: motionEase },
+      }}
+      exit={{ opacity: 0, transition: { duration: 0.1, ease: motionEase } }}
+    >
       <span>
         {saved ? <Bookmark size={28} /> : <Search size={28} />}
       </span>
@@ -710,7 +894,7 @@ function EmptyState({
       <button className="secondary-button" type="button" onClick={onAction}>
         {saved ? copy.browseAction : copy.clear}
       </button>
-    </div>
+    </motion.div>
   );
 }
 
@@ -754,15 +938,26 @@ function MobileFilters({
 function ConversationMode({
   topic,
   locale,
+  questionLocale,
+  supportLocale,
   copy,
   onClose,
 }: {
   topic: Topic;
   locale: Locale;
+  questionLocale: Locale;
+  supportLocale: Locale;
   copy: (typeof uiCopy)[Locale];
   onClose: () => void;
 }) {
-  const questions = [topic.mainPrompt[locale], ...topic.followUps[locale]];
+  const questions = [
+    topic.mainPrompt[questionLocale],
+    ...topic.followUps[questionLocale],
+  ];
+  const supportQuestions = [
+    topic.mainPrompt[supportLocale],
+    ...topic.followUps[supportLocale],
+  ];
   const [questionIndex, setQuestionIndex] = useState(0);
   const isLast = questionIndex === questions.length - 1;
   const reduceMotion = useReducedMotion();
@@ -778,12 +973,14 @@ function ConversationMode({
         className="session-panel"
         initial={{
           opacity: 0,
-          transform: reduceMotion ? "none" : "translateY(24px) scale(0.98)",
+          y: reduceMotion ? 0 : 24,
+          scale: reduceMotion ? 1 : 0.98,
         }}
-        animate={{ opacity: 1, transform: "none" }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{
           opacity: 0,
-          transform: reduceMotion ? "none" : "translateY(16px) scale(0.99)",
+          y: reduceMotion ? 0 : 16,
+          scale: reduceMotion ? 1 : 0.99,
         }}
         transition={reduceMotion ? { duration: 0.12 } : spring}
         aria-modal="true"
@@ -824,7 +1021,7 @@ function ConversationMode({
               }}
               transition={{
                 duration: reduceMotion ? 0 : 0.24,
-                ease: [0.23, 1, 0.32, 1],
+                ease: motionEaseInOut,
               }}
               role="progressbar"
               aria-valuemin={1}
@@ -838,7 +1035,7 @@ function ConversationMode({
           <span>
             {copy.question} {questionIndex + 1}
           </span>
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="sync">
             <motion.p
               key={questionIndex}
               variants={questionVariants(Boolean(reduceMotion))}
@@ -849,11 +1046,17 @@ function ConversationMode({
               {questions[questionIndex]}
             </motion.p>
           </AnimatePresence>
+          {supportLocale !== questionLocale ? (
+            <details className="session-support">
+              <summary>{workspaceCopy[locale].supportTranslation}</summary>
+              <p>{supportQuestions[questionIndex]}</p>
+            </details>
+          ) : null}
           <small>{copy.sessionHint}</small>
         </div>
 
         <div className="session-vocab">
-          {topic.vocabulary[locale].slice(0, 4).map((item) => (
+          {topic.vocabulary[questionLocale].slice(0, 4).map((item) => (
             <span key={item.word}>
               <strong>{item.word}</strong>
               {item.translation}

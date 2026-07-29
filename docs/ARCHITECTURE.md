@@ -10,7 +10,7 @@ flowchart LR
   UI --> I18N[Interface copy]
   WS --> STORE[Browser storage adapter]
   WS --> API[Room service client]
-  API --> WORKER[Cloudflare Worker API]
+  API -->|HTTP + WebSocket| WORKER[Cloudflare Worker API]
   WORKER --> DO[Durable Object per room code]
   WORKER --> RATE[Durable Object per client rate key]
   CAT --> CONTENT[Authored topic content]
@@ -74,7 +74,13 @@ Development mode uses browser-local rooms for fast UI work. Production calls
 the same-origin Worker API. Each room code maps to one SQLite-backed Durable
 Object, which serializes joins and teacher updates and automatically expires
 after eight hours. Teacher mutations require a browser-held secret token. See
-ADR 0003.
+ADR 0003. A hibernating WebSocket subscription broadcasts room snapshots;
+visible tabs also perform an infrequent HTTP refresh so a temporary connection
+failure cannot leave the classroom stale. See ADR 0004.
+
+Self-paced practice links do not use room state. Their validated query
+parameters identify the topic, support language, target language, and level;
+each browser owns its own question index.
 
 The Worker validates origin, content type, body size, room schema, participant
 schema, and teacher authorization before state changes. A separate
@@ -87,10 +93,9 @@ control out of feature components and avoids a global singleton.
 Keep feature contracts stable and replace implementations behind boundaries:
 
 1. add authenticated profile and saved-topic repositories;
-2. replace polling with a hibernatable WebSocket subscription;
-3. add explicit participant leave and reconnect identity;
-4. add institutional moderation and retention controls;
-5. preserve the catalog as a pure read model unless content becomes remote.
+2. add authenticated participant identity across devices;
+3. add institutional moderation and retention controls;
+4. preserve the catalog as a pure read model unless content becomes remote.
 
 ## Architectural rules
 

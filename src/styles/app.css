@@ -36,6 +36,8 @@
     0 14px 38px rgba(57, 45, 36, 0.065);
   --topic-atlas: url("/images/linguaflow-topic-atlas.jpg");
   --topic-atlas-2: url("/images/linguaflow-topic-atlas-2.jpg");
+  --topic-atlas-3: url("/images/linguaflow-topic-atlas-3.jpg");
+  --category-atlas: url("/images/linguaflow-category-atlas.jpg");
   --duration-fast: 120ms;
   --duration-normal: 200ms;
   --duration-moderate: 280ms;
@@ -351,6 +353,103 @@ a:focus-visible {
   display: none;
 }
 
+.category-explorer {
+  margin: 22px 0;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.category-explorer-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.category-explorer-heading .section-label {
+  margin: 0;
+}
+
+.category-explorer-heading p:last-child {
+  margin: 5px 0 0;
+  color: var(--ink-2);
+  font-size: 11px;
+}
+
+.category-explorer-heading button {
+  border: 0;
+  color: var(--brand-dark);
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.category-grid > button {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+  background: white;
+  transition:
+    border-color var(--duration-fast),
+    background var(--duration-fast),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.category-grid > button:hover,
+.category-grid > button.is-selected {
+  border-color: var(--brand);
+  background: var(--brand-subtle);
+}
+
+.category-grid > button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.category-art {
+  width: 48px;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  background-color: #eadfcf;
+  background-image: var(--category-atlas);
+  background-position: var(--category-x) var(--category-y);
+  background-size: 400% 300%;
+}
+
+.category-grid strong,
+.category-grid small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-grid strong {
+  font-size: 10px;
+}
+
+.category-grid small {
+  margin-top: 3px;
+  color: var(--ink-3);
+  font-size: 8px;
+  font-weight: 700;
+}
+
 .filter-bar {
   display: flex;
   min-height: 42px;
@@ -453,16 +552,12 @@ a:focus-visible {
   box-shadow: 0 1px 0 rgba(57, 45, 36, 0.02);
   transition:
     border-color var(--duration-normal) var(--ease-standard),
-    box-shadow var(--duration-normal) var(--ease-standard),
     transform var(--duration-normal) var(--ease-standard);
 }
 
 .topic-card:hover {
   z-index: 1;
   border-color: var(--border-strong);
-  box-shadow:
-    0 2px 4px rgba(57, 45, 36, 0.05),
-    0 14px 28px rgba(57, 45, 36, 0.09);
 }
 
 .topic-card.is-selected {
@@ -495,6 +590,10 @@ a:focus-visible {
 
 .topic-art[data-atlas="2"] {
   background-image: var(--topic-atlas-2);
+}
+
+.topic-art[data-atlas="3"] {
+  background-image: var(--topic-atlas-3);
 }
 
 .topic-art.art-0 {
@@ -579,6 +678,25 @@ a:focus-visible {
   line-height: 1.52;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.matching-question {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 8px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+  font-size: 10px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.matching-question svg {
+  margin-right: 4px;
+  vertical-align: -2px;
 }
 
 .topic-card-tags {
@@ -1178,9 +1296,17 @@ a:focus-visible {
 .header-icon-button:active,
 .save-icon:active,
 .detail-save-icon:active,
+.category-grid > button:active,
+.teacher-topic-list button:active,
+.room-code-card button:active,
+.main-nav button:active,
+.header-search button:active,
+.reset-button:active,
+.role-options button:active,
+.level-picker button:active,
 .topic-card-hitbox:active {
   transform: scale(0.97);
-  transition: transform 140ms var(--ease-out);
+  transition: transform var(--duration-fast) var(--ease-out);
 }
 
 .session-question-wrap {
@@ -1197,6 +1323,24 @@ a:focus-visible {
   background:
     radial-gradient(circle at 50% -20%, rgba(201, 62, 31, 0.14), transparent 16rem),
     var(--brand-subtle);
+}
+
+.session-support {
+  width: min(560px, 100%);
+  margin-top: 16px;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.session-support summary {
+  color: var(--brand-dark);
+  font-weight: 700;
+}
+
+.session-support p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .session-question-wrap > span {
@@ -1452,7 +1596,7 @@ a:focus-visible {
   gap: 7px;
   padding: 7px 9px;
   border-radius: 10px;
-  color: var(--ink-3);
+  color: var(--ink-2);
   background: var(--surface-muted);
   transition: background var(--duration-normal), color var(--duration-normal);
 }
@@ -1463,7 +1607,7 @@ a:focus-visible {
   height: 24px;
   place-items: center;
   border-radius: 50%;
-  color: var(--ink-3);
+  color: var(--ink-2);
   background: white;
   font-size: 10px;
   font-weight: 800;
@@ -1962,6 +2106,41 @@ a:focus-visible {
   font-weight: 700;
 }
 
+.teaching-paths {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.teaching-paths > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-muted);
+}
+
+.teaching-paths strong {
+  font-size: 11px;
+}
+
+.teaching-paths span {
+  min-height: 30px;
+  color: var(--ink-3);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.teaching-paths .secondary-button {
+  min-height: 36px;
+  margin-top: auto;
+  padding: 0 9px;
+  font-size: 9px;
+}
+
 /* Join and room */
 
 .join-room-page {
@@ -2059,6 +2238,13 @@ a:focus-visible {
   letter-spacing: 0.09em;
 }
 
+.room-code-card > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .room-code-card button {
   display: inline-flex;
   width: fit-content;
@@ -2070,6 +2256,24 @@ a:focus-visible {
   background: transparent;
   font-size: 9px;
   font-weight: 700;
+}
+
+.sync-state {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 5px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  color: var(--ink-3);
+  background: var(--surface-muted);
+  font-size: 8px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.sync-state.is-live {
+  color: var(--success);
+  background: var(--success-soft);
 }
 
 .room-session-layout {
@@ -2306,6 +2510,10 @@ a:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .category-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .header-search {
     width: 180px;
   }
@@ -2369,6 +2577,17 @@ a:focus-visible {
 
   .topic-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scroll-snap-type: x proximity;
+  }
+
+  .category-grid > button {
+    scroll-snap-align: start;
   }
 
   .detail-column {
@@ -2536,6 +2755,15 @@ a:focus-visible {
     gap: 12px;
   }
 
+  .category-explorer {
+    margin-block: 17px;
+    padding: 12px;
+  }
+
+  .category-explorer-heading p:last-child {
+    max-width: 36ch;
+  }
+
   .topic-card-hitbox {
     display: grid;
     grid-template-columns: 124px 1fr;
@@ -2557,6 +2785,10 @@ a:focus-visible {
 
   .topic-card-tags {
     margin-top: 8px;
+  }
+
+  .teaching-paths {
+    grid-template-columns: 1fr;
   }
 
   .save-icon {
@@ -2762,7 +2994,7 @@ a:focus-visible {
   }
 
   .spin-icon {
-    animation-duration: 1600ms;
+    animation: none;
   }
 
   .topic-card:hover,
@@ -2774,6 +3006,14 @@ a:focus-visible {
   .header-icon-button:active,
   .save-icon:active,
   .detail-save-icon:active,
+  .category-grid > button:active,
+  .teacher-topic-list button:active,
+  .room-code-card button:active,
+  .main-nav button:active,
+  .header-search button:active,
+  .reset-button:active,
+  .role-options button:active,
+  .level-picker button:active,
   .topic-card-hitbox:active {
     transform: none !important;
   }

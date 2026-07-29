@@ -58,7 +58,7 @@ export function readShareIntent(search = currentSearch()): ShareIntent | null {
 }
 
 export function buildJoinUrl(code: string, base = currentUrl()) {
-  const url = new URL("/", base);
+  const url = new URL("/app/", base);
   url.searchParams.set("room", code.trim().toUpperCase());
   return url.toString();
 }
@@ -67,7 +67,7 @@ export function buildPracticeUrl(
   state: PracticeLinkState,
   base = currentUrl(),
 ) {
-  const url = new URL("/", base);
+  const url = new URL("/app/", base);
   url.searchParams.set("practice", state.topicId);
   url.searchParams.set("target", state.targetLanguage);
   url.searchParams.set("support", state.supportLanguage);

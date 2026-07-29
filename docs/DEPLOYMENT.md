@@ -6,7 +6,8 @@ LinguaFlow deploys to Cloudflare Workers as one unit:
 - `/api/rooms/*` is handled by the Worker;
 - each room code maps to a SQLite-backed Durable Object;
 - rate-limit state is sharded across a second Durable Object class;
-- unknown navigation paths fall back to `index.html`.
+- public pages are static HTML, `/app/` hosts the interactive workspace, and
+  unknown paths return a real `404.html`.
 
 This architecture does not require a database ID, application environment
 variable, client-side API key, or third-party service. The first deployment
@@ -17,11 +18,18 @@ provisions the Durable Object namespaces declared in `wrangler.jsonc`.
 1. Create or sign in to a Cloudflare account.
 2. Install dependencies with `npm install`.
 3. Authenticate Wrangler with `npx wrangler login`.
-4. Verify with `npm run check` and `npx wrangler deploy --dry-run`.
-5. Deploy with `npm run deploy`.
+4. Choose the final canonical HTTPS origin and set `PUBLIC_SITE_URL` in the
+   current shell. It is public configuration, not a secret.
+5. Verify with `npm run check:deploy`, `npm run check`, and
+   `npx wrangler deploy --dry-run`.
+6. Deploy with `npm run deploy`.
 
-Wrangler prints the `workers.dev` URL. Open it in two separate browsers or
-devices and complete the smoke test below.
+Local and CI builds default to `https://linguaflow.example` so SEO artifacts
+can be validated before a domain exists. The deploy preflight rejects that
+placeholder and refuses to publish without a real HTTPS origin.
+
+Wrangler prints the `workers.dev` URL. Open `/app/` from that origin in two
+separate browsers or devices and complete the smoke test below.
 
 ## GitHub Actions deployment
 
@@ -33,7 +41,11 @@ also be started manually. Add these encrypted repository secrets under
   Workers editing template and restricted to the deployment account;
 - `CLOUDFLARE_ACCOUNT_ID`: the target Cloudflare account ID.
 
-After both secrets exist, add the Actions repository variable
+Add the non-sensitive repository variable `PUBLIC_SITE_URL` with the final
+canonical origin, such as `https://your-final-domain.tld`. It must not include
+a path or query parameters.
+
+After both secrets and `PUBLIC_SITE_URL` exist, add the Actions repository variable
 `CLOUDFLARE_DEPLOY_ENABLED` with the value `true`. Until that opt-in exists,
 the deployment job is skipped cleanly on new repositories and forks. The
 workflow runs the complete release check before deployment. Pull requests run
@@ -53,6 +65,9 @@ automated paths for the same branch.
 After the first deployment, open **Workers & Pages → linguaflow → Settings →
 Domains & Routes** and add a domain managed by the same Cloudflare account.
 The application uses relative same-origin APIs, so no source change is needed.
+The custom domain must match `PUBLIC_SITE_URL`. If the canonical domain changes,
+update the variable, rebuild, redeploy, and submit the new sitemap; avoid
+publishing two self-canonical copies on workers.dev and the custom domain.
 
 ## Local production preview
 
@@ -80,6 +95,11 @@ room actions require the Worker and will not function in that mode.
    origin and no credential appears in a URL, payload, or compiled asset.
 10. Send an intentionally oversized or cross-origin mutation in a test
     environment and confirm it is rejected.
+11. Confirm `/sitemap.xml`, `/robots.txt`, and `/llms.txt` use the final origin.
+12. Confirm an unknown path returns 404, `/api` returns noindexed JSON, and a
+    room link returns `X-Robots-Tag: noindex, noarchive`.
+13. Validate representative EN, PL, and JA pages using the Rich Results Test,
+    then follow the launch sequence in `docs/SEO.md`.
 
 ## Rollback
 

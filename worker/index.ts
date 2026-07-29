@@ -320,8 +320,22 @@ export class RoomCoordinator extends DurableObject<Env> {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    if (!url.pathname.startsWith("/api/")) {
+    if (url.pathname === "/app/" && url.searchParams.has("room")) {
+      const response = await env.ASSETS.fetch(request);
+      const headers = new Headers(response.headers);
+      headers.set("X-Robots-Tag", "noindex, noarchive");
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+    }
+    if (url.pathname !== "/api" && !url.pathname.startsWith("/api/")) {
       return env.ASSETS.fetch(request);
+    }
+
+    if (url.pathname === "/api") {
+      return json({ error: "Not found." }, 404);
     }
 
     if (

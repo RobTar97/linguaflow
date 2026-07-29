@@ -2,6 +2,28 @@
 
 All notable project changes are documented here.
 
+## 0.4.0 — 2026-07-30
+
+### Added
+
+- 144 statically generated topic resources across English, Polish, and
+  Japanese, plus localized hubs and public teacher, about, and privacy pages.
+- Unique titles, descriptions, canonicals, hreflang clusters, Open Graph
+  metadata, `WebPage`, `LearningResource`, `BreadcrumbList`, `WebSite`, and
+  `WebApplication` structured data.
+- Generated XML sitemap, crawl policy, `llms.txt`, related-topic links, and an
+  automated 151-page SEO release gate.
+- A deployment preflight that requires the final public HTTPS origin before
+  Cloudflare publishing can start.
+
+### Changed
+
+- Unknown public routes now return a real 404 instead of the application shell.
+- Live-room links receive `X-Robots-Tag: noindex, noarchive`, and `/api` now
+  returns noindexed JSON instead of public HTML.
+- Performance budgets now measure the homepage payload plus per-page and total
+  generated HTML.
+
 ## 0.3.1 — 2026-07-29
 
 ### Added

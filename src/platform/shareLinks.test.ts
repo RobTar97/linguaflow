@@ -8,7 +8,7 @@ import {
 describe("share links", () => {
   it("round-trips a room invitation", () => {
     const url = new URL(buildJoinUrl("abc-123", "https://example.com/current"));
-    expect(url.pathname).toBe("/");
+    expect(url.pathname).toBe("/app/");
     expect(readShareIntent(url.search)).toEqual({
       kind: "join",
       code: "ABC-123",
@@ -27,6 +27,7 @@ describe("share links", () => {
         "https://example.com/teacher",
       ),
     );
+    expect(url.pathname).toBe("/app/");
     expect(readShareIntent(url.search)).toEqual({
       kind: "practice",
       topicId: "space-exploration",

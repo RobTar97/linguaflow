@@ -1,12 +1,14 @@
-import ExploreExperience from "./features/explore/ExploreExperience";
-import JoinRoom from "./features/rooms/JoinRoom";
-import RoomSession from "./features/rooms/RoomSession";
-import SetupFlow from "./features/setup/SetupFlow";
-import TeacherStudio from "./features/teacher/TeacherStudio";
+import { lazy, Suspense } from "react";
 import {
   LearningWorkspaceProvider,
 } from "./workspace/LearningWorkspace";
 import { useLearningWorkspace } from "./workspace/context";
+
+const ExploreExperience = lazy(() => import("./features/explore/ExploreExperience"));
+const JoinRoom = lazy(() => import("./features/rooms/JoinRoom"));
+const RoomSession = lazy(() => import("./features/rooms/RoomSession"));
+const SetupFlow = lazy(() => import("./features/setup/SetupFlow"));
+const TeacherStudio = lazy(() => import("./features/teacher/TeacherStudio"));
 
 function WorkspaceRouter() {
   const { profile, route, activeRoom } = useLearningWorkspace();
@@ -29,7 +31,16 @@ function WorkspaceRouter() {
 export default function App() {
   return (
     <LearningWorkspaceProvider>
-      <WorkspaceRouter />
+      <Suspense
+        fallback={
+          <main className="route-loading" role="status" aria-label="Loading LinguaFlow">
+            <span aria-hidden="true" />
+            LinguaFlow
+          </main>
+        }
+      >
+        <WorkspaceRouter />
+      </Suspense>
     </LearningWorkspaceProvider>
   );
 }

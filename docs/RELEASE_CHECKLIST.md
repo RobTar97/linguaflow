@@ -7,6 +7,9 @@
 - [ ] `npx wrangler deploy --dry-run` succeeds.
 - [ ] Topic validation covers every supported pair and CEFR level.
 - [ ] `npm run audit:secrets` reports no credential patterns.
+- [ ] `npm run audit:seo` reports 151 unique canonical pages and 144 localized
+      topic resources.
+- [ ] `npm run check:deploy` accepts the final `PUBLIC_SITE_URL`.
 - [ ] `npm audit --audit-level=high` reports no known high-severity dependency
       vulnerabilities.
 - [ ] Changelog, package version, and git tag match.
@@ -29,6 +32,11 @@
 - [ ] Ending a room makes the code unavailable.
 - [ ] Desktop, mobile, keyboard, reduced-motion, and muted-audio checks pass.
 - [ ] Browser consoles and Cloudflare logs are clean.
+- [ ] Homepage, locale hubs, topic pages, sitemap, robots, and `llms.txt` return
+      the expected content and status on the canonical domain.
+- [ ] Unknown routes return 404; `/api` and room links are noindexed.
+- [ ] Canonical, EN/PL/JA/x-default hreflang, and JSON-LD pass representative
+      source and rendered-page checks.
 
 ## Repository and operations
 
@@ -39,6 +47,8 @@
 - [ ] Cloudflare GitHub secrets are configured.
 - [ ] `CLOUDFLARE_DEPLOY_ENABLED=true` is set only after both secrets exist.
 - [ ] Production domain, repository description, and social preview are set.
+- [ ] Google Search Console property is verified and `/sitemap.xml` is submitted.
+- [ ] Mobile PageSpeed and field LCP, INP, and CLS are recorded after launch.
 - [ ] CodeQL, Dependabot, private vulnerability reporting, and secret scanning
       are enabled.
 - [ ] A rollback path and responsible maintainer are identified.

@@ -101,6 +101,33 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+.route-loading {
+  display: grid;
+  min-height: 100vh;
+  place-content: center;
+  gap: 12px;
+  color: var(--ink-2);
+  background: var(--canvas);
+  font-weight: 800;
+  text-align: center;
+}
+
+.route-loading span {
+  width: 28px;
+  height: 28px;
+  margin: auto;
+  border: 3px solid var(--border);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: route-loading-spin 700ms linear infinite;
+}
+
+@keyframes route-loading-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -3008,7 +3035,8 @@ a:focus-visible {
     scroll-behavior: auto;
   }
 
-  .spin-icon {
+  .spin-icon,
+  .route-loading span {
     animation: none;
   }
 

@@ -10,7 +10,6 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { useEffect } from "react";
-import { cefrLevels } from "../../catalog/topicCatalog";
 import { localeNames } from "../../content/topics";
 import type {
   LanguageCode,
@@ -27,6 +26,7 @@ import { workspaceDefaults } from "../../workspace/contracts";
 import { Brand } from "../../ui/Brand";
 
 const languages = Object.keys(localeNames) as LanguageCode[];
+const cefrLevels: Level[] = ["A1", "A2", "B1", "B2", "C1"];
 
 const roleOptions = [
   {

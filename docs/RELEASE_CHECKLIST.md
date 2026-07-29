@@ -22,9 +22,12 @@
 - [ ] Teacher creates a live room on the deployed Worker.
 - [ ] A separate browser joins and appears in the participant list.
 - [ ] Teacher question changes synchronize to the student over WebSocket.
+- [ ] Question and success cues play only at documented moments after user
+      interaction; muting persists after reload and removes every cue.
+- [ ] Every sounded action retains equivalent visible feedback.
 - [ ] Temporary WebSocket loss falls back to periodic room refresh.
 - [ ] Ending a room makes the code unavailable.
-- [ ] Desktop, mobile, keyboard, and reduced-motion checks pass.
+- [ ] Desktop, mobile, keyboard, reduced-motion, and muted-audio checks pass.
 - [ ] Browser consoles and Cloudflare logs are clean.
 
 ## Repository and operations

@@ -79,6 +79,8 @@ export const workspaceCopy = {
     liveTogetherHint: "Create a room and control one synchronized question for everyone.",
     leaveRoom: "Leave room",
     changeGoal: "Change goal",
+    muteSounds: "Mute sound effects",
+    enableSounds: "Enable sound effects",
     openSourceBeta: "Open-source release",
   },
   PL: {
@@ -159,6 +161,8 @@ export const workspaceCopy = {
     liveTogetherHint: "Utwórz pokój i steruj jednym wspólnym pytaniem dla wszystkich.",
     leaveRoom: "Opuść pokój",
     changeGoal: "Zmień cel",
+    muteSounds: "Wycisz efekty dźwiękowe",
+    enableSounds: "Włącz efekty dźwiękowe",
     openSourceBeta: "Wydanie open source",
   },
   JA: {
@@ -239,6 +243,8 @@ export const workspaceCopy = {
     liveTogetherHint: "ルームを作成し、全員に同じ質問をリアルタイムで共有します。",
     leaveRoom: "ルームを退出",
     changeGoal: "目標を変更",
+    muteSounds: "効果音をミュート",
+    enableSounds: "効果音を有効にする",
     openSourceBeta: "オープンソース版",
   },
 } as const satisfies Record<Locale, Record<string, string>>;

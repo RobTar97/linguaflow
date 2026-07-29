@@ -2,6 +2,21 @@
 
 All notable project changes are documented here.
 
+## 0.3.1 — 2026-07-29
+
+### Added
+
+- Three original, lightweight interface cues for question changes, successful
+  classroom actions, and sound enablement.
+- A persistent, localized sound-effects control in learner, teacher, and
+  student headers.
+- Audio asset performance budgets and a public sound-design contribution guide.
+
+### Changed
+
+- Sound playback is limited to meaningful, user-initiated moments and visible
+  live-room question changes; routine navigation remains quiet.
+
 ## 0.3.0 — 2026-07-29
 
 ### Added

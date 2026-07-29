@@ -59,11 +59,18 @@ Write for a first-time contributor. Prefer concrete examples, stable relative
 links, and explicit release limitations. Update the relevant guide whenever a
 public flow, data shape, command, or architectural boundary changes.
 
+### Sound effects
+
+Follow [docs/SOUND_DESIGN.md](docs/SOUND_DESIGN.md). Cues must stay optional,
+short, quiet, and understandable without audio. Contributors must have the
+rights to distribute every submitted recording or generated asset.
+
 ## Pull request checklist
 
 - The change has a clear user or maintainer outcome.
 - `npm run check` passes.
 - New UI works with keyboard navigation and reduced motion.
+- New sound works with the persistent mute control and is never the only feedback.
 - New copy is localized or explicitly documented as pending.
 - New topics pass catalog validation.
 - Screenshots are included for material visual changes.

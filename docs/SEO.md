@@ -21,7 +21,7 @@ After remediation, the locally verifiable readiness score is **88/100**:
 | Category | Weight | Readiness | Evidence |
 |---|---:|---:|---|
 | Technical SEO | 22 | 20 | Static HTML, canonicals, crawl policy, real 404, noindexed rooms and API |
-| Content quality | 23 | 20 | 666-word homepage, 48 unique topics, public teacher/about/privacy pages |
+| Content quality | 23 | 20 | 640-word main homepage content, 48 unique topics, public teacher/about/privacy pages |
 | On-page SEO | 20 | 19 | Unique titles, descriptions, H1s, metadata, related-topic links |
 | Structured data | 10 | 9 | Valid local JSON-LD graphs; live rich-result validation still required |
 | Performance | 10 | 8 | Enforced payload budgets; no production CrUX data yet |

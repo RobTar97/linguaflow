@@ -26,8 +26,8 @@ function match(html, pattern) {
 
 function textContent(html) {
   return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script\s*>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style\s*>/gi, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/&[a-z0-9#]+;/gi, " ")
     .replace(/\s+/g, " ")
@@ -162,7 +162,16 @@ if (!robots.includes("Disallow: /api/")) {
 }
 
 const llms = await readFile(join(DIST_DIR, "llms.txt"), "utf8");
-if (!llms.includes("# LinguaFlow") || !llms.includes(REPOSITORY_URL)) {
+const markdownLinks = [...llms.matchAll(/\]\((https:\/\/[^)\s]+)\)/g)].map(
+  ([, value]) => new URL(value),
+);
+const hasRepositoryLink = markdownLinks.some(
+  (url) =>
+    url.protocol === "https:" &&
+    url.hostname === "github.com" &&
+    url.pathname.replace(/\/$/, "") === "/RobTar97/linguaflow",
+);
+if (!llms.includes("# LinguaFlow") || !hasRepositoryLink) {
   failures.push("llms.txt is missing the project identity or source link.");
 }
 

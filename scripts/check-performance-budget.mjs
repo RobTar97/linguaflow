@@ -9,6 +9,8 @@ const limits = {
   cssGzip: 12 * 1024,
   documentAssetsGzip: 200 * 1024,
   largestImage: 600 * 1024,
+  largestAudio: 16 * 1024,
+  totalAudio: 32 * 1024,
 };
 
 async function walk(directory) {
@@ -28,8 +30,11 @@ const totals = {
   cssGzip: 0,
   documentAssetsGzip: 0,
   largestImage: 0,
+  largestAudio: 0,
+  totalAudio: 0,
 };
 let largestImageName = "";
+let largestAudioName = "";
 
 for (const file of files) {
   const extension = extname(file).toLowerCase();
@@ -38,6 +43,14 @@ for (const file of files) {
     if (size > totals.largestImage) {
       totals.largestImage = size;
       largestImageName = relative(DIST_DIR, file);
+    }
+    continue;
+  }
+  if ([".mp3", ".ogg", ".opus", ".wav", ".m4a"].includes(extension)) {
+    totals.totalAudio += size;
+    if (size > totals.largestAudio) {
+      totals.largestAudio = size;
+      largestAudioName = relative(DIST_DIR, file);
     }
     continue;
   }
@@ -60,6 +73,8 @@ console.log(
     `CSS gzip: ${kib(totals.cssGzip)} / ${kib(limits.cssGzip)}`,
     `HTML + CSS + JS gzip: ${kib(totals.documentAssetsGzip)} / ${kib(limits.documentAssetsGzip)}`,
     `Largest image: ${kib(totals.largestImage)} / ${kib(limits.largestImage)} (${largestImageName})`,
+    `Largest audio: ${kib(totals.largestAudio)} / ${kib(limits.largestAudio)} (${largestAudioName})`,
+    `Total audio: ${kib(totals.totalAudio)} / ${kib(limits.totalAudio)}`,
   ].join("\n"),
 );
 

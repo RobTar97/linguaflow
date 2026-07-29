@@ -52,8 +52,9 @@ as TypeScript.
 
 Each topic includes a central prompt, five or six follow-up questions, useful
 vocabulary, category and level metadata, multilingual copy, and original
-artwork. Search covers titles, descriptions, prompts, questions, and vocabulary
-in all three languages.
+artwork. Gentle optional sound cues confirm question changes and successful
+classroom actions without carrying essential information. Search covers titles,
+descriptions, prompts, questions, and vocabulary in all three languages.
 
 ![Learner topic browser with filters and topic details](artifacts/linguaflow-learner-workspace.png)
 
@@ -186,18 +187,19 @@ src/
   features/      setup, learner, teacher, and room experiences
   i18n/          workspace interface copy
   motion/        reusable accessible animation presets
-  platform/      browser storage and room-service adapters
+  platform/      browser storage, sound, and room-service adapters
   styles/        tokens, layouts, states, responsive behavior
   ui/            shared presentational components
   workspace/     profile, role, route, saved-topic, and room state
 worker/           same-origin API, room coordinator, rate limiter
 scripts/          local release and security checks
 docs/             product, architecture, content, role, and deployment guides
-public/           metadata, headers, original artwork, social assets
+public/           metadata, headers, original artwork, audio, social assets
 ```
 
 Start with [the architecture guide](docs/ARCHITECTURE.md) for code changes or
-[the content guide](docs/CONTENT_GUIDE.md) to add a conversation topic.
+[the content guide](docs/CONTENT_GUIDE.md) to add a conversation topic. Audio
+contributors should read the [sound-design guide](docs/SOUND_DESIGN.md).
 
 ## Commands
 
@@ -207,7 +209,7 @@ Start with [the architecture guide](docs/ARCHITECTURE.md) for code changes or
 | `npm run test` | Run catalog and behavior tests |
 | `npm run check:content` | Validate the complete topic library |
 | `npm run audit:secrets` | Scan project text for common credential patterns |
-| `npm run audit:performance` | Enforce production bundle and image budgets |
+| `npm run audit:performance` | Enforce production bundle, image, and audio budgets |
 | `npm run lint` | Run ESLint |
 | `npm run build` | Type-check and create production assets |
 | `npm run types:worker` | Type-check the Worker and Durable Objects |

@@ -4,6 +4,7 @@ import type { Locale, WorkspaceRole } from "../domain/types";
 import { workspaceCopy } from "../i18n/workspaceCopy";
 import { useLearningWorkspace } from "../workspace/context";
 import { Brand } from "./Brand";
+import { SoundToggle } from "./SoundToggle";
 
 const roleRoutes: Array<{ role: WorkspaceRole; copyKey: "practice" | "teach" | "join" }> = [
   { role: "learner", copyKey: "practice" },
@@ -54,6 +55,7 @@ export function WorkspaceHeader() {
             ))}
           </select>
         </label>
+        <SoundToggle locale={profile.goal.interfaceLocale} />
         <button
           className="header-icon-button"
           type="button"

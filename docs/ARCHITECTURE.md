@@ -48,7 +48,8 @@ and keep imports directional.
 
 Wrappers around environmental capabilities. Browser storage lives here so it
 can later be replaced by server persistence without teaching every feature
-about `localStorage`.
+about `localStorage`. The sound-effects service owns cue assets, volume, browser
+playback, and the persisted mute preference so features only name an event.
 
 ### `features`
 
@@ -103,5 +104,6 @@ Keep feature contracts stable and replace implementations behind boundaries:
 - Features communicate through workspace commands, not shared mutable state.
 - Content validation must remain runnable without a browser.
 - Motion never carries business state.
+- Sound never carries business state or essential feedback.
 - UI localization and target-language content are separate concepts.
 - Release limitations are described in docs and UI rather than hidden.

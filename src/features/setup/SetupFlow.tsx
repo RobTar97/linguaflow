@@ -21,6 +21,7 @@ import type {
 import { workspaceCopy } from "../../i18n/workspaceCopy";
 import { motionEase } from "../../motion/presets";
 import { readShareIntent } from "../../platform/shareLinks";
+import { soundEffects } from "../../platform/soundEffects";
 import { useLearningWorkspace } from "../../workspace/context";
 import { workspaceDefaults } from "../../workspace/contracts";
 import { Brand } from "../../ui/Brand";
@@ -96,6 +97,7 @@ export default function SetupFlow() {
   }
 
   function finish() {
+    soundEffects.play("action-success");
     completeSetup({
       name: name.trim() || (role === "teacher" ? "Teacher" : "Learner"),
       role,

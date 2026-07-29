@@ -37,6 +37,8 @@ import {
   questionVariants,
 } from "../../motion/presets";
 import { readShareIntent } from "../../platform/shareLinks";
+import { soundEffects } from "../../platform/soundEffects";
+import { SoundToggle } from "../../ui/SoundToggle";
 import { useLearningWorkspace } from "../../workspace/context";
 
 const topics = topicCatalog.all();
@@ -431,6 +433,7 @@ function Header({
           </select>
           <ChevronDown size={14} aria-hidden="true" />
         </label>
+        <SoundToggle locale={locale} />
         <button
           className="profile-button"
           type="button"
@@ -1069,7 +1072,10 @@ function ConversationMode({
             className="secondary-button"
             type="button"
             disabled={questionIndex === 0}
-            onClick={() => setQuestionIndex((index) => Math.max(0, index - 1))}
+            onClick={() => {
+              soundEffects.play("question-step");
+              setQuestionIndex((index) => Math.max(0, index - 1));
+            }}
           >
             <ArrowLeft size={18} />
           </button>
@@ -1077,8 +1083,13 @@ function ConversationMode({
             className="primary-button"
             type="button"
             onClick={() => {
-              if (isLast) onClose();
-              else setQuestionIndex((index) => index + 1);
+              if (isLast) {
+                soundEffects.play("action-success");
+                onClose();
+              } else {
+                soundEffects.play("question-step");
+                setQuestionIndex((index) => index + 1);
+              }
             }}
           >
             {isLast ? copy.finish : copy.next}

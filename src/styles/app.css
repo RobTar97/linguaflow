@@ -1542,6 +1542,21 @@ a:focus-visible {
   background: white;
 }
 
+.sound-toggle {
+  transition:
+    color var(--motion-fast) var(--ease-out),
+    background-color var(--motion-fast) var(--ease-out);
+}
+
+.sound-toggle[aria-pressed="true"] {
+  color: var(--brand-dark);
+}
+
+.sound-toggle[aria-pressed="false"] {
+  color: var(--ink-3);
+  background: var(--surface-muted);
+}
+
 /* Setup */
 
 .setup-shell {

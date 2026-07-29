@@ -15,6 +15,7 @@ import { categoryCopy, localeNames } from "../../content/topics";
 import type { LanguageCode, Level } from "../../domain/types";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
 import { buildPracticeUrl } from "../../platform/shareLinks";
+import { soundEffects } from "../../platform/soundEffects";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
 import { useLearningWorkspace } from "../../workspace/context";
 
@@ -56,6 +57,7 @@ export default function TeacherStudio() {
         supportLanguage,
         level,
       });
+      soundEffects.play("action-success");
     } catch {
       setRoomError(copy.roomServiceError);
     } finally {
@@ -72,6 +74,7 @@ export default function TeacherStudio() {
         level,
       }),
     );
+    soundEffects.play("action-success");
     setPracticeCopied(true);
     window.setTimeout(() => setPracticeCopied(false), 1_500);
   }

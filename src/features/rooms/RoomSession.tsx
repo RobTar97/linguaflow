@@ -17,6 +17,7 @@ import { workspaceCopy } from "../../i18n/workspaceCopy";
 import { motionEaseInOut, questionVariants } from "../../motion/presets";
 import { buildJoinUrl } from "../../platform/shareLinks";
 import { roomService, type RoomConnectionStatus } from "../../platform/roomService";
+import { soundEffects } from "../../platform/soundEffects";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
 import { useLearningWorkspace } from "../../workspace/context";
 
@@ -35,11 +36,29 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
   const [connectionStatus, setConnectionStatus] =
     useState<RoomConnectionStatus>("connecting");
   const refreshRoomRef = useRef(refreshRoom);
+  const lastSoundedQuestionRef = useRef({
+    code: activeRoom?.code,
+    index: activeRoom?.questionIndex,
+  });
   const roomCode = activeRoom?.code;
 
   useEffect(() => {
     refreshRoomRef.current = refreshRoom;
   }, [refreshRoom]);
+
+  useEffect(() => {
+    const currentCode = activeRoom?.code;
+    const currentIndex = activeRoom?.questionIndex;
+    const previous = lastSoundedQuestionRef.current;
+    if (!currentCode || currentIndex === undefined) return;
+    if (previous.code === currentCode && previous.index !== currentIndex) {
+      soundEffects.play("question-step");
+    }
+    lastSoundedQuestionRef.current = {
+      code: currentCode,
+      index: currentIndex,
+    };
+  }, [activeRoom?.code, activeRoom?.questionIndex]);
 
   useEffect(() => {
     if (!roomCode) return;
@@ -93,12 +112,14 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
 
   async function copyCode() {
     await navigator.clipboard?.writeText(activeRoom!.code);
+    soundEffects.play("action-success");
     setCopied("code");
     window.setTimeout(() => setCopied(null), 1200);
   }
 
   async function copyInviteLink() {
     await navigator.clipboard?.writeText(buildJoinUrl(activeRoom!.code));
+    soundEffects.play("action-success");
     setCopied("link");
     window.setTimeout(() => setCopied(null), 1200);
   }

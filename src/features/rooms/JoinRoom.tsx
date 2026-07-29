@@ -2,6 +2,7 @@ import { ArrowRight, Hash, LoaderCircle, Users } from "lucide-react";
 import { useState } from "react";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
 import { readShareIntent } from "../../platform/shareLinks";
+import { soundEffects } from "../../platform/soundEffects";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
 import { useLearningWorkspace } from "../../workspace/context";
 
@@ -36,6 +37,7 @@ export default function JoinRoom() {
           : copy.roomServiceError
         : "",
     );
+    if (!result.error) soundEffects.play("action-success");
     setJoining(false);
   }
 

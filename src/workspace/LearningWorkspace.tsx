@@ -3,6 +3,7 @@ import type {
   LearningRoom,
   WorkspaceProfile,
 } from "../domain/types";
+import { GUIDED_TRAINING_PLAN } from "../domain/trainingSession";
 import { browserStorage } from "../platform/storage";
 import { RoomServiceError, roomService } from "../platform/roomService";
 import { secureRandomInt } from "../platform/secureRandom";
@@ -125,6 +126,10 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
             targetLanguage: input.targetLanguage,
             supportLanguage: input.supportLanguage,
             level: input.level,
+            sessionMode: input.sessionMode,
+            ...(input.sessionMode === "guided-training"
+              ? { trainingPlan: { ...GUIDED_TRAINING_PLAN } }
+              : {}),
             questionIndex: 0,
             participants: [],
             createdAt: new Date().toISOString(),

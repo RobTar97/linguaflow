@@ -18,7 +18,7 @@ learners, teachers, and classrooms.
 [Quick start](#quick-start) · [How it works](#how-it-works) ·
 [Teaching](docs/TEACHER_GUIDE.md) · [Contributing](CONTRIBUTING.md) ·
 [Deploy](docs/DEPLOYMENT.md) · [Search readiness](docs/SEO.md) ·
-[Security](SECURITY.md)
+[Security](SECURITY.md) · [Assets](docs/ASSETS.md)
 
 </div>
 
@@ -32,8 +32,10 @@ LinguaFlow turns an interface language, support language, target language, and
 CEFR level into a focused speaking workspace:
 
 - **Learners** browse, search, save, and practise topics independently.
-- **Teachers** send self-paced practice links or guide a synchronized live room.
-- **Students** open an invite link (or enter its short code)—no account required.
+- **Teachers** send self-paced practice links or choose a shared-question or
+  eight-step guided live room.
+- **Students** open an invite link, follow synchronized phases and prompts, and
+  need no account.
 
 The public `/` and localized topic pages are crawlable static HTML. The
 interactive learner and teacher workspace lives at `/app/` and is deliberately
@@ -72,12 +74,14 @@ the same validated catalog.
 |---|---|
 | Learner | Choose a learning goal → browse or search → open a topic → follow the guided questions |
 | Teacher · self-paced | Choose a topic and language direction → copy its practice link → learners advance independently |
-| Teacher · live | Choose a topic → create a room → share its invite link → advance everyone’s question |
-| Student | Open the invite, add a display name, and follow the teacher’s synchronized question |
+| Teacher · live | Choose a topic and session format → create a room → share its invite → guide questions, pauses, reflection, and completion |
+| Student | Open the invite, add a display name, and follow the teacher’s synchronized phase and prompt |
 
-![Teacher workspace with recommended lesson topics](artifacts/linguaflow-teacher-studio.png)
+![Teacher Studio with language direction, CEFR level, and guided or shared session format](artifacts/linguaflow-teacher-studio-guided-v2.png)
 
-![Synchronized student room on mobile](artifacts/linguaflow-live-student-mobile.png)
+![Teacher view of a synchronized eight-step guided training room](artifacts/linguaflow-guided-teacher-room-v2.png)
+
+![Synchronized guided student room on mobile](artifacts/linguaflow-guided-student-mobile-v2.png)
 
 ### Language choices are intentionally separate
 
@@ -89,7 +93,7 @@ the same validated catalog.
 Support and target languages cannot be identical. The setup flow explains each
 choice before saving it.
 
-![Three-step LinguaFlow onboarding](artifacts/linguaflow-onboarding-release.png)
+![Language setup explaining interface, support, and target languages](artifacts/linguaflow-language-setup-v2.png)
 
 ## Language coverage
 

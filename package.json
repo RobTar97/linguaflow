@@ -1,7 +1,7 @@
 {
   "name": "linguaflow",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Open-source English, Polish, and Japanese conversation practice for learners and teachers.",
   "license": "MIT",
   "keywords": [
@@ -16,7 +16,9 @@
     "npm": ">=10"
   },
   "overrides": {
-    "sharp": "0.35.3"
+    "brace-expansion": "5.0.9",
+    "sharp": "0.35.3",
+    "undici": "7.29.0"
   },
   "type": "module",
   "scripts": {
@@ -27,13 +29,16 @@
     "preview:cloudflare": "npm run build && wrangler dev",
     "deploy": "npm run check:deploy && npm run check && wrangler deploy",
     "types:worker": "tsc -p tsconfig.worker.json",
+    "check:worker-config": "node scripts/check-worker-config.mjs",
+    "test:worker": "node scripts/test-worker.mjs",
     "lint": "eslint .",
     "test": "vitest run --maxWorkers=1",
     "audit:secrets": "node scripts/check-secrets.mjs",
     "audit:seo": "node scripts/check-seo-output.mjs",
     "audit:performance": "node scripts/check-performance-budget.mjs",
     "check:deploy": "node scripts/check-deploy-config.mjs",
-    "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run audit:seo && npm run audit:performance && npm run types:worker",
+    "smoke:deployment": "node scripts/smoke-deployment.mjs",
+    "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run audit:seo && npm run audit:performance && npm run types:worker && npm run check:worker-config && npm run test:worker",
     "check:content": "vitest run --maxWorkers=1 src/catalog/topicCatalog.test.ts"
   },
   "dependencies": {
@@ -57,6 +62,6 @@
     "typescript-eslint": "^8.65.0",
     "vite": "^7.1.2",
     "vitest": "^3.2.4",
-    "wrangler": "^4.115.0"
+    "wrangler": "^4.118.0"
   }
 }

@@ -2130,6 +2130,90 @@ a:focus-visible {
   grid-column: 1 / -1;
 }
 
+.session-mode-picker {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.session-mode-picker legend {
+  margin-bottom: 2px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.session-mode-options {
+  display: grid;
+  gap: 8px;
+}
+
+.session-mode-options label {
+  display: grid;
+  grid-template-columns: 18px 30px 1fr;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast),
+    background var(--duration-fast);
+}
+
+.session-mode-options label:hover,
+.session-mode-options label.selected {
+  border-color: #e8a796;
+  background: var(--brand-subtle);
+}
+
+.session-mode-options input {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  accent-color: var(--brand);
+}
+
+.session-mode-options label > span:last-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.session-mode-options strong {
+  font-size: 11px;
+}
+
+.session-mode-options small {
+  color: var(--ink-3);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.session-mode-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.session-mode-icon.is-neutral {
+  color: var(--info);
+  background: var(--info-soft);
+}
+
 .room-facts {
   display: flex;
   flex-wrap: wrap;
@@ -2353,6 +2437,50 @@ a:focus-visible {
   font-weight: 700;
 }
 
+.session-mode-badge {
+  display: inline-flex;
+  width: fit-content;
+  margin-left: 6px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.training-phase-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 15px;
+}
+
+.training-phase-list span {
+  min-width: 0;
+  padding: 7px 6px;
+  border-radius: 8px;
+  color: var(--ink-3);
+  background: var(--surface-muted);
+  font-size: 9px;
+  font-weight: 800;
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.training-phase-list span.is-current {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+  box-shadow: inset 0 0 0 1px rgba(201, 62, 31, 0.18);
+}
+
+.training-phase-list span.is-done {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
 .presentation-progress {
   height: 6px;
   overflow: hidden;
@@ -2423,6 +2551,67 @@ a:focus-visible {
   line-height: 1.5;
 }
 
+.training-state-hint {
+  max-width: 45ch;
+  margin: -7px 0 16px;
+  color: var(--ink-2);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.training-support-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #d7e1f5;
+  border-radius: 12px;
+  background: var(--info-soft);
+}
+
+.training-support-card.is-paused {
+  border-color: #f0d3cb;
+  background: var(--brand-subtle);
+}
+
+.training-support-card.is-complete {
+  border-color: #c5e3d3;
+  background: var(--success-soft);
+}
+
+.training-support-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--info);
+  background: white;
+}
+
+.training-support-card.is-paused .training-support-icon {
+  color: var(--brand);
+}
+
+.training-support-card.is-complete .training-support-icon {
+  color: var(--success);
+}
+
+.training-support-card strong {
+  display: block;
+  color: var(--ink);
+  font-size: 11px;
+}
+
+.training-support-card p {
+  margin: 3px 0 0;
+  color: var(--ink-2);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
 .presentation-vocabulary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2455,6 +2644,14 @@ a:focus-visible {
   grid-template-columns: minmax(130px, 0.4fr) 1fr;
   gap: 9px;
   margin-top: 16px;
+}
+
+.presentation-controls.is-guided {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.presentation-controls.is-guided .primary-button {
+  grid-column: 1 / -1;
 }
 
 .participant-panel {
@@ -2746,6 +2943,11 @@ a:focus-visible {
   .presentation-vocabulary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .session-mode-options label {
+    grid-template-columns: 18px 28px 1fr;
+    gap: 7px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -3019,8 +3221,26 @@ a:focus-visible {
     grid-template-columns: 1fr;
   }
 
+  .training-phase-list span {
+    padding-inline: 3px;
+    font-size: 8px;
+  }
+
   .presentation-controls {
     grid-template-columns: 1fr;
+  }
+
+  .presentation-controls.is-guided {
+    grid-template-columns: 1fr;
+  }
+
+  .presentation-controls.is-guided .primary-button {
+    grid-column: auto;
+  }
+
+  .session-mode-badge {
+    margin-top: 6px;
+    margin-left: 0;
   }
 }
 

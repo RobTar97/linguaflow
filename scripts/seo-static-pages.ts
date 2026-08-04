@@ -6,7 +6,7 @@ import { categoryCopy } from "../src/content/topics";
 import type { Locale, Topic } from "../src/domain/types";
 
 const OUTPUT_DIR = resolve("dist");
-const CONTENT_LAST_MODIFIED = "2026-07-30";
+const CONTENT_LAST_MODIFIED = "2026-08-04";
 const REPOSITORY_URL = "https://github.com/RobTar97/linguaflow";
 const locales: Locale[] = ["EN", "PL", "JA"];
 const languageLabels: Record<Locale, Record<Locale, string>> = {
@@ -144,7 +144,7 @@ function staticStyles() {
     .brand{color:#1e2428;font-size:1.25rem;font-weight:800;text-decoration:none}.brand span{color:#c93e1f}
     nav{display:flex;gap:16px;flex-wrap:wrap}main{padding:42px 0 64px}.eyebrow{color:#b5381e;font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
     h1{max-width:850px;margin:.2em 0;font-size:clamp(2rem,6vw,4.3rem);line-height:1.05;letter-spacing:-.04em}h2{margin-top:2.4rem;line-height:1.2}
-    .lede{max-width:760px;color:#4e5a60;font-size:1.15rem}.meta,.card,.prompt,.cta{border:1px solid #e5dfd8;border-radius:18px;background:#fff;box-shadow:0 10px 32px rgba(46,35,28,.05)}
+    .lede{max-width:760px;color:#4e5a60;font-size:1.15rem}.feature-visual{display:block;width:100%;height:auto;margin:28px 0;border:1px solid #e5dfd8;border-radius:24px;background:#fff;box-shadow:0 16px 42px rgba(46,35,28,.08)}.topic-visual{width:min(100%,544px)}.meta,.card,.prompt,.cta{border:1px solid #e5dfd8;border-radius:18px;background:#fff;box-shadow:0 10px 32px rgba(46,35,28,.05)}
     .meta{display:flex;gap:12px;flex-wrap:wrap;padding:14px 18px}.meta span{font-weight:700}.prompt{padding:22px;font-size:1.15rem}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.card{display:block;padding:18px;color:inherit;text-decoration:none}.card:hover{border-color:#d46a50}
     .card strong{display:block;margin-bottom:6px}.card small{color:#667177}.questions li,.steps li{margin:.65rem 0}.vocab{width:100%;border-collapse:collapse}.vocab th,.vocab td{padding:10px;border-bottom:1px solid #e5dfd8;text-align:left}
@@ -163,10 +163,18 @@ function documentShell(options: {
   schema: unknown;
   alternates?: string;
   type?: string;
+  image?: { path: string; alt: string; width: number; height: number };
+  twitterCard?: "summary" | "summary_large_image";
 }) {
   const { baseUrl, locale, title, description, canonicalPath, body, schema } =
     options;
   const canonical = `${baseUrl}${canonicalPath}`;
+  const image = options.image ?? {
+    path: "/og-image-v2.jpg",
+    alt: "LinguaFlow multilingual conversation practice workspace",
+    width: 1280,
+    height: 640,
+  };
   const copy = localeConfig[locale];
   return `<!doctype html>
 <html lang="${copy.code}">
@@ -184,15 +192,17 @@ function documentShell(options: {
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
     <meta property="og:url" content="${canonical}" />
-    <meta property="og:image" content="${baseUrl}/og-image-v2.jpg" />
-    <meta property="og:image:width" content="1280" />
-    <meta property="og:image:height" content="640" />
-    <meta property="og:image:alt" content="LinguaFlow multilingual conversation practice workspace" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image" content="${baseUrl}${image.path}" />
+    <meta property="og:image:width" content="${image.width}" />
+    <meta property="og:image:height" content="${image.height}" />
+    <meta property="og:image:alt" content="${escapeHtml(image.alt)}" />
+    <meta name="twitter:card" content="${options.twitterCard ?? "summary_large_image"}" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
     <meta name="twitter:description" content="${escapeHtml(description)}" />
-    <meta name="twitter:image" content="${baseUrl}/og-image-v2.jpg" />
+    <meta name="twitter:image" content="${baseUrl}${image.path}" />
+    <meta name="twitter:image:alt" content="${escapeHtml(image.alt)}" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <title>${escapeHtml(title)}</title>
     <style>${staticStyles()}</style>
@@ -265,10 +275,21 @@ function practiceUrl(baseUrl: string, topic: Topic) {
   return `${baseUrl}/app/?${params.toString()}`;
 }
 
+function topicImagePath(topic: Topic) {
+  return `/images/topics/atlas-${topic.atlas ?? 1}-${topic.artIndex}.jpg`;
+}
+
 function topicPage(baseUrl: string, topic: Topic, locale: Locale) {
   const copy = localeConfig[locale];
   const canonicalPath = topicPath(locale, topic);
   const canonical = `${baseUrl}${canonicalPath}`;
+  const imagePath = topicImagePath(topic);
+  const imageUrl = `${baseUrl}${imagePath}`;
+  const imageAlt = {
+    EN: `${topic.title.EN} conversation topic illustration`,
+    PL: `Ilustracja tematu rozmowy: ${topic.title.PL}`,
+    JA: `${topic.title.JA}の会話トピックのイラスト`,
+  }[locale];
   const languagePair = topic.languages
     .map((language) => languageLabels[locale][language])
     .join(" ↔ ");
@@ -285,6 +306,7 @@ function topicPage(baseUrl: string, topic: Topic, locale: Locale) {
         dateModified: CONTENT_LAST_MODIFIED,
         isPartOf: { "@id": `${baseUrl}/#website` },
         mainEntity: { "@id": `${canonical}#resource` },
+        primaryImageOfPage: { "@id": `${canonical}#image` },
       },
       {
         "@type": "LearningResource",
@@ -297,6 +319,15 @@ function topicPage(baseUrl: string, topic: Topic, locale: Locale) {
         isAccessibleForFree: true,
         license: `${REPOSITORY_URL}/blob/main/LICENSE`,
         teaches: `${topic.title[locale]} conversation in ${languagePair}`,
+        image: imageUrl,
+      },
+      {
+        "@type": "ImageObject",
+        "@id": `${canonical}#image`,
+        contentUrl: imageUrl,
+        caption: imageAlt,
+        width: 362,
+        height: 362,
       },
       {
         "@type": "BreadcrumbList",
@@ -351,6 +382,7 @@ function topicPage(baseUrl: string, topic: Topic, locale: Locale) {
       <p class="eyebrow">${escapeHtml(categoryCopy[topic.category][locale])}</p>
       <h1>${escapeHtml(topic.title[locale])}</h1>
       <p class="lede">${escapeHtml(topic.description[locale])}</p>
+      <img class="feature-visual topic-visual" src="${imagePath}" width="362" height="362" alt="${escapeHtml(imageAlt)}" loading="eager" fetchpriority="high" />
       <div class="meta">
         <span>${copy.level}: ${topic.level}</span>
         <span>${copy.languagePair}: ${escapeHtml(languagePair)}</span>
@@ -396,6 +428,8 @@ function topicPage(baseUrl: string, topic: Topic, locale: Locale) {
     alternates: alternateLinks(baseUrl, topic),
     body,
     schema,
+    image: { path: imagePath, alt: imageAlt, width: 362, height: 362 },
+    twitterCard: "summary",
   });
 }
 
@@ -453,6 +487,7 @@ function supportingPage(
   heading: string,
   content: string,
   schemaType: "AboutPage" | "WebPage",
+  image?: { path: string; alt: string; width: number; height: number },
 ) {
   const canonical = `${baseUrl}${path}`;
   return documentShell({
@@ -462,6 +497,7 @@ function supportingPage(
     description,
     canonicalPath: path,
     type: "website",
+    image,
     schema: {
       "@context": "https://schema.org",
       "@type": schemaType,
@@ -583,7 +619,7 @@ function workspacePage(index: string, baseUrl: string) {
     )
     .replace(
       /<link rel="canonical" href="[^"]+" \/>/,
-      `<link rel="canonical" href="${baseUrl}/" />`,
+      `<link rel="canonical" href="${baseUrl}/app/" />`,
     )
     .replace(/\s*<link rel="alternate"[^>]+\/>/g, "")
     .replace(
@@ -702,12 +738,19 @@ export function seoStaticPages(baseUrlValue: string): Plugin {
           "Prepare English, Polish, and Japanese speaking lessons with free CEFR-level conversation questions, practice links, and synchronized classroom rooms.",
           "Conversation questions and live rooms for language teachers",
           `<p class="lede">LinguaFlow gives language teachers a searchable library of CEFR-level conversation material and two simple ways to share it: independent practice links and synchronized live rooms.</p>
+          <img class="feature-visual" src="/images/linguaflow-guided-session-v1.jpg" width="1672" height="941" alt="A language teacher guiding three adult learners through a structured online conversation session" loading="eager" fetchpriority="high" />
           <h2>Prepare a speaking activity</h2><p>Choose one of 48 real-life topics, set the support and target languages, and select a level from A1 to C1. Each topic includes a central question, at least five follow-up prompts, and five or six vocabulary items. Search covers titles, descriptions, questions, and vocabulary in English, Polish, and Japanese.</p>
           <h2>Send self-paced conversation practice</h2><p>A practice link preserves the topic, language direction, and CEFR level without creating a shared learner record. Each student moves through the questions independently. This is useful for homework, tutoring preparation, language exchange, and groups working at different speeds.</p>
           <h2>Guide a synchronized classroom room</h2><p>Create a room, share its short code or invite link, and advance one question for everyone. Students join with a display name and do not need an account. Temporary connection loss falls back to periodic refresh, and rooms expire after eight hours. The teacher can end a room immediately.</p>
           <h2>Adapt and contribute</h2><p>The curriculum and application are open source under the MIT License. Teachers can review every prompt, propose clearer level calibration, improve translations, add culturally relevant topics, or deploy an independent copy for their community.</p>
           <p><a class="button" href="${baseUrl}/app/">Open the teacher workspace</a></p>`,
           "WebPage",
+          {
+            path: "/images/linguaflow-guided-session-v1.jpg",
+            alt: "A language teacher guiding three adult learners through a structured online conversation session",
+            width: 1672,
+            height: 941,
+          },
         ),
       );
       await writeOutput(

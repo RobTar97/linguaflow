@@ -10,6 +10,7 @@ This roadmap describes direction, not delivery dates.
 - teacher room builder;
 - cross-device Cloudflare room synchronization;
 - self-paced practice and live invite links;
+- shared-question and eight-step guided live training;
 - explicit participant leave and reconnect identity;
 - content validation, documentation, and accessibility baseline.
 
@@ -34,7 +35,7 @@ This roadmap describes direction, not delivery dates.
 - vocabulary review and personal notes;
 - goals and progress without high-pressure streak mechanics;
 - accessible audio support;
-- optional self-reflection after conversations.
+- private learner-owned reflection notes after conversations.
 
 ## Explicitly later
 

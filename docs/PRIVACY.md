@@ -16,7 +16,8 @@ browser site-data controls or reset their LinguaFlow setup.
 ## Stored by the Cloudflare room service
 
 - room code, room name, and teacher display name;
-- selected topic, languages, level, and current question;
+- selected topic, languages, level, live format, versioned training plan, and
+  current synchronized cursor;
 - participating students’ display names and generated session IDs.
 
 Rooms automatically expire after eight hours. Ending a room deletes its state

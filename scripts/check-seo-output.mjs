@@ -33,6 +33,7 @@ function textContent(html) {
 }
 
 const files = await walk(DIST_DIR);
+const outputFiles = new Set(files);
 const htmlFiles = files.filter((file) => extname(file) === ".html");
 const indexPages = htmlFiles.filter((file) => file.endsWith("index.html"));
 const indexablePages = indexPages.filter(
@@ -42,6 +43,7 @@ const topicPages = indexPages.filter((file) =>
   /[\\/](en|pl|ja)[\\/]topics[\\/][a-z0-9-]+[\\/]index\.html$/.test(file),
 );
 const canonicals = new Set();
+const topicImagePaths = new Set();
 
 if (indexPages.length !== 152) {
   failures.push(`Expected 152 HTML entry pages, found ${indexPages.length}.`);
@@ -137,6 +139,27 @@ for (const file of topicPages) {
   if (!html.includes('"@type":"BreadcrumbList"')) {
     failures.push(`${name}: missing BreadcrumbList schema.`);
   }
+  if (!html.includes('"@type":"ImageObject"')) {
+    failures.push(`${name}: missing ImageObject schema.`);
+  }
+  const imagePath = match(
+    html,
+    /<img class="feature-visual topic-visual" src="([^"]+)"/i,
+  );
+  if (!/^\/images\/topics\/atlas-[123]-(?:[0-9]|1[01])\.jpg$/.test(imagePath)) {
+    failures.push(`${name}: missing a valid topic illustration path.`);
+  } else {
+    topicImagePaths.add(imagePath);
+    if (!outputFiles.has(join(DIST_DIR, imagePath.slice(1)))) {
+      failures.push(`${name}: topic illustration does not exist in build output.`);
+    }
+  }
+}
+
+if (topicImagePaths.size !== 36) {
+  failures.push(
+    `Expected 36 original topic illustration assets, found ${topicImagePaths.size}.`,
+  );
 }
 
 const sitemap = await readFile(join(DIST_DIR, "sitemap.xml"), "utf8");
@@ -182,6 +205,7 @@ console.log(
     `Indexable SEO pages: ${indexablePages.length}`,
     `Noindexed app entries: ${indexPages.length - indexablePages.length}`,
     `Localized topic pages: ${topicPages.length}`,
+    `Topic illustration assets: ${topicImagePaths.size}`,
     `Sitemap URLs: ${sitemapUrls}`,
     `Unique canonicals: ${canonicals.size}`,
     `Homepage visible words: ${homepageWords}`,

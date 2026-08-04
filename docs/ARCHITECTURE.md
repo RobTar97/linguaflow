@@ -64,7 +64,7 @@ User-facing flows:
 - `setup`: role and learning-goal onboarding;
 - `explore`: learner browsing, details, saves, and independent sessions;
 - `teacher`: topic selection and room creation;
-- `rooms`: join and active teacher/student room experiences.
+- `rooms`: join, shared-question, and guided teacher/student room experiences.
 
 Features may consume domain types, catalog APIs, workspace commands, shared UI,
 copy, and motion. They should not import content arrays directly.
@@ -84,6 +84,13 @@ after eight hours. Teacher mutations require a browser-held secret token. See
 ADR 0003. A hibernating WebSocket subscription broadcasts room snapshots;
 visible tabs also perform an infrequent HTTP refresh so a temporary connection
 failure cannot leave the classroom stale. See ADR 0004.
+
+Live rooms declare either `shared-question` or `guided-training`. Guided
+training uses a versioned eight-step plan. Its lobby, pause bit, authored prompt
+index, reflection, and completion state are encoded into the existing bounded
+room cursor, so the same authorized update and broadcast path synchronizes the
+whole lifecycle. Missing mode metadata is interpreted as the legacy shared
+question format. See ADR 0005.
 
 Self-paced practice links do not use room state. Their validated query
 parameters identify the topic, support language, target language, and level;

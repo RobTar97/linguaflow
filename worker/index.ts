@@ -1,4 +1,8 @@
-import type { LearningRoom, RoomParticipant } from "../src/domain/types";
+import type {
+  GuidedTrainingPlan,
+  LearningRoom,
+  RoomParticipant,
+} from "../src/domain/types";
 import { DurableObject } from "cloudflare:workers";
 
 interface Env {
@@ -16,23 +20,93 @@ interface StoredRoom {
 
 const ROOM_LIFETIME_MS = 8 * 60 * 60 * 1000;
 const MAX_BODY_BYTES = 32 * 1024;
+const MAX_TRAINING_STEPS = 8;
 const VALID_LANGUAGES = new Set(["EN", "PL", "JA"]);
 const VALID_LEVELS = new Set(["A1", "A2", "B1", "B2", "C1"]);
+const ROOM_CODE_PATTERN = /^[A-Z]{3}-[0-9]{3}$/;
+const PARTICIPANT_ID_PATTERN = /^[0-9a-f-]{16,80}$/;
+
+type ApiRoute =
+  | { kind: "api-root" }
+  | { kind: "create" }
+  | { kind: "room"; code: string }
+  | { kind: "join"; code: string }
+  | { kind: "live"; code: string }
+  | { kind: "participant"; code: string; participantId: string }
+  | { kind: "unknown" };
 
 function json(value: unknown, status = 200, extraHeaders?: HeadersInit) {
   return Response.json(value, {
     status,
     headers: {
       "Cache-Control": "no-store",
+      "Cross-Origin-Resource-Policy": "same-origin",
+      "Referrer-Policy": "no-referrer",
       "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
       "X-Robots-Tag": "noindex",
       ...extraHeaders,
     },
   });
 }
 
+function methodNotAllowed(allow: string) {
+  return json({ error: "Method not allowed." }, 405, { Allow: allow });
+}
+
 function normalizeCode(value: string) {
   return value.trim().toUpperCase();
+}
+
+function parseApiRoute(pathname: string): ApiRoute {
+  if (pathname === "/api") return { kind: "api-root" };
+  if (pathname === "/api/rooms") return { kind: "create" };
+
+  const match = pathname.match(
+    /^\/api\/rooms\/([A-Z]{3}-[0-9]{3})(?:\/(join|live|participants\/([0-9a-f-]{16,80})))?$/,
+  );
+  if (!match) return { kind: "unknown" };
+
+  const code = match[1];
+  const suffix = match[2];
+  if (!suffix) return { kind: "room", code };
+  if (suffix === "join") return { kind: "join", code };
+  if (suffix === "live") return { kind: "live", code };
+
+  const participantId = match[3];
+  return participantId
+    ? { kind: "participant", code, participantId }
+    : { kind: "unknown" };
+}
+
+function methodsForRoute(route: ApiRoute) {
+  switch (route.kind) {
+    case "create":
+      return ["POST"];
+    case "room":
+      return ["GET", "PATCH", "DELETE"];
+    case "join":
+      return ["POST"];
+    case "live":
+      return ["GET"];
+    case "participant":
+      return ["DELETE"];
+    default:
+      return [];
+  }
+}
+
+function isGuidedTrainingPlan(value: unknown): value is GuidedTrainingPlan {
+  if (!value || typeof value !== "object") return false;
+  const plan = value as Partial<GuidedTrainingPlan>;
+  return (
+    plan.mode === "guided-training" &&
+    plan.version === 1 &&
+    typeof plan.stepCount === "number" &&
+    Number.isInteger(plan.stepCount) &&
+    plan.stepCount >= 2 &&
+    plan.stepCount <= MAX_TRAINING_STEPS
+  );
 }
 
 function isRoom(value: unknown): value is LearningRoom {
@@ -40,7 +114,7 @@ function isRoom(value: unknown): value is LearningRoom {
   const room = value as Partial<LearningRoom>;
   return (
     typeof room.code === "string" &&
-    /^[A-Z]{3}-[0-9]{3}$/.test(room.code) &&
+    ROOM_CODE_PATTERN.test(room.code) &&
     typeof room.name === "string" &&
     room.name.trim().length >= 1 &&
     room.name.trim().length <= 80 &&
@@ -62,18 +136,151 @@ function isRoom(value: unknown): value is LearningRoom {
     room.questionIndex <= 20 &&
     typeof room.createdAt === "string" &&
     Number.isFinite(Date.parse(room.createdAt)) &&
-    Array.isArray(room.participants)
+    Array.isArray(room.participants) &&
+    ((room.sessionMode === undefined && room.trainingPlan === undefined) ||
+      (room.sessionMode === "shared-question" &&
+        room.trainingPlan === undefined) ||
+      (room.sessionMode === "guided-training" &&
+        isGuidedTrainingPlan(room.trainingPlan)))
   );
 }
 
 function cleanRoom(room: LearningRoom): LearningRoom {
-  return {
-    ...room,
+  const cleaned: LearningRoom = {
     code: normalizeCode(room.code),
     name: room.name.trim(),
+    topicId: room.topicId,
     teacherName: room.teacherName.trim(),
+    targetLanguage: room.targetLanguage,
+    supportLanguage: room.supportLanguage,
+    level: room.level,
+    questionIndex: room.questionIndex,
     participants: [],
+    createdAt: room.createdAt,
   };
+  if (room.sessionMode) cleaned.sessionMode = room.sessionMode;
+  if (room.trainingPlan && isGuidedTrainingPlan(room.trainingPlan)) {
+    cleaned.trainingPlan = {
+      mode: room.trainingPlan.mode,
+      version: room.trainingPlan.version,
+      stepCount: room.trainingPlan.stepCount,
+    };
+  }
+  return cleaned;
+}
+
+async function bodyExceedsLimit(request: Request) {
+  const body = request.clone().body;
+  if (!body) return false;
+
+  const reader = body.getReader();
+  let size = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) return false;
+      size += value.byteLength;
+      if (size > MAX_BODY_BYTES) {
+        await reader.cancel();
+        return true;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+async function validateRequestSecurity(
+  request: Request,
+  url: URL,
+  route: ApiRoute,
+) {
+  const isWebSocket =
+    route.kind === "live" &&
+    request.method === "GET" &&
+    request.headers.get("Upgrade")?.toLowerCase() === "websocket";
+  const isMutation = request.method !== "GET" && request.method !== "HEAD";
+
+  if (isWebSocket && request.headers.get("Origin") !== url.origin) {
+    return json({ error: "Cross-origin requests are not allowed." }, 403);
+  }
+
+  if (!isMutation) return null;
+
+  if (request.headers.get("Origin") !== url.origin) {
+    return json({ error: "Cross-origin requests are not allowed." }, 403);
+  }
+
+  const contentLengthHeader = request.headers.get("Content-Length");
+  if (contentLengthHeader !== null) {
+    const contentLength = Number(contentLengthHeader);
+    if (!Number.isSafeInteger(contentLength) || contentLength < 0) {
+      return json({ error: "Invalid Content-Length header." }, 400);
+    }
+    if (contentLength > MAX_BODY_BYTES) {
+      return json({ error: "Request body is too large." }, 413);
+    }
+  }
+
+  if (request.method !== "DELETE") {
+    const contentType = request.headers.get("Content-Type") ?? "";
+    if (
+      contentType.split(";", 1)[0].trim().toLowerCase() !==
+      "application/json"
+    ) {
+      return json({ error: "JSON content type required." }, 415);
+    }
+  }
+
+  if (await bodyExceedsLimit(request)) {
+    return json({ error: "Request body is too large." }, 413);
+  }
+
+  return null;
+}
+
+function addHeaders(response: Response, headersToAdd: HeadersInit) {
+  const headers = new Headers(response.headers);
+  new Headers(headersToAdd).forEach((value, name) => {
+    headers.set(name, value);
+  });
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+async function fetchAsset(request: Request, env: Env, url: URL) {
+  try {
+    const response = await env.ASSETS.fetch(request);
+    if (url.pathname !== "/app" && !url.pathname.startsWith("/app/")) {
+      return response;
+    }
+    return addHeaders(response, {
+      "X-Robots-Tag": url.searchParams.has("room")
+        ? "noindex, noarchive"
+        : "noindex, follow",
+    });
+  } catch {
+    return json({ error: "Static assets are temporarily unavailable." }, 503, {
+      "X-Robots-Tag": "noindex, noarchive",
+    });
+  }
+}
+
+function clientIdentity(request: Request) {
+  return request.headers.get("CF-Connecting-IP")?.trim() || "anonymous";
+}
+
+async function clientKey(value: string) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(digest).slice(0, 12), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
 }
 
 interface RateBucket {
@@ -81,13 +288,67 @@ interface RateBucket {
   resetAt: number;
 }
 
+function positiveInteger(value: string | null, fallback: number) {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+interface RateLimitResult {
+  allowed: boolean;
+  retryAfter: number;
+}
+
+function rateLimitError() {
+  return json({ error: "The rate-limit service is temporarily unavailable." }, 503);
+}
+
+async function applyRateLimit(
+  request: Request,
+  env: Env,
+  route: ApiRoute,
+): Promise<Response | null> {
+  const isCreate = route.kind === "create";
+  const isMutation = request.method !== "GET" && request.method !== "HEAD";
+  const rateBucket = isCreate ? "create" : isMutation ? "write" : "read";
+  const rateLimit = isCreate ? 15 : isMutation ? 90 : 300;
+  let rateResponse: Response;
+
+  try {
+    const limiter = env.RATE_LIMITER.getByName(
+      await clientKey(clientIdentity(request)),
+    );
+    rateResponse = await limiter.fetch("https://internal/rate-limit", {
+      method: "POST",
+      headers: {
+        "X-Rate-Bucket": rateBucket,
+        "X-Rate-Limit": String(rateLimit),
+        "X-Rate-Window": "60000",
+      },
+    });
+  } catch {
+    return rateLimitError();
+  }
+
+  if (!rateResponse.ok) return rateLimitError();
+  const rate = (await rateResponse.json().catch(() => null)) as
+    | RateLimitResult
+    | null;
+  if (!rate || typeof rate.allowed !== "boolean") return rateLimitError();
+  if (!rate.allowed) {
+    return json({ error: "Too many requests. Please try again shortly." }, 429, {
+      "Retry-After": String(Math.max(1, rate.retryAfter || 1)),
+    });
+  }
+  return null;
+}
+
 export class ApiRateLimiter extends DurableObject<Env> {
   async fetch(request: Request): Promise<Response> {
-    if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
+    if (request.method !== "POST") return methodNotAllowed("POST");
 
     const bucket = request.headers.get("X-Rate-Bucket") ?? "default";
-    const limit = Number(request.headers.get("X-Rate-Limit") ?? 60);
-    const windowMs = Number(request.headers.get("X-Rate-Window") ?? 60_000);
+    const limit = positiveInteger(request.headers.get("X-Rate-Limit"), 60);
+    const windowMs = positiveInteger(request.headers.get("X-Rate-Window"), 60_000);
     const now = Date.now();
     const stored = await this.ctx.storage.get<RateBucket>(bucket);
     const current =
@@ -97,7 +358,12 @@ export class ApiRateLimiter extends DurableObject<Env> {
 
     current.count += 1;
     await this.ctx.storage.put(bucket, current);
-    await this.ctx.storage.setAlarm(current.resetAt);
+    const buckets = await this.ctx.storage.list<RateBucket>();
+    const cleanupAt = Math.max(
+      current.resetAt,
+      ...Array.from(buckets.values(), (item) => item.resetAt),
+    );
+    await this.ctx.storage.setAlarm(cleanupAt);
 
     const retryAfter = Math.max(1, Math.ceil((current.resetAt - now) / 1000));
     return json({
@@ -119,7 +385,11 @@ export class RoomCoordinator extends DurableObject<Env> {
       try {
         socket.send(message);
       } catch {
-        socket.close(1011, "Room update failed");
+        try {
+          socket.close(1011, "Room update failed");
+        } catch {
+          // The peer may already be gone.
+        }
       }
     }
   }
@@ -129,17 +399,27 @@ export class RoomCoordinator extends DurableObject<Env> {
     for (const socket of this.ctx.getWebSockets()) {
       try {
         socket.send(message);
-      } finally {
+      } catch {
+        // Closing a failed socket is still attempted below.
+      }
+      try {
         socket.close(1000, "Room ended");
+      } catch {
+        // The peer may already be gone.
       }
     }
+  }
+
+  private async clearStoredRoom() {
+    this.closeRoomSockets();
+    await this.ctx.storage.deleteAll();
   }
 
   private async storedRoom() {
     const stored = await this.ctx.storage.get<StoredRoom>("room");
     if (!stored) return null;
     if (stored.expiresAt <= Date.now()) {
-      await this.ctx.storage.deleteAll();
+      await this.clearStoredRoom();
       return null;
     }
     return stored;
@@ -147,14 +427,48 @@ export class RoomCoordinator extends DurableObject<Env> {
 
   private authorized(request: Request, stored: StoredRoom) {
     const authorization = request.headers.get("Authorization");
-    return authorization === `Bearer ${stored.teacherToken}`;
+    return authorization === "Bearer " + stored.teacherToken;
+  }
+
+  webSocketMessage(ws: WebSocket, message: string | ArrayBuffer) {
+    if (message !== "ping") return;
+    try {
+      ws.send("pong");
+    } catch {
+      try {
+        ws.close(1011, "WebSocket response failed");
+      } catch {
+        // The peer may already be gone.
+      }
+    }
+  }
+
+  webSocketClose() {
+    // Hibernation callbacks are intentionally no-op: room state is in storage.
+  }
+
+  webSocketError(ws: WebSocket) {
+    try {
+      ws.close(1011, "WebSocket error");
+    } catch {
+      // The peer may already be gone.
+    }
   }
 
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
-    const isCreate = request.method === "POST" && url.pathname === "/api/rooms";
+    const route = parseApiRoute(url.pathname);
 
-    if (isCreate) {
+    if (route.kind === "api-root" || route.kind === "unknown") {
+      return json({ error: "Not found." }, 404);
+    }
+
+    const allowedMethods = methodsForRoute(route);
+    if (!allowedMethods.includes(request.method)) {
+      return methodNotAllowed(allowedMethods.join(", "));
+    }
+
+    if (route.kind === "create") {
       const body = (await request.json().catch(() => null)) as {
         room?: unknown;
         teacherToken?: unknown;
@@ -189,22 +503,24 @@ export class RoomCoordinator extends DurableObject<Env> {
     if (!stored) return json({ error: "Room not found or expired." }, 404);
 
     if (
-      request.method === "GET" &&
-      url.pathname.endsWith("/live") &&
+      route.kind === "live" &&
       request.headers.get("Upgrade")?.toLowerCase() === "websocket"
     ) {
       const pair = new WebSocketPair();
       const [client, server] = Object.values(pair);
-      this.ctx.acceptWebSocket(server);
+      this.ctx.acceptWebSocket(server, [stored.room.code]);
       server.send(JSON.stringify({ type: "room", room: stored.room }));
       return new Response(null, { status: 101, webSocket: client });
     }
 
-    if (request.method === "GET") {
+    if (
+      (route.kind === "room" || route.kind === "live") &&
+      request.method === "GET"
+    ) {
       return json({ room: stored.room, expiresAt: stored.expiresAt });
     }
 
-    if (request.method === "POST" && url.pathname.endsWith("/join")) {
+    if (route.kind === "join") {
       const body = (await request.json().catch(() => null)) as {
         participant?: RoomParticipant;
         participantToken?: unknown;
@@ -213,8 +529,7 @@ export class RoomCoordinator extends DurableObject<Env> {
       if (
         !participant ||
         typeof participant.id !== "string" ||
-        participant.id.length < 16 ||
-        participant.id.length > 80 ||
+        !PARTICIPANT_ID_PATTERN.test(participant.id) ||
         typeof participant.name !== "string" ||
         !participant.name.trim() ||
         participant.name.trim().length > 50 ||
@@ -252,7 +567,7 @@ export class RoomCoordinator extends DurableObject<Env> {
       return json({ room: stored.room });
     }
 
-    if (request.method === "PATCH") {
+    if (route.kind === "room" && request.method === "PATCH") {
       if (!this.authorized(request, stored)) {
         return json({ error: "Teacher authorization required." }, 403);
       }
@@ -273,155 +588,85 @@ export class RoomCoordinator extends DurableObject<Env> {
       return json({ room: stored.room });
     }
 
-    const participantPath = url.pathname.match(
-      /\/participants\/([0-9a-f-]{16,80})$/,
-    );
-    if (request.method === "DELETE" && participantPath) {
-      const participantId = participantPath[1];
+    if (route.kind === "participant") {
       const authorization = request.headers.get("Authorization");
-      const participantToken = stored.participantTokens?.[participantId];
+      const participantToken = stored.participantTokens?.[route.participantId];
       if (
         !participantToken ||
-        authorization !== `Bearer ${participantToken}`
+        authorization !== "Bearer " + participantToken
       ) {
         return json({ error: "Participant authorization required." }, 403);
       }
       const nextParticipants = stored.room.participants.filter(
-        (participant) => participant.id !== participantId,
+        (participant) => participant.id !== route.participantId,
       );
       if (nextParticipants.length !== stored.room.participants.length) {
         stored.room.participants = nextParticipants;
-        delete stored.participantTokens[participantId];
+        delete stored.participantTokens[route.participantId];
         await this.ctx.storage.put("room", stored);
         this.broadcast(stored.room);
       }
       return new Response(null, { status: 204 });
     }
 
-    if (request.method === "DELETE") {
+    if (route.kind === "room" && request.method === "DELETE") {
       if (!this.authorized(request, stored)) {
         return json({ error: "Teacher authorization required." }, 403);
       }
-      this.closeRoomSockets();
-      await this.ctx.storage.deleteAll();
+      await this.clearStoredRoom();
       return new Response(null, { status: 204 });
     }
 
-    return json({ error: "Method not allowed." }, 405, {
-      Allow: "GET, POST, PATCH, DELETE",
-    });
+    return methodNotAllowed(allowedMethods.join(", "));
   }
 
   async alarm() {
-    await this.ctx.storage.deleteAll();
+    const stored = await this.ctx.storage.get<StoredRoom>("room");
+    if (stored && stored.expiresAt > Date.now()) {
+      await this.ctx.storage.setAlarm(stored.expiresAt);
+      return;
+    }
+    await this.clearStoredRoom();
   }
 }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    if (url.pathname === "/app/" && url.searchParams.has("room")) {
-      const response = await env.ASSETS.fetch(request);
-      const headers = new Headers(response.headers);
-      headers.set("X-Robots-Tag", "noindex, noarchive");
-      return new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers,
-      });
-    }
-    if (url.pathname !== "/api" && !url.pathname.startsWith("/api/")) {
-      return env.ASSETS.fetch(request);
-    }
+    const route = parseApiRoute(url.pathname);
 
-    if (url.pathname === "/api") {
+    if (route.kind === "api-root") {
       return json({ error: "Not found." }, 404);
     }
-
-    if (
-      url.pathname !== "/api/rooms" &&
-      !/^\/api\/rooms\/[A-Z]{3}-[0-9]{3}(?:\/(?:join|live|participants\/[0-9a-f-]{16,80}))?$/.test(
-        url.pathname,
-      )
-    ) {
-      return json({ error: "Not found." }, 404);
+    if (route.kind === "unknown") {
+      return url.pathname.startsWith("/api/")
+        ? json({ error: "Not found." }, 404)
+        : fetchAsset(request, env, url);
     }
 
-    const isLiveSocket =
-      url.pathname.endsWith("/live") &&
-      request.headers.get("Upgrade")?.toLowerCase() === "websocket";
-    const isMutation = request.method !== "GET" && request.method !== "HEAD";
-    if (isLiveSocket && request.headers.get("Origin") !== url.origin) {
-      return json({ error: "Cross-origin requests are not allowed." }, 403);
-    }
-    if (isMutation) {
-      const origin = request.headers.get("Origin");
-      if (origin !== url.origin) {
-        return json({ error: "Cross-origin requests are not allowed." }, 403);
-      }
-      const contentLength = Number(request.headers.get("Content-Length") ?? 0);
-      if (contentLength > MAX_BODY_BYTES) {
-        return json({ error: "Request body is too large." }, 413);
-      }
-      if (
-        request.method !== "DELETE" &&
-        !request.headers.get("Content-Type")?.toLowerCase().startsWith("application/json")
-      ) {
-        return json({ error: "JSON content type required." }, 415);
-      }
-      if (request.method !== "DELETE") {
-        const bodyText = await request.clone().text();
-        if (new TextEncoder().encode(bodyText).byteLength > MAX_BODY_BYTES) {
-          return json({ error: "Request body is too large." }, 413);
-        }
-      }
+    const securityError = await validateRequestSecurity(request, url, route);
+    if (securityError) return securityError;
+
+    const allowedMethods = methodsForRoute(route);
+    if (!allowedMethods.includes(request.method)) {
+      return methodNotAllowed(allowedMethods.join(", "));
     }
 
-    const clientAddress =
-      request.headers.get("CF-Connecting-IP") ??
-      request.headers.get("X-Forwarded-For")?.split(",")[0]?.trim() ??
-      "local";
-    const digest = await crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(clientAddress),
-    );
-    const clientKey = Array.from(new Uint8Array(digest).slice(0, 12), (byte) =>
-      byte.toString(16).padStart(2, "0"),
-    ).join("");
-    const isCreate = request.method === "POST" && url.pathname === "/api/rooms";
-    const rateBucket = isCreate ? "create" : isMutation ? "write" : "read";
-    const rateLimit = isCreate ? 15 : isMutation ? 90 : 300;
-    const limiter = env.RATE_LIMITER.getByName(clientKey);
-    const rateResponse = await limiter.fetch("https://internal/rate-limit", {
-      method: "POST",
-      headers: {
-        "X-Rate-Bucket": rateBucket,
-        "X-Rate-Limit": String(rateLimit),
-        "X-Rate-Window": "60000",
-      },
-    });
-    const rate = (await rateResponse.json()) as {
-      allowed: boolean;
-      retryAfter: number;
-    };
-    if (!rate.allowed) {
-      return json({ error: "Too many requests. Please try again shortly." }, 429, {
-        "Retry-After": String(rate.retryAfter),
-      });
-    }
+    const rateLimitErrorResponse = await applyRateLimit(request, env, route);
+    if (rateLimitErrorResponse) return rateLimitErrorResponse;
 
     let code = "";
-    if (isCreate) {
+    if (route.kind === "create") {
       const body = (await request.clone().json().catch(() => null)) as {
         room?: { code?: unknown };
       } | null;
       if (typeof body?.room?.code === "string") code = body.room.code;
-    } else {
-      code = url.pathname.split("/")[3] ?? "";
+    } else if ("code" in route) {
+      code = route.code;
     }
 
     code = normalizeCode(code);
-    if (!/^[A-Z]{3}-[0-9]{3}$/.test(code)) {
+    if (!ROOM_CODE_PATTERN.test(code)) {
       return json({ error: "Invalid room code." }, 400);
     }
 

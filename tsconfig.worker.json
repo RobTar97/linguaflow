@@ -6,6 +6,10 @@
     "moduleResolution": "Bundler",
     "types": ["@cloudflare/workers-types"],
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "skipLibCheck": true,
     "noEmit": true
   },

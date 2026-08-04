@@ -7,12 +7,13 @@ import {
   Radio,
   LoaderCircle,
   Link2,
+  MessageCircle,
   Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { topicCatalog } from "../../catalog/topicCatalog";
 import { categoryCopy, localeNames } from "../../content/topics";
-import type { LanguageCode, Level } from "../../domain/types";
+import type { LanguageCode, Level, RoomSessionMode } from "../../domain/types";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
 import { buildPracticeUrl } from "../../platform/shareLinks";
 import { soundEffects } from "../../platform/soundEffects";
@@ -41,6 +42,9 @@ export default function TeacherStudio() {
     goal.nativeLanguage,
   );
   const [level, setLevel] = useState<Level>(goal.level);
+  const [sessionMode, setSessionMode] = useState<RoomSessionMode>(
+    "guided-training",
+  );
   const [creating, setCreating] = useState(false);
   const [roomError, setRoomError] = useState("");
   const [practiceCopied, setPracticeCopied] = useState(false);
@@ -56,6 +60,7 @@ export default function TeacherStudio() {
         targetLanguage,
         supportLanguage,
         level,
+        sessionMode,
       });
       soundEffects.play("action-success");
     } catch {
@@ -237,6 +242,51 @@ export default function TeacherStudio() {
                   </select>
                 </label>
               </div>
+              <fieldset className="session-mode-picker">
+                <legend>{copy.sessionMode}</legend>
+                <div className="session-mode-options">
+                  <label
+                    className={
+                      sessionMode === "guided-training" ? "selected" : ""
+                    }
+                  >
+                    <input
+                      type="radio"
+                      name="session-mode"
+                      value="guided-training"
+                      checked={sessionMode === "guided-training"}
+                      onChange={() => setSessionMode("guided-training")}
+                    />
+                    <span className="session-mode-icon">
+                      <Presentation size={17} />
+                    </span>
+                    <span>
+                      <strong>{copy.guidedTraining}</strong>
+                      <small>{copy.guidedTrainingHint}</small>
+                    </span>
+                  </label>
+                  <label
+                    className={
+                      sessionMode === "shared-question" ? "selected" : ""
+                    }
+                  >
+                    <input
+                      type="radio"
+                      name="session-mode"
+                      value="shared-question"
+                      checked={sessionMode === "shared-question"}
+                      onChange={() => setSessionMode("shared-question")}
+                    />
+                    <span className="session-mode-icon is-neutral">
+                      <MessageCircle size={17} />
+                    </span>
+                    <span>
+                      <strong>{copy.sharedQuestion}</strong>
+                      <small>{copy.sharedQuestionHint}</small>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
               <div className="room-facts">
                 <span>
                   <Languages size={15} />

@@ -39,6 +39,14 @@ export interface Topic {
 
 export type WorkspaceRole = "learner" | "teacher" | "student";
 
+export type RoomSessionMode = "shared-question" | "guided-training";
+
+export interface GuidedTrainingPlan {
+  mode: "guided-training";
+  version: 1;
+  stepCount: number;
+}
+
 export interface LearningGoal {
   interfaceLocale: Locale;
   nativeLanguage: LanguageCode;
@@ -67,6 +75,12 @@ export interface LearningRoom {
   targetLanguage: LanguageCode;
   supportLanguage: LanguageCode;
   level: Level;
+  /**
+   * Optional for rooms created before guided training was introduced.
+   * The room service treats missing mode metadata as shared-question mode.
+   */
+  sessionMode?: RoomSessionMode;
+  trainingPlan?: GuidedTrainingPlan;
   questionIndex: number;
   participants: RoomParticipant[];
   createdAt: string;

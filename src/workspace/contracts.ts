@@ -3,6 +3,7 @@ import type {
   LearningGoal,
   LearningRoom,
   Level,
+  RoomSessionMode,
   WorkspaceProfile,
   WorkspaceRole,
 } from "../domain/types";
@@ -22,6 +23,7 @@ export interface CreateRoomInput {
   targetLanguage: LanguageCode;
   supportLanguage: LanguageCode;
   level: Level;
+  sessionMode: RoomSessionMode;
 }
 
 export interface LearningWorkspaceValue {

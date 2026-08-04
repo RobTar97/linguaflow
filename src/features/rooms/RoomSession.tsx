@@ -2,18 +2,29 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  CheckCircle2,
   Clipboard,
   Link2,
   LogOut,
   MessageCircle,
+  Pause,
   Radio,
+  RotateCcw,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { topicCatalog } from "../../catalog/topicCatalog";
 import { categoryCopy } from "../../content/topics";
-import { workspaceCopy } from "../../i18n/workspaceCopy";
+import {
+  encodeTrainingCursor,
+  guidedTrainingView,
+  nextTrainingCursor,
+  previousTrainingCursor,
+  type GuidedTrainingStepKind,
+} from "../../domain/trainingSession";
+import { workspaceCopy, type WorkspaceCopy } from "../../i18n/workspaceCopy";
 import { motionEaseInOut, questionVariants } from "../../motion/presets";
 import { buildJoinUrl } from "../../platform/shareLinks";
 import { roomService, type RoomConnectionStatus } from "../../platform/roomService";
@@ -89,8 +100,34 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
     topic.mainPrompt[activeRoom.supportLanguage],
     ...topic.followUps[activeRoom.supportLanguage],
   ];
-  const questionIndex = Math.min(activeRoom.questionIndex, questions.length - 1);
-  const isLast = questionIndex === questions.length - 1;
+  const guided = guidedTrainingView(activeRoom);
+  const sharedQuestionIndex = Math.min(
+    activeRoom.questionIndex,
+    questions.length - 1,
+  );
+  const questionIndex = guided?.questionIndex ?? sharedQuestionIndex;
+  const isLast = guided
+    ? guided.status === "complete"
+    : sharedQuestionIndex === questions.length - 1;
+  const question = questionIndex === null ? null : questions[questionIndex];
+  const supportQuestion =
+    questionIndex === null ? null : supportQuestions[questionIndex];
+  const displayedQuestion = guided
+    ? guided.status === "active" || guided.status === "paused"
+      ? question
+      : null
+    : question;
+  const displayedSupportQuestion = guided
+    ? guided.status === "active" || guided.status === "paused"
+      ? supportQuestion
+      : null
+    : supportQuestion;
+  const phaseLabel = guided
+    ? trainingPhaseLabel(guided.step.kind, copy)
+    : copy.currentQuestion;
+  const sessionLabel = guided
+    ? copy.guidedTrainingLabel
+    : copy.sharedQuestionLabel;
 
   async function moveQuestion(index: number) {
     setControlError("");
@@ -99,6 +136,30 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
     } catch {
       setControlError(copy.roomServiceError);
     }
+  }
+
+  async function moveTrainingCursor(cursor: number) {
+    await moveQuestion(cursor);
+  }
+
+  async function handleTrainingAdvance() {
+    if (!guided) return;
+    if (guided.status === "lobby") {
+      await moveTrainingCursor(encodeTrainingCursor(1, false, guided.stepCount));
+      return;
+    }
+    if (guided.status === "paused") {
+      await moveTrainingCursor(encodeTrainingCursor(guided.stepIndex, false, guided.stepCount));
+      return;
+    }
+    await moveTrainingCursor(nextTrainingCursor(guided));
+  }
+
+  async function handleTrainingPause() {
+    if (!guided || guided.status === "complete" || guided.status === "lobby") {
+      return;
+    }
+    await moveTrainingCursor(encodeTrainingCursor(guided.stepIndex, !guided.paused, guided.stepCount));
   }
 
   async function handleLeave() {
@@ -148,6 +209,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
             <p>
               {activeRoom.supportLanguage} →{" "}
               <strong>{activeRoom.targetLanguage}</strong> · {activeRoom.level}
+              <span className="session-mode-badge">{sessionLabel}</span>
             </p>
           </div>
           <div className="room-code-card">
@@ -172,14 +234,47 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
               <span>{categoryCopy[topic.category][profile!.goal.interfaceLocale]}</span>
               <strong>{topic.title[profile!.goal.interfaceLocale]}</strong>
               <small>
-                {questionIndex + 1}/{questions.length}
+                {guided
+                  ? `${copy.trainingStep} ${guided.stepIndex + 1} ${copy.trainingOf} ${guided.stepCount}`
+                  : `${sharedQuestionIndex + 1}/${questions.length}`}
               </small>
             </div>
-            <div className="presentation-progress" role="progressbar" aria-valuemin={1} aria-valuemax={questions.length} aria-valuenow={questionIndex + 1}>
+            {guided ? (
+              <div className="training-phase-list" aria-label={copy.sessionMode}>
+                {(["warm-up", "practice", "reflect", "complete"] as const).map(
+                  (kind) => (
+                    <span
+                      className={
+                        guided.step.kind === kind
+                          ? "is-current"
+                          : guided.stepIndex > trainingPhaseEnd(kind, guided.stepCount)
+                            ? "is-done"
+                            : ""
+                      }
+                      key={kind}
+                    >
+                      {trainingPhaseLabel(kind, copy)}
+                    </span>
+                  ),
+                )}
+              </div>
+            ) : null}
+            <div
+              className="presentation-progress"
+              role="progressbar"
+              aria-valuemin={1}
+              aria-valuemax={guided?.stepCount ?? questions.length}
+              aria-valuenow={(guided?.stepIndex ?? sharedQuestionIndex) + 1}
+              aria-label={
+                guided
+                  ? `${copy.trainingStep} ${guided.stepIndex + 1} ${copy.trainingOf} ${guided.stepCount}`
+                  : copy.currentQuestion
+              }
+            >
               <motion.span
                 style={{ transformOrigin: "left center" }}
                 animate={{
-                  transform: `scaleX(${(questionIndex + 1) / questions.length})`,
+                  transform: `scaleX(${guided?.progress ?? (sharedQuestionIndex + 1) / questions.length})`,
                 }}
                 transition={{
                   duration: reduceMotion ? 0 : 0.24,
@@ -190,24 +285,59 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
             <div className="presentation-question">
               <span>
                 <MessageCircle size={18} />
-                {copy.currentQuestion}
+                {phaseLabel}
               </span>
               <AnimatePresence mode="sync">
                 <motion.p
-                  key={questionIndex}
+                  key={`${activeRoom.questionIndex}-${guided?.status ?? "shared"}`}
                   variants={questionVariants(Boolean(reduceMotion))}
                   initial="hidden"
                   animate="visible"
                   exit="exit"
                 >
-                  {questions[questionIndex]}
+                  {displayedQuestion ??
+                    (guided?.status === "complete"
+                      ? copy.trainingComplete
+                      : copy.trainingLobby)}
                 </motion.p>
               </AnimatePresence>
-              <details>
-                <summary>{copy.supportTranslation}</summary>
-                <p>{supportQuestions[questionIndex]}</p>
-              </details>
+              {guided ? (
+                <p className="training-state-hint">
+                  {guided.status === "lobby"
+                    ? copy.trainingLobbyHint
+                    : guided.status === "paused"
+                      ? copy.trainingPausedHint
+                      : guided.status === "complete"
+                        ? copy.trainingCompleteHint
+                        : copy.trainingActiveHint}
+                </p>
+              ) : null}
+              {displayedSupportQuestion ? (
+                <details>
+                  <summary>{copy.supportTranslation}</summary>
+                  <p>{displayedSupportQuestion}</p>
+                </details>
+              ) : null}
             </div>
+            {guided ? (
+              <div className={`training-support-card is-${guided.status}`} role="status">
+                <span className="training-support-icon">
+                  {guided.status === "complete" ? (
+                    <CheckCircle2 size={18} />
+                  ) : (
+                    <Sparkles size={18} />
+                  )}
+                </span>
+                <div>
+                  <strong>
+                    {guided.status === "paused"
+                      ? copy.trainingPaused
+                      : copy.trainingSupport}
+                  </strong>
+                  <p>{copy.trainingSupportHint}</p>
+                </div>
+              </div>
+            ) : null}
             <div className="presentation-vocabulary">
               {topic.vocabulary[activeRoom.targetLanguage].slice(0, 6).map((item) => (
                 <span key={item.word}>
@@ -217,26 +347,76 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
               ))}
             </div>
             {mode === "teacher" ? (
-              <div className="presentation-controls">
-                <button
-                  className="secondary-button"
-                  type="button"
-                  disabled={questionIndex === 0}
-                  onClick={() => void moveQuestion(questionIndex - 1)}
-                >
-                  <ArrowLeft size={18} />
-                  {copy.previous}
-                </button>
-                <button
-                  className="primary-button"
-                  type="button"
-                  disabled={isLast}
-                  onClick={() => void moveQuestion(questionIndex + 1)}
-                >
-                  {copy.nextQuestion}
-                  <ArrowRight size={18} />
-                </button>
-              </div>
+              guided ? (
+                <div className="presentation-controls is-guided">
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    disabled={guided.stepIndex === 0}
+                    onClick={() =>
+                      void moveTrainingCursor(previousTrainingCursor(guided))
+                    }
+                  >
+                    <ArrowLeft size={18} />
+                    {copy.trainingPrevious}
+                  </button>
+                  {guided.status === "active" ? (
+                    <button
+                      className="secondary-button"
+                      type="button"
+                      onClick={() => void handleTrainingPause()}
+                    >
+                      <Pause size={18} />
+                      {copy.trainingPause}
+                    </button>
+                  ) : null}
+                  <button
+                    className="primary-button"
+                    type="button"
+                    onClick={() =>
+                      guided.status === "complete"
+                        ? void moveTrainingCursor(encodeTrainingCursor(0, false, guided.stepCount))
+                        : void handleTrainingAdvance()
+                    }
+                  >
+                    {guided.status === "complete"
+                      ? copy.trainingRestart
+                      : guided.status === "lobby"
+                        ? copy.trainingStart
+                        : guided.status === "paused"
+                          ? copy.trainingResume
+                          : guided.stepIndex === guided.stepCount - 2
+                            ? copy.trainingFinish
+                            : copy.trainingNext}
+                    {guided.status === "complete" ? (
+                      <RotateCcw size={18} />
+                    ) : (
+                      <ArrowRight size={18} />
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div className="presentation-controls">
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    disabled={sharedQuestionIndex === 0}
+                    onClick={() => void moveQuestion(sharedQuestionIndex - 1)}
+                  >
+                    <ArrowLeft size={18} />
+                    {copy.previous}
+                  </button>
+                  <button
+                    className="primary-button"
+                    type="button"
+                    disabled={isLast}
+                    onClick={() => void moveQuestion(sharedQuestionIndex + 1)}
+                  >
+                    {copy.nextQuestion}
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
+              )
             ) : null}
             {controlError ? <p className="form-error" role="alert">{controlError}</p> : null}
           </section>
@@ -275,4 +455,38 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
       </main>
     </div>
   );
+}
+
+function trainingPhaseLabel(
+  kind: GuidedTrainingStepKind,
+  copy: WorkspaceCopy,
+): string {
+  switch (kind) {
+    case "welcome":
+      return copy.trainingLobby;
+    case "warm-up":
+      return copy.trainingWarmUp;
+    case "practice":
+      return copy.trainingPractice;
+    case "reflect":
+      return copy.trainingReflect;
+    case "complete":
+      return copy.trainingComplete;
+  }
+}
+
+function trainingPhaseEnd(
+  kind: Exclude<GuidedTrainingStepKind, "welcome">,
+  stepCount: number,
+): number {
+  switch (kind) {
+    case "warm-up":
+      return 1;
+    case "practice":
+      return stepCount - 3;
+    case "reflect":
+      return stepCount - 2;
+    case "complete":
+      return stepCount - 1;
+  }
 }

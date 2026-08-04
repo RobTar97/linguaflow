@@ -19,11 +19,12 @@ topic URLs.
 The automated source gates score the implemented page architecture **88/100**.
 A stricter release audit that also counts production proof, content depth,
 E-E-A-T, dependency security, and launch readiness scores the current
-pre-deployment project **77/100**:
+pre-deployment project **79/100** after the clean-build and dependency findings
+were closed:
 
 | Category | Weight | Readiness | Evidence |
 |---|---:|---:|---|
-| Technical SEO | 22 | 18 | Static HTML, canonicals, crawl policy, real 404, noindexed rooms and API |
+| Technical SEO | 22 | 20 | Deterministic static HTML, canonicals, crawl policy, real 404, noindexed rooms and API |
 | Content quality | 23 | 17 | Useful unique prompt resources; comprehensive lessons and substantiated reviewer attribution remain future work |
 | On-page SEO | 20 | 18 | Unique titles, descriptions, H1s, metadata, and related-topic links |
 | Structured data | 10 | 8 | Parseable local JSON-LD graphs; live rich-result validation still required |
@@ -31,10 +32,10 @@ pre-deployment project **77/100**:
 | AI-search readiness | 10 | 6 | Initial HTML content, stable citations, `llms.txt`, source and privacy links |
 | Images | 5 | 4 | Topic-specific images, dimensions, localized alt text, and `ImageObject` schema |
 
-The gap to a production-ready score requires a real canonical origin, a clean
-release build, passing dependency checks, Google Search Console, field
-performance data, external reputation signals, and qualified language-review
-attribution. Search visibility is never guaranteed by technical SEO alone.
+The clean release build and dependency checks now pass. The remaining gap
+requires a real canonical origin, Google Search Console, field performance
+data, external reputation signals, and qualified language-review attribution.
+Search visibility is never guaranteed by technical SEO alone.
 
 ## Generated public architecture
 

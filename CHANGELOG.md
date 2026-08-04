@@ -21,6 +21,8 @@ All notable project changes are documented here.
   topic-specific social metadata, and `ImageObject` structured data.
 - Live question sounds follow authored prompt changes rather than pause/resume
   cursor changes, and guided completion uses the existing success cue.
+- Cloudflare development tooling and audited transitive dependencies were
+  refreshed; the high-severity dependency audit now reports zero findings.
 
 ## 0.4.0 — 2026-07-30
 

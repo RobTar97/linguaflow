@@ -25,6 +25,9 @@
 - [ ] Teacher creates a live room on the deployed Worker.
 - [ ] A separate browser joins and appears in the participant list.
 - [ ] Teacher question changes synchronize to the student over WebSocket.
+- [ ] A guided room synchronizes lobby, warm-up, practice, pause/resume,
+      reflection, completion, previous/next, and restart across two browsers.
+- [ ] A room without session metadata still behaves as a shared-question room.
 - [ ] Question and success cues play only at documented moments after user
       interaction; muting persists after reload and removes every cue.
 - [ ] Every sounded action retains equivalent visible feedback.
@@ -34,6 +37,10 @@
 - [ ] Browser consoles and Cloudflare logs are clean.
 - [ ] Homepage, locale hubs, topic pages, sitemap, robots, and `llms.txt` return
       the expected content and status on the canonical domain.
+- [ ] `npm run smoke:deployment -- https://canonical-origin.example` passes
+      after deployment.
+- [ ] Manifest, Apple touch icon, 192px icon, 512px icon, teacher illustration,
+      and all 36 topic illustration crops load with expected content types.
 - [ ] Unknown routes return 404; `/api` and room links are noindexed.
 - [ ] Canonical, EN/PL/JA/x-default hreflang, and JSON-LD pass representative
       source and rendered-page checks.
@@ -41,6 +48,8 @@
 ## Repository and operations
 
 - [ ] README screenshots and deployment instructions are current.
+- [ ] Teacher Studio, guided teacher-room, and guided student-mobile captures
+      match the release UI and contain only fictional identities.
 - [ ] License, contribution, conduct, security, and privacy files are present.
 - [ ] GitHub issue forms and pull-request template render correctly.
 - [ ] Branch protection requires the CI check.

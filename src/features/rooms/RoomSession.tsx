@@ -47,29 +47,45 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
   const [connectionStatus, setConnectionStatus] =
     useState<RoomConnectionStatus>("connecting");
   const refreshRoomRef = useRef(refreshRoom);
-  const lastSoundedQuestionRef = useRef({
-    code: activeRoom?.code,
-    index: activeRoom?.questionIndex,
-  });
+  const activeTrainingView = activeRoom ? guidedTrainingView(activeRoom) : null;
+  const activeQuestionIndex = activeTrainingView
+    ? activeTrainingView.questionIndex
+    : activeRoom?.questionIndex ?? null;
+  const activeTrainingStatus = activeTrainingView?.status;
   const roomCode = activeRoom?.code;
+  const lastSoundedQuestionRef = useRef({
+    code: roomCode,
+    questionIndex: activeQuestionIndex,
+    status: activeTrainingStatus,
+  });
 
   useEffect(() => {
     refreshRoomRef.current = refreshRoom;
   }, [refreshRoom]);
 
   useEffect(() => {
-    const currentCode = activeRoom?.code;
-    const currentIndex = activeRoom?.questionIndex;
     const previous = lastSoundedQuestionRef.current;
-    if (!currentCode || currentIndex === undefined) return;
-    if (previous.code === currentCode && previous.index !== currentIndex) {
+    if (!roomCode) return;
+    if (
+      previous.code === roomCode &&
+      activeQuestionIndex !== null &&
+      previous.questionIndex !== activeQuestionIndex
+    ) {
       soundEffects.play("question-step");
     }
+    if (
+      previous.code === roomCode &&
+      activeTrainingStatus === "complete" &&
+      previous.status !== "complete"
+    ) {
+      soundEffects.play("action-success");
+    }
     lastSoundedQuestionRef.current = {
-      code: currentCode,
-      index: currentIndex,
+      code: roomCode,
+      questionIndex: activeQuestionIndex,
+      status: activeTrainingStatus,
     };
-  }, [activeRoom?.code, activeRoom?.questionIndex]);
+  }, [roomCode, activeQuestionIndex, activeTrainingStatus]);
 
   useEffect(() => {
     if (!roomCode) return;
@@ -319,7 +335,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
                 </details>
               ) : null}
             </div>
-            {guided ? (
+            {guided && guided.status !== "lobby" ? (
               <div className={`training-support-card is-${guided.status}`} role="status">
                 <span className="training-support-icon">
                   {guided.status === "complete" ? (
@@ -330,11 +346,17 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
                 </span>
                 <div>
                   <strong>
-                    {guided.status === "paused"
-                      ? copy.trainingPaused
-                      : copy.trainingSupport}
+                    {guided.status === "complete"
+                      ? copy.trainingComplete
+                      : guided.status === "paused"
+                        ? copy.trainingPaused
+                        : copy.trainingSupport}
                   </strong>
-                  <p>{copy.trainingSupportHint}</p>
+                  <p>
+                    {guided.status === "complete"
+                      ? copy.trainingCompleteHint
+                      : copy.trainingSupportHint}
+                  </p>
                 </div>
               </div>
             ) : null}

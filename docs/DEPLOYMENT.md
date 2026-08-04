@@ -101,6 +101,22 @@ room actions require the Worker and will not function in that mode.
 13. Validate representative EN, PL, and JA pages using the Rich Results Test,
     then follow the launch sequence in `docs/SEO.md`.
 
+Run the automated origin-level checks immediately after the Worker is reachable:
+
+```bash
+npm run smoke:deployment -- https://your-final-domain.tld
+```
+
+This verifies public and app routing, representative localized pages,
+canonicals, sitemap/robots identity, real 404 behavior, API and room-link
+noindex headers, security headers, manifest, and install icons. The GitHub
+deployment workflow runs the same command after Wrangler reports a successful
+deployment. It complements rather than replaces the two-browser room test.
+
+For guided training, verify lobby → start → pause → resume → reflection →
+completion → restart. Confirm that a student joining after a phase change sees
+the current phase and that WebSocket fallback does not reset progress.
+
 ## Rollback
 
 Cloudflare keeps Worker versions. Use deployment history in the dashboard or

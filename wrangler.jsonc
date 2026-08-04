@@ -2,13 +2,17 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "linguaflow",
   "main": "worker/index.ts",
-  "compatibility_date": "2026-07-20",
+  "compatibility_date": "2026-07-29",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
     "html_handling": "force-trailing-slash",
     "not_found_handling": "404-page",
     "run_worker_first": ["/app/*", "/api", "/api/*"]
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 0.1
   },
   "durable_objects": {
     "bindings": [
@@ -31,5 +35,36 @@
       "tag": "v2",
       "new_sqlite_classes": ["ApiRateLimiter"]
     }
-  ]
+  ],
+  "env": {
+    "staging": {
+      "name": "linguaflow-staging",
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "ROOMS",
+            "class_name": "RoomCoordinator"
+          },
+          {
+            "name": "RATE_LIMITER",
+            "class_name": "ApiRateLimiter"
+          }
+        ]
+      },
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": ["RoomCoordinator"]
+        },
+        {
+          "tag": "v2",
+          "new_sqlite_classes": ["ApiRateLimiter"]
+        }
+      ]
+    }
+  }
 }

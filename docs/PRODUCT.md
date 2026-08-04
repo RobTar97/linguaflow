@@ -34,10 +34,11 @@ flowchart TD
   E -->|Learner| F[Browse and save topics]
   F --> G[Start guided conversation]
   E -->|Teacher| H[Choose recommended topic]
-  H --> I[Configure and create room]
-  I --> J[Share code and advance questions]
+  H --> I[Choose shared or guided live format]
+  I --> J[Create room and share code]
+  J --> M[Guide prompts, pauses, reflection, and completion]
   E -->|Student| K[Enter room code]
-  K --> L[Follow synchronized question]
+  K --> L[Follow synchronized phase and prompt]
 ```
 
 ## Language decisions
@@ -67,6 +68,7 @@ Future product analytics should prioritize:
 - a session reaches at least the third prompt;
 - a teacher creates a room without leaving the flow;
 - students can join without help beyond the code;
+- a guided room reaches reflection and completion without losing synchronization;
 - saved topics are revisited;
 - users can correctly explain support vs target language.
 

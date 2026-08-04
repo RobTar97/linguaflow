@@ -65,6 +65,15 @@ Follow [docs/SOUND_DESIGN.md](docs/SOUND_DESIGN.md). Cues must stay optional,
 short, quiet, and understandable without audio. Contributors must have the
 rights to distribute every submitted recording or generated asset.
 
+### Visual assets and screenshots
+
+Follow [docs/ASSETS.md](docs/ASSETS.md). Generated illustrations need a source,
+date, final prompt, reference-role note, and rights confirmation. Product
+screenshots must come from the real application with fictional identities and
+the documented viewport sizes. Never replace an existing public image silently;
+use a versioned filename and update every consumer, metadata reference, and alt
+text in the same pull request.
+
 ## Pull request checklist
 
 - The change has a clear user or maintainer outcome.
@@ -74,6 +83,8 @@ rights to distribute every submitted recording or generated asset.
 - New copy is localized or explicitly documented as pending.
 - New topics pass catalog validation.
 - Screenshots are included for material visual changes.
+- New visual assets include provenance, dimensions, optimization, and alt/ARIA
+  evidence.
 - Documentation and changelog are updated where appropriate.
 
 By contributing, you agree that your contribution is licensed under the MIT

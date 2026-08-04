@@ -2,6 +2,26 @@
 
 All notable project changes are documented here.
 
+## 0.5.0 — 2026-08-04
+
+### Added
+
+- An optional eight-step guided teacher–student training lifecycle with lobby,
+  warm-up, practice, pause/resume, reflection, completion, and restart.
+- Synchronized phase progress and support states for students, while retaining
+  the lightweight shared-question room format and compatibility with old rooms.
+- A generated teacher-training illustration, install icons, 36 public topic
+  illustration crops, image schema, and a documented visual-asset contract.
+- Automated post-deployment origin smoke testing for public pages, the app,
+  search files, status codes, security headers, and install assets.
+
+### Changed
+
+- Topic resources now expose their approved artwork as visible images,
+  topic-specific social metadata, and `ImageObject` structured data.
+- Live question sounds follow authored prompt changes rather than pause/resume
+  cursor changes, and guided completion uses the existing success cue.
+
 ## 0.4.0 — 2026-07-30
 
 ### Added

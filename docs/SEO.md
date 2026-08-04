@@ -4,7 +4,7 @@ LinguaFlow’s searchable surface is generated from the same validated topic
 catalog as the application. Search pages never duplicate the curriculum in a
 second hand-maintained data source.
 
-This document records the 2026-07-30 pre-deployment audit. It does not claim
+This document records the 2026-08-04 pre-deployment audit. It does not claim
 rankings, indexing, traffic, or Core Web Vitals field performance; those signals
 do not exist until a final domain is deployed and measured.
 
@@ -16,22 +16,25 @@ SEO readiness. The central issue was consistent across every review: the
 curriculum existed only behind a client-rendered onboarding flow with no stable
 topic URLs.
 
-After remediation, the locally verifiable readiness score is **88/100**:
+The automated source gates score the implemented page architecture **88/100**.
+A stricter release audit that also counts production proof, content depth,
+E-E-A-T, dependency security, and launch readiness scores the current
+pre-deployment project **77/100**:
 
 | Category | Weight | Readiness | Evidence |
 |---|---:|---:|---|
-| Technical SEO | 22 | 20 | Static HTML, canonicals, crawl policy, real 404, noindexed rooms and API |
-| Content quality | 23 | 20 | 640-word main homepage content, 48 unique topics, public teacher/about/privacy pages |
-| On-page SEO | 20 | 19 | Unique titles, descriptions, H1s, metadata, related-topic links |
-| Structured data | 10 | 9 | Valid local JSON-LD graphs; live rich-result validation still required |
-| Performance | 10 | 8 | Enforced payload budgets; no production CrUX data yet |
-| AI-search readiness | 10 | 8 | Initial HTML content, stable citations, `llms.txt`, source and privacy links |
-| Images | 5 | 4 | Absolute social metadata and alt text; topic-specific social images remain future work |
+| Technical SEO | 22 | 18 | Static HTML, canonicals, crawl policy, real 404, noindexed rooms and API |
+| Content quality | 23 | 17 | Useful unique prompt resources; comprehensive lessons and substantiated reviewer attribution remain future work |
+| On-page SEO | 20 | 18 | Unique titles, descriptions, H1s, metadata, and related-topic links |
+| Structured data | 10 | 8 | Parseable local JSON-LD graphs; live rich-result validation still required |
+| Performance | 10 | 6 | Enforced payload budgets; no production CrUX data yet |
+| AI-search readiness | 10 | 6 | Initial HTML content, stable citations, `llms.txt`, source and privacy links |
+| Images | 5 | 4 | Topic-specific images, dimensions, localized alt text, and `ImageObject` schema |
 
-The remaining twelve points require a real production origin, Google Search
-Console, field performance data, external reputation signals, and qualified
-language-review attribution. Search visibility is never guaranteed by technical
-SEO alone.
+The gap to a production-ready score requires a real canonical origin, a clean
+release build, passing dependency checks, Google Search Console, field
+performance data, external reputation signals, and qualified language-review
+attribution. Search visibility is never guaranteed by technical SEO alone.
 
 ## Generated public architecture
 
@@ -55,7 +58,8 @@ The build also emits:
   hreflang annotations;
 - `/robots.txt` with the canonical sitemap and API exclusion;
 - `/llms.txt` with product facts, public sections, source, license, and privacy;
-- absolute canonical, Open Graph, and Twitter metadata;
+- absolute canonical, Open Graph, and Twitter metadata, including 36 optimized
+  topic illustrations shared across localized variants;
 - `WebSite` and `WebApplication` schema on the homepage;
 - `WebPage`, `LearningResource`, and visible `BreadcrumbList` schema on topics.
 
@@ -92,6 +96,7 @@ guidance; they must not be created as thin keyword permutations.
 - canonical URLs are absolute, unique, and use `PUBLIC_SITE_URL`;
 - titles, descriptions, robots directives, one H1, and parseable JSON-LD exist;
 - topic pages carry full hreflang, learning-resource, and breadcrumb markup;
+- topic pages reference existing illustration files and `ImageObject` schema;
 - the homepage exposes at least 500 visible words in initial HTML;
 - the sitemap contains exactly the canonical pages, no parameters,
   `priority`, or `changefreq`;

@@ -147,6 +147,8 @@ export default function TeacherStudio() {
                   <span
                     className={`topic-art art-${item.artIndex}`}
                     data-atlas={item.atlas ?? 1}
+                    role="img"
+                    aria-label={item.title[goal.interfaceLocale]}
                     style={
                       {
                         "--art-x": `${(item.artIndex % 4) * 33.333}%`,
@@ -170,6 +172,8 @@ export default function TeacherStudio() {
               <span
                 className={`topic-art art-${topic.artIndex}`}
                 data-atlas={topic.atlas ?? 1}
+                role="img"
+                aria-label={topic.title[goal.interfaceLocale]}
                 style={
                   {
                     "--art-x": `${(topic.artIndex % 4) * 33.333}%`,

@@ -67,6 +67,13 @@ Topic artwork uses a 4 × 3 atlas. Set `atlas` to `1`, `2`, or `3` and `artIndex
 detail crops. Avoid embedded text, flags as language shorthand, logos, and
 stereotyped cultural imagery.
 
+The build exposes approved atlas cells as optimized 362 × 362 topic images for
+the public search pages. Do not edit those derived files independently. Update
+the atlas and regenerate all affected cells so the application card, public
+page, schema, and social metadata remain consistent. See
+[`ASSETS.md`](ASSETS.md) for naming, provenance, optimization, accessibility,
+and screenshot requirements.
+
 ## Validation
 
 ```bash

@@ -432,6 +432,19 @@ async function findFreePort() {
 
 async function stopWorker() {
   if (worker.exitCode !== null) return;
+  if (process.platform === "win32" && worker.pid) {
+    await new Promise((resolve) => {
+      const killer = spawn(
+        "taskkill",
+        ["/pid", String(worker.pid), "/T", "/F"],
+        { stdio: "ignore", windowsHide: true },
+      );
+      killer.once("error", resolve);
+      killer.once("exit", resolve);
+    });
+    await Promise.race([onceExit(worker), delay(5_000)]);
+    return;
+  }
   worker.kill("SIGTERM");
   await Promise.race([
     onceExit(worker),

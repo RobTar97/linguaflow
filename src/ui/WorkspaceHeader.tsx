@@ -1,4 +1,4 @@
-import { Languages, Settings2 } from "lucide-react";
+import { Database, Languages, Settings2 } from "lucide-react";
 import { localeNames } from "../content/topics";
 import type { Locale, WorkspaceRole } from "../domain/types";
 import { workspaceCopy } from "../i18n/workspaceCopy";
@@ -56,6 +56,9 @@ export function WorkspaceHeader() {
           </select>
         </label>
         <SoundToggle locale={profile.goal.interfaceLocale} />
+        <button className="header-icon-button" type="button" onClick={() => navigate("data")} aria-label="Learner data import and export">
+          <Database size={19} />
+        </button>
         <button
           className="header-icon-button"
           type="button"

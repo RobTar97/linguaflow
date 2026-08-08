@@ -9,6 +9,13 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+/app/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /app/
+
+/app/workbox-*.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 /images/*
   Cache-Control: public, max-age=2592000, stale-while-revalidate=86400
 

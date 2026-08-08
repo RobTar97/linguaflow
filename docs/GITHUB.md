@@ -49,6 +49,28 @@ description remain legible in different contexts.
 GitHub secret scanning runs automatically for public repositories. Never bypass
 push protection to publish a real credential.
 
+## Community workflow
+
+Use issue forms to route work by outcome:
+
+- bug reports for reproducible defects;
+- topic cards for focused curriculum proposals;
+- feature proposals for product, contributor, deployment, or platform changes;
+- private vulnerability reports for security or privacy concerns.
+
+For substantial functions, link the issue to the proposal checklist in
+`docs/OPEN_PLATFORM.md` and record one of the governance states: exploring,
+accepted direction, ready for implementation, or implemented. Useful labels
+should describe the affected surface—such as `content`, `accessibility`,
+`localization`, `worker`, `documentation`, or `platform-format`—rather than
+implying a delivery date.
+
+Use Discussions for teaching practices, curriculum ideas that are not yet
+scoped, contributor questions, and deployment experience. Move a discussion to
+an issue when the problem, smallest useful outcome, and acceptance evidence are
+clear. Never place active room codes, student information, credentials, or
+private vulnerability details in either surface.
+
 ## Maintainer release sequence
 
 1. Run `npm ci && npm run check`.

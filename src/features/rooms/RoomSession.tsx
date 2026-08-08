@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { topicCatalog } from "../../catalog/topicCatalog";
 import { categoryCopy } from "../../content/topics";
 import {
   encodeTrainingCursor,
@@ -31,8 +30,10 @@ import { roomService, type RoomConnectionStatus } from "../../platform/roomServi
 import { soundEffects } from "../../platform/soundEffects";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
 import { useLearningWorkspace } from "../../workspace/context";
+import { useTopicLibrary } from "../../packs/libraryContext";
 
 export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
+  const { catalog } = useTopicLibrary();
   const {
     profile,
     activeRoom,
@@ -107,14 +108,34 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
   }, [roomCode]);
 
   if (!activeRoom) return null;
-  const topic = topicCatalog.get(activeRoom.topicId)!;
+  const topic = catalog.get(activeRoom.topicId);
+  const snapshot = activeRoom.topicSnapshot;
+  if (!topic && !snapshot) {
+    return (
+      <div className="workspace-page">
+        <WorkspaceHeader />
+        <main className="empty-state" role="alert">
+          <h1>Topic pack required</h1>
+          <p>This room uses a topic pack that is not installed on this device.</p>
+          <button className="secondary-button" type="button" onClick={() => void leaveRoom()}>
+            <ArrowLeft size={18} /> Leave room
+          </button>
+        </main>
+      </div>
+    );
+  }
+  const mainPrompt = topic?.mainPrompt ?? snapshot!.mainPrompt;
+  const followUps = topic?.followUps ?? snapshot!.followUps;
+  const vocabulary = topic?.vocabulary ?? snapshot!.vocabulary;
+  const title = topic?.title ?? snapshot!.title;
+  const category = topic?.category ?? snapshot!.category;
   const questions = [
-    topic.mainPrompt[activeRoom.targetLanguage],
-    ...topic.followUps[activeRoom.targetLanguage],
+    mainPrompt[activeRoom.targetLanguage]!,
+    ...followUps[activeRoom.targetLanguage]!,
   ];
   const supportQuestions = [
-    topic.mainPrompt[activeRoom.supportLanguage],
-    ...topic.followUps[activeRoom.supportLanguage],
+    mainPrompt[activeRoom.supportLanguage]!,
+    ...followUps[activeRoom.supportLanguage]!,
   ];
   const guided = guidedTrainingView(activeRoom);
   const sharedQuestionIndex = Math.min(
@@ -247,8 +268,8 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
         <div className="room-session-layout">
           <section className="presentation-board">
             <div className="presentation-topic">
-              <span>{categoryCopy[topic.category][profile!.goal.interfaceLocale]}</span>
-              <strong>{topic.title[profile!.goal.interfaceLocale]}</strong>
+              <span>{categoryCopy[category][profile!.goal.interfaceLocale]}</span>
+              <strong>{title[profile!.goal.interfaceLocale]}</strong>
               <small>
                 {guided
                   ? `${copy.trainingStep} ${guided.stepIndex + 1} ${copy.trainingOf} ${guided.stepCount}`
@@ -361,7 +382,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
               </div>
             ) : null}
             <div className="presentation-vocabulary">
-              {topic.vocabulary[activeRoom.targetLanguage].slice(0, 6).map((item) => (
+              {vocabulary[activeRoom.targetLanguage]!.slice(0, 6).map((item) => (
                 <span key={item.word}>
                   <strong>{item.word}</strong>
                   {item.translation}

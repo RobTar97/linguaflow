@@ -106,7 +106,7 @@ try {
   const tooLarge = await request("/api/rooms", {
     method: "POST",
     headers: { Origin: origin, "Content-Type": "application/json" },
-    body: " ".repeat(32 * 1024 + 1),
+    body: " ".repeat(64 * 1024 + 1),
   });
   assert.equal(tooLarge.response.status, 413);
 

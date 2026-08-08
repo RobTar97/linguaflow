@@ -20,7 +20,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import { topicCatalog, topicCategories, cefrLevels } from "../../catalog/topicCatalog";
+import { topicCategories, cefrLevels } from "../../catalog/topicCatalog";
 import {
   categoryCopy,
   categoryDescriptions,
@@ -40,8 +40,8 @@ import { readShareIntent } from "../../platform/shareLinks";
 import { soundEffects } from "../../platform/soundEffects";
 import { SoundToggle } from "../../ui/SoundToggle";
 import { useLearningWorkspace } from "../../workspace/context";
+import { useTopicLibrary } from "../../packs/libraryContext";
 
-const topics = topicCatalog.all();
 const categories = topicCategories;
 const levels = cefrLevels;
 const pairs = ["EN-PL", "EN-JA", "PL-JA"] as const;
@@ -58,12 +58,18 @@ function pairForLanguages(first: Locale, second: Locale) {
 }
 
 function ExploreExperience() {
+  const { catalog } = useTopicLibrary();
+  const topics = catalog.all();
   const {
     profile,
     route,
     navigate,
     savedIds,
     toggleSaved,
+    topicNotes,
+    setTopicNote,
+    vocabularyBookmarks,
+    toggleVocabularyBookmark,
     updateGoal,
     switchRole,
   } = useLearningWorkspace();
@@ -73,13 +79,13 @@ function ExploreExperience() {
   const practiceIntent = useMemo(() => {
     const intent = readShareIntent();
     if (intent?.kind !== "practice") return null;
-    const topic = topicCatalog.get(intent.topicId);
+    const topic = catalog.get(intent.topicId);
     return topic &&
       topic.languages.includes(intent.targetLanguage) &&
       topic.languages.includes(intent.supportLanguage)
       ? intent
       : null;
-  }, []);
+  }, [catalog]);
   const activeTargetLanguage =
     practiceIntent?.targetLanguage ?? goal.targetLanguage;
   const activeSupportLanguage =
@@ -106,18 +112,18 @@ function ExploreExperience() {
     return new Map(
       categories.map((item) => [
         item,
-        topicCatalog.browse({
+        catalog.browse({
           category: item,
           nativeLanguage: first as Locale | undefined,
           targetLanguage: second as Locale | undefined,
         }).length,
       ]),
     );
-  }, [pair]);
+  }, [catalog, pair]);
 
   const visibleTopics = useMemo(() => {
     const [first, second] = pair === "all" ? [undefined, undefined] : pair.split("-");
-    return topicCatalog.browse({
+    return catalog.browse({
       search: query,
       category,
       level,
@@ -126,7 +132,7 @@ function ExploreExperience() {
       savedIds: new Set(savedIds),
       savedOnly: view === "saved",
     });
-  }, [category, level, pair, query, savedIds, view]);
+  }, [catalog, category, level, pair, query, savedIds, view]);
 
   const selected =
     visibleTopics.find((topic) => topic.id === selectedId) ??
@@ -298,6 +304,10 @@ function ExploreExperience() {
             onCloseMobile={() => setMobileDetailOpen(false)}
             copy={copy}
             questionLocale={activeTargetLanguage}
+            note={topicNotes[selected.id] ?? ""}
+            onNoteChange={(note) => setTopicNote(selected.id, note)}
+            vocabularyBookmarks={vocabularyBookmarks}
+            onToggleVocabulary={toggleVocabularyBookmark}
           />
         </aside>
       </main>
@@ -688,6 +698,9 @@ function TopicCard({
 }
 
 function TopicArt({ topic, large = false }: { topic: Topic; large?: boolean }) {
+  if (topic.artwork?.kind === "asset" && topic.artwork.objectUrl) {
+    return <img className={`topic-art pack-topic-art ${large ? "is-large" : ""}`} src={topic.artwork.objectUrl} alt={topic.title.EN} />;
+  }
   const column = topic.artIndex % 4;
   const row = Math.floor(topic.artIndex / 4);
   const style = {
@@ -714,6 +727,10 @@ function TopicDetail({
   onCloseMobile,
   copy,
   questionLocale,
+  note,
+  onNoteChange,
+  vocabularyBookmarks,
+  onToggleVocabulary,
 }: {
   topic: Topic;
   locale: Locale;
@@ -723,6 +740,10 @@ function TopicDetail({
   onCloseMobile: () => void;
   copy: (typeof uiCopy)[Locale];
   questionLocale: Locale;
+  note: string;
+  onNoteChange: (note: string) => void;
+  vocabularyBookmarks: string[];
+  onToggleVocabulary: (key: string) => void;
 }) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const reduceMotion = useReducedMotion();
@@ -843,10 +864,24 @@ function TopicDetail({
                   <small>{item.part}</small>
                 </span>
                 <span>{item.translation}</span>
+                <button
+                  type="button"
+                  className={vocabularyBookmarks.includes(`${topic.id}:${questionLocale}:${item.word}`) ? "is-saved" : ""}
+                  onClick={() => onToggleVocabulary(`${topic.id}:${questionLocale}:${item.word}`)}
+                  aria-label={`Bookmark ${item.word}`}
+                ><Bookmark size={15} /></button>
               </div>
             ))}
           </div>
         </section>
+
+        <section className="detail-section learner-note">
+          <p className="section-label">Private topic note</p>
+          <textarea value={note} maxLength={2000} placeholder="Keep an idea, useful phrase, or question on this device…" onChange={(event) => onNoteChange(event.target.value)} />
+          <small>Stored on this device and included only when you export your learner data.</small>
+        </section>
+
+        {topic.provenance ? <details className="provenance-panel"><summary>Authorship and provenance</summary><p>{topic.provenance.authors.map((author) => author.displayName).join(", ")} · {topic.provenance.license} · {topic.provenance.packId}@{topic.provenance.packVersion}</p><p>{topic.provenance.reviews.length ? `${topic.provenance.reviews.length} factual review assertions` : "No review assertions have been recorded."}</p></details> : null}
 
         <div className="detail-actions">
           <button className="primary-button" type="button" onClick={onStart}>

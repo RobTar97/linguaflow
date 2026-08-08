@@ -43,6 +43,13 @@ production build also reads this boundary to generate canonical language hubs,
 topic resources, schema, sitemap, robots, and AI-discovery files without
 duplicating curriculum data.
 
+### `packs`
+
+The portable curriculum Module. It owns the `.lfpack` archive adapter, manifest
+schema, semantic validator, normalization into runtime topics, IndexedDB
+repository interface, and dynamic catalog provider. Feature code consumes the
+catalog and never parses ZIP or pack JSON directly.
+
 ### `workspace`
 
 The application state boundary. It owns profile setup, role routing, saved
@@ -71,11 +78,14 @@ copy, and motion. They should not import content arrays directly.
 
 ## State model
 
-The workspace stores three durable browser values:
+The workspace stores six durable browser values:
 
 - profile and learning goal;
 - saved topic IDs;
 - active room.
+- private topic notes;
+- vocabulary bookmarks;
+- installed packs in the separate IndexedDB pack repository.
 
 Development mode uses browser-local rooms for fast UI work. Production calls
 the same-origin Worker API. Each room code maps to one SQLite-backed Durable
@@ -101,6 +111,27 @@ schema, and teacher authorization before state changes. A separate
 `ApiRateLimiter` Durable Object class is sharded by a SHA-256-derived client key
 and keeps independent read, write, and room-creation counters. This keeps abuse
 control out of feature components and avoids a global singleton.
+
+## Extension seams and stability
+
+| Seam | Current contract | Expected evolution |
+|---|---|---|
+| Curriculum | Typed core topics plus schema-versioned `.lfpack` archives through the runtime catalog | Bundled approved packs and migrations for future schema majors |
+| Localization | Compile-time EN/PL/JA domain and workspace copy | Locale registration only after fallback, layout, SEO, and review contracts exist |
+| Room service | Feature-facing client with local and Worker behavior | Additional adapters may preserve authorization, expiry, errors, and synchronization |
+| Learner data | Versioned, user-controlled preview-and-merge JSON import/export | Optional adapters may synchronize only with explicit consent |
+| Public discovery | Build generated from the validated catalog | Pack-aware canonical pages without a duplicate content database |
+| Deployment | Cloudflare Worker and Durable Objects | Other hosts may implement equivalent same-origin and temporary-state behavior |
+
+These are extension seams, not stable third-party APIs. Before version 1.0,
+internal TypeScript interfaces may change with migration notes. Shared external
+formats must carry an explicit schema version, fixtures, compatibility tests,
+and documented failure behavior.
+
+Do not add arbitrary runtime plugin loading to create extensibility. Prefer
+data formats for curriculum, adapters for environmental services, and normal
+reviewed code for trusted UI behavior. See the
+[open-platform guide](OPEN_PLATFORM.md).
 
 ## Adding a backend
 

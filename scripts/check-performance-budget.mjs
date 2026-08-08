@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const DIST_DIR = fileURLToPath(new URL("../dist/", import.meta.url));
 const limits = {
-  javascriptGzip: 170 * 1024,
+  // Includes every lazy workspace, the pack archive reader, and offline update client.
+  javascriptGzip: 200 * 1024,
   initialJavascriptGzip: 90 * 1024,
   cssGzip: 12 * 1024,
   documentAssetsGzip: 200 * 1024,

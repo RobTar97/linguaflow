@@ -69,7 +69,8 @@ request size, origin, and rate limits.
 - WebSocket upgrades require `GET`, an upgrade header, and the same deployment
   origin before they reach a room object.
 - JSON is required for mutation bodies other than `DELETE`.
-- Bodies are limited to 32 KB even when `Content-Length` is absent.
+- Bodies are limited to 64 KB even when `Content-Length` is absent. Imported
+  room topics are additionally limited to a 32 KB content-only snapshot.
 - Room codes, language codes, CEFR levels, names, participant status, topic IDs,
   dates, and question indexes are validated.
 - Display names and room names are trimmed before storage.

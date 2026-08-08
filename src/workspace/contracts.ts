@@ -17,6 +17,8 @@ export type WorkspaceRoute =
   | "join"
   | "student-room";
 
+export type ExtendedWorkspaceRoute = WorkspaceRoute | "data";
+
 export interface CreateRoomInput {
   name: string;
   topicId: string;
@@ -28,15 +30,27 @@ export interface CreateRoomInput {
 
 export interface LearningWorkspaceValue {
   profile: WorkspaceProfile | null;
-  route: WorkspaceRoute;
+  route: ExtendedWorkspaceRoute;
   savedIds: string[];
+  topicNotes: Record<string, string>;
+  vocabularyBookmarks: string[];
   activeRoom: LearningRoom | null;
   canControlActiveRoom: boolean;
   completeSetup(profile: WorkspaceProfile): void;
   updateGoal(goal: Partial<LearningGoal>): void;
   switchRole(role: WorkspaceRole): void;
-  navigate(route: WorkspaceRoute): void;
+  navigate(route: ExtendedWorkspaceRoute): void;
   toggleSaved(topicId: string): void;
+  setTopicNote(topicId: string, note: string): void;
+  toggleVocabularyBookmark(key: string): void;
+  importLearnerLibrary(input: {
+    savedIds: string[];
+    topicNotes: Record<string, string>;
+    vocabularyBookmarks: string[];
+    profile?: WorkspaceProfile;
+    replaceProfile?: boolean;
+    replaceConflicts?: boolean;
+  }): void;
   createRoom(input: CreateRoomInput): Promise<LearningRoom>;
   joinRoom(
     code: string,

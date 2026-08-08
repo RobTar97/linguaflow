@@ -23,6 +23,51 @@ export interface VocabularyItem {
   part: string;
 }
 
+export interface ContributorIdentity {
+  displayName: string;
+  url?: string;
+}
+
+export type ReviewKind =
+  | "language"
+  | "cefr"
+  | "facilitation"
+  | "accessibility";
+
+export interface ReviewAssertion {
+  kind: ReviewKind;
+  locale?: Locale;
+  reviewer: ContributorIdentity;
+  reviewedAt: string;
+  notes?: string;
+}
+
+export interface TopicProvenance {
+  packId: string;
+  packVersion: string;
+  license: string;
+  authors: ContributorIdentity[];
+  sourceUrl?: string;
+  sourceRevision?: string;
+  reviews: ReviewAssertion[];
+}
+
+export interface FacilitationGuide {
+  durationMinutes: { min: number; max: number };
+  groupSize: { min: number; max: number };
+  objectives: Record<Locale, string[]>;
+  preparation: LocalizedText;
+  warmUp: LocalizedText;
+  tips: Record<Locale, string[]>;
+  easier: LocalizedText;
+  harder: LocalizedText;
+  sensitiveContent?: LocalizedText;
+}
+
+export type TopicArtwork =
+  | { kind: "atlas"; index: number; atlas?: 1 | 2 | 3 }
+  | { kind: "asset"; path: string; objectUrl?: string };
+
 export interface Topic {
   id: string;
   level: Level;
@@ -35,6 +80,9 @@ export interface Topic {
   vocabulary: Record<Locale, VocabularyItem[]>;
   artIndex: number;
   atlas?: 1 | 2 | 3;
+  artwork?: TopicArtwork;
+  facilitation?: FacilitationGuide;
+  provenance?: TopicProvenance;
 }
 
 export type WorkspaceRole = "learner" | "teacher" | "student";
@@ -71,6 +119,7 @@ export interface LearningRoom {
   code: string;
   name: string;
   topicId: string;
+  topicSnapshot?: RoomTopicSnapshot;
   teacherName: string;
   targetLanguage: LanguageCode;
   supportLanguage: LanguageCode;
@@ -84,4 +133,14 @@ export interface LearningRoom {
   questionIndex: number;
   participants: RoomParticipant[];
   createdAt: string;
+}
+
+export interface RoomTopicSnapshot {
+  id: string;
+  category: Category;
+  title: LocalizedText;
+  mainPrompt: Partial<Record<LanguageCode, string>>;
+  followUps: Partial<Record<LanguageCode, string[]>>;
+  vocabulary: Partial<Record<LanguageCode, VocabularyItem[]>>;
+  provenance: Pick<TopicProvenance, "packId" | "packVersion" | "license" | "authors">;
 }

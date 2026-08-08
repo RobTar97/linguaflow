@@ -43,6 +43,27 @@ Routine fixes and focused content additions can begin directly as pull
 requests. Security vulnerabilities follow `SECURITY.md`, not this public
 process.
 
+## Proposal lifecycle
+
+Substantial platform ideas use four lightweight states:
+
+1. **Exploring** — the issue describes the problem, scenario, alternatives,
+   and open evidence or safety questions.
+2. **Accepted direction** — maintainers agree the problem belongs in the
+   project and place it in the roadmap; scope and timing are not promised.
+3. **Ready for implementation** — the smallest useful scope, owner, affected
+   contracts, acceptance evidence, and any ADR are clear.
+4. **Implemented** — code, content, tests, migration notes, documentation, and
+   release checks are merged.
+
+Roadmap text alone does not move a proposal beyond accepted direction. Changes
+that create identity, permanent records, remote content installation, new
+service dependencies, or executable extension mechanisms require explicit
+security, privacy, accessibility, and maintenance review.
+
+Use the proposal checklist in `docs/OPEN_PLATFORM.md` and the decision filters
+in `docs/VISION.md` so discussions compare the same concerns.
+
 ## Conflicts and appeals
 
 Start with the pull-request or issue thread and summarize the disputed facts and

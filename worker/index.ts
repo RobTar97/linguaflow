@@ -19,7 +19,7 @@ interface StoredRoom {
 }
 
 const ROOM_LIFETIME_MS = 8 * 60 * 60 * 1000;
-const MAX_BODY_BYTES = 32 * 1024;
+const MAX_BODY_BYTES = 64 * 1024;
 const MAX_TRAINING_STEPS = 8;
 const VALID_LANGUAGES = new Set(["EN", "PL", "JA"]);
 const VALID_LEVELS = new Set(["A1", "A2", "B1", "B2", "C1"]);
@@ -119,7 +119,9 @@ function isRoom(value: unknown): value is LearningRoom {
     room.name.trim().length >= 1 &&
     room.name.trim().length <= 80 &&
     typeof room.topicId === "string" &&
-    /^[a-z0-9-]{1,80}$/.test(room.topicId) &&
+    /^[a-z0-9-]+(?::[a-z0-9-]+)?$/.test(room.topicId) &&
+    room.topicId.length <= 121 &&
+    (room.topicSnapshot === undefined || isTopicSnapshot(room.topicSnapshot)) &&
     typeof room.teacherName === "string" &&
     room.teacherName.trim().length >= 1 &&
     room.teacherName.trim().length <= 50 &&
@@ -145,11 +147,27 @@ function isRoom(value: unknown): value is LearningRoom {
   );
 }
 
+function isTopicSnapshot(value: unknown) {
+  if (!value || typeof value !== "object") return false;
+  const snapshot = value as LearningRoom["topicSnapshot"];
+  if (!snapshot) return false;
+  const strings = JSON.stringify(snapshot);
+  return strings.length <= 32_000 &&
+    typeof snapshot.id === "string" && snapshot.id.length <= 121 &&
+    typeof snapshot.category === "string" &&
+    snapshot.title && Object.values(snapshot.title).every((item) => typeof item === "string" && item.length <= 160) &&
+    snapshot.mainPrompt && Object.values(snapshot.mainPrompt).every((item) => typeof item === "string" && item.length <= 500) &&
+    snapshot.followUps && Object.values(snapshot.followUps).every((items) => Array.isArray(items) && items.length <= 12 && items.every((item) => typeof item === "string" && item.length <= 500)) &&
+    snapshot.vocabulary && Object.values(snapshot.vocabulary).every((items) => Array.isArray(items) && items.length <= 12) &&
+    snapshot.provenance && typeof snapshot.provenance.packId === "string" && snapshot.provenance.packId.length <= 60;
+}
+
 function cleanRoom(room: LearningRoom): LearningRoom {
   const cleaned: LearningRoom = {
     code: normalizeCode(room.code),
     name: room.name.trim(),
     topicId: room.topicId,
+    ...(room.topicSnapshot ? { topicSnapshot: room.topicSnapshot } : {}),
     teacherName: room.teacherName.trim(),
     targetLanguage: room.targetLanguage,
     supportLanguage: room.supportLanguage,

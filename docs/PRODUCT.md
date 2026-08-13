@@ -60,6 +60,21 @@ frequent ambiguity:
 - Topics avoid requiring disclosure of trauma, health status, finances, or
   other sensitive personal information.
 
+## Capability model
+
+LinguaFlow has four connected product surfaces:
+
+| Surface | Primary user | Current responsibility |
+|---|---|---|
+| Public curriculum | Learners, teachers, search visitors | Explain the project and expose stable localized topic resources |
+| Practice workspace | Independent learners | Discover topics, save useful material, and follow self-paced prompts |
+| Teaching workspace | Teachers and students | Prepare, share, synchronize, pause, reflect, complete, and end a room |
+| Open platform | Contributors and self-hosters | Review curriculum, extend documented seams, validate releases, and operate a fork |
+
+The same catalog supplies all four surfaces. A new capability should not create
+an unrelated content store, duplicate language logic, or make the public
+curriculum disagree with the application.
+
 ## Success signals
 
 Future product analytics should prioritize:
@@ -71,6 +86,26 @@ Future product analytics should prioritize:
 - a guided room reaches reflection and completion without losing synchronization;
 - saved topics are revisited;
 - users can correctly explain support vs target language.
+
+Open-platform success also means:
+
+- a first-time contributor can find the right guide and validation command;
+- a language reviewer can assess one topic without understanding room code;
+- a self-hoster can identify a configuration problem without exposing secrets;
+- community curriculum carries portable license, attribution, review, and
+  compatibility information;
+- learner-owned data can move without requiring an upstream account.
+
+## Evaluating future functions
+
+Prefer a function when it improves conversation, teaching, contribution, or
+self-hosting; fits an existing boundary; has an accessible and localized
+experience; and defines portable data and deletion behavior. Require stronger
+evidence when it adds identity, recording, grading, moderation, permanent
+history, remote code, or a paid dependency.
+
+The [open-platform guide](OPEN_PLATFORM.md) contains the full proposal template
+and the [community vision](VISION.md) records the strategic decision filters.
 
 ## Current non-goals
 

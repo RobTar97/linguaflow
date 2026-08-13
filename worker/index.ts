@@ -19,12 +19,26 @@ interface StoredRoom {
 }
 
 const ROOM_LIFETIME_MS = 8 * 60 * 60 * 1000;
-const MAX_BODY_BYTES = 32 * 1024;
+const MAX_BODY_BYTES = 64 * 1024;
 const MAX_TRAINING_STEPS = 8;
 const VALID_LANGUAGES = new Set(["EN", "PL", "JA"]);
 const VALID_LEVELS = new Set(["A1", "A2", "B1", "B2", "C1"]);
+const VALID_CATEGORIES = new Set([
+  "Daily Life", "Work & Career", "Travel & Culture", "People & Relationships",
+  "Technology", "Health & Wellness", "Education", "Environment", "Food & Cooking",
+  "Arts & Media", "Science & Nature", "Society & Ideas",
+]);
 const ROOM_CODE_PATTERN = /^[A-Z]{3}-[0-9]{3}$/;
 const PARTICIPANT_ID_PATTERN = /^[0-9a-f-]{16,80}$/;
+
+function isHttpUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 type ApiRoute =
   | { kind: "api-root" }
@@ -119,7 +133,16 @@ function isRoom(value: unknown): value is LearningRoom {
     room.name.trim().length >= 1 &&
     room.name.trim().length <= 80 &&
     typeof room.topicId === "string" &&
-    /^[a-z0-9-]{1,80}$/.test(room.topicId) &&
+    /^[a-z0-9-]+(?::[a-z0-9-]+)?$/.test(room.topicId) &&
+    room.topicId.length <= 121 &&
+    (room.topicId.includes(":")
+      ? isTopicSnapshot(
+          room.topicSnapshot,
+          room.topicId,
+          room.targetLanguage,
+          room.supportLanguage,
+        )
+      : room.topicSnapshot === undefined) &&
     typeof room.teacherName === "string" &&
     room.teacherName.trim().length >= 1 &&
     room.teacherName.trim().length <= 50 &&
@@ -145,11 +168,109 @@ function isRoom(value: unknown): value is LearningRoom {
   );
 }
 
+function isTopicSnapshot(
+  value: unknown,
+  topicId: string,
+  targetLanguage: string | undefined,
+  supportLanguage: string | undefined,
+) {
+  if (!value || typeof value !== "object") return false;
+  const snapshot = value as LearningRoom["topicSnapshot"];
+  if (!snapshot) return false;
+  const strings = JSON.stringify(snapshot);
+  const requiredLanguages = [targetLanguage, supportLanguage].filter(
+    (language): language is string => Boolean(language),
+  );
+  const validVocabulary = (items: unknown) =>
+    Array.isArray(items) &&
+    items.length >= 5 &&
+    items.length <= 12 &&
+    items.every((item) => {
+      if (!item || typeof item !== "object") return false;
+      const word = item as { word?: unknown; translation?: unknown; part?: unknown };
+      return (
+        typeof word.word === "string" && word.word.length >= 1 && word.word.length <= 120 &&
+        typeof word.translation === "string" && word.translation.length >= 1 && word.translation.length <= 160 &&
+        typeof word.part === "string" && word.part.length >= 1 && word.part.length <= 40
+      );
+    });
+  return (
+    strings.length <= 32_000 &&
+    snapshot.id === topicId &&
+    VALID_CATEGORIES.has(snapshot.category) &&
+    snapshot.title &&
+    ["EN", "PL", "JA"].every((locale) => {
+      const title = snapshot.title[locale as keyof typeof snapshot.title];
+      return typeof title === "string" && title.length >= 1 && title.length <= 160;
+    }) &&
+    snapshot.mainPrompt &&
+    Object.keys(snapshot.mainPrompt).every((language) => VALID_LANGUAGES.has(language)) &&
+    requiredLanguages.every((language) => {
+      const prompt = snapshot.mainPrompt[language as keyof typeof snapshot.mainPrompt];
+      return typeof prompt === "string" && prompt.length >= 1 && prompt.length <= 500;
+    }) &&
+    snapshot.followUps &&
+    Object.keys(snapshot.followUps).every((language) => VALID_LANGUAGES.has(language)) &&
+    Object.values(snapshot.followUps).every((items) => Array.isArray(items) && items.length >= 5 && items.length <= 12 && items.every((item) => typeof item === "string" && item.length >= 1 && item.length <= 500)) &&
+    requiredLanguages.every((language) => {
+      const items = snapshot.followUps[language as keyof typeof snapshot.followUps];
+      return Array.isArray(items) && items.length >= 5 && items.length <= 12 && items.every((item) => typeof item === "string" && item.length >= 1 && item.length <= 500);
+    }) &&
+    snapshot.vocabulary &&
+    Object.keys(snapshot.vocabulary).every((language) => VALID_LANGUAGES.has(language)) &&
+    Object.values(snapshot.vocabulary).every(validVocabulary) &&
+    requiredLanguages.every((language) =>
+      validVocabulary(snapshot.vocabulary[language as keyof typeof snapshot.vocabulary]),
+    ) &&
+    snapshot.provenance &&
+    typeof snapshot.provenance.packId === "string" &&
+    snapshot.provenance.packId === topicId.split(":", 1)[0] &&
+    typeof snapshot.provenance.packVersion === "string" && snapshot.provenance.packVersion.length <= 40 &&
+    typeof snapshot.provenance.license === "string" && snapshot.provenance.license.length <= 80 &&
+    Array.isArray(snapshot.provenance.authors) &&
+    snapshot.provenance.authors.length >= 1 &&
+    snapshot.provenance.authors.length <= 20 &&
+    snapshot.provenance.authors.every((author) =>
+      author &&
+      typeof author.displayName === "string" && author.displayName.length >= 1 && author.displayName.length <= 100 &&
+      (author.url === undefined || (typeof author.url === "string" && author.url.length <= 500 && isHttpUrl(author.url))),
+    )
+  );
+}
+
+function cleanTopicSnapshot(snapshot: NonNullable<LearningRoom["topicSnapshot"]>) {
+  return {
+    id: snapshot.id,
+    category: snapshot.category,
+    title: { EN: snapshot.title.EN, PL: snapshot.title.PL, JA: snapshot.title.JA },
+    mainPrompt: { ...snapshot.mainPrompt },
+    followUps: Object.fromEntries(
+      Object.entries(snapshot.followUps).map(([locale, items]) => [locale, [...items]]),
+    ),
+    vocabulary: Object.fromEntries(
+      Object.entries(snapshot.vocabulary).map(([locale, items]) => [
+        locale,
+        items.map(({ word, translation, part }) => ({ word, translation, part })),
+      ]),
+    ),
+    provenance: {
+      packId: snapshot.provenance.packId,
+      packVersion: snapshot.provenance.packVersion,
+      license: snapshot.provenance.license,
+      authors: snapshot.provenance.authors.map(({ displayName, url }) => ({
+        displayName,
+        ...(url ? { url } : {}),
+      })),
+    },
+  } satisfies NonNullable<LearningRoom["topicSnapshot"]>;
+}
+
 function cleanRoom(room: LearningRoom): LearningRoom {
   const cleaned: LearningRoom = {
     code: normalizeCode(room.code),
     name: room.name.trim(),
     topicId: room.topicId,
+    ...(room.topicSnapshot ? { topicSnapshot: cleanTopicSnapshot(room.topicSnapshot) } : {}),
     teacherName: room.teacherName.trim(),
     targetLanguage: room.targetLanguage,
     supportLanguage: room.supportLanguage,

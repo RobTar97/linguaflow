@@ -2,6 +2,40 @@
 
 All notable project changes are documented here.
 
+## Unreleased
+
+### Added
+
+- Versioned `.lfpack` curriculum archives with bounded ZIP parsing, manifest
+  and semantic validation, CLI build/validate commands, and IndexedDB install.
+- A public account-free contributor preview for learner, teacher, provenance,
+  review, and print views.
+- Baseline facilitation guides for all 48 core topics, learner-owned JSON
+  import/export, private notes, vocabulary bookmarks, and printable lessons.
+- A scoped offline application shell, installed-pack access, connectivity and
+  update notices, and bounded imported-topic snapshots for online live rooms.
+
+### Changed
+
+- Hardened topic-pack archive, metadata, learner-data import, installed-version,
+  and imported-room-snapshot validation; added local pack removal and clearer
+  contributor-preview accessibility and failure states.
+- The total lazy JavaScript budget is 202 KiB gzip to include portable archive,
+  hardened data import, and offline modules; the stricter 90 KiB initial budget
+  is unchanged and the current entry is below 70 KiB.
+
+### Documentation
+
+- Added a task-oriented documentation index, an open-platform capability and
+  extension guide, and a north-star community product vision.
+- Reframed the roadmap around versioned topic packs, contributor preview,
+  transparent review metadata, teaching portability, learner-owned data, and
+  self-hosting diagnostics.
+- Aligned product, architecture, governance, support, and contribution guides
+  around explicit proposal states and compatibility rules.
+- Added a provider-neutral, draft-first BYOK AI authoring proposal and ADR with
+  explicit credential, privacy, validation, provenance, and human-review gates.
+
 ## 0.5.0 — 2026-08-04
 
 ### Added

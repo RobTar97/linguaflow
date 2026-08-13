@@ -13,6 +13,10 @@
 - [ ] `npm audit --audit-level=high` reports no known high-severity dependency
       vulnerabilities.
 - [ ] Changelog, package version, and git tag match.
+- [ ] New shared formats declare a schema version, compatibility behavior,
+      fixtures, migration notes, and actionable validation errors.
+- [ ] New platform functions match an accepted proposal and the extension
+      seams in `docs/OPEN_PLATFORM.md`.
 
 ## Product QA
 

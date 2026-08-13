@@ -9,6 +9,18 @@ Use this glossary when discussing product behavior or naming code.
   and CEFR level stored together.
 - **Topic**: an authored conversation unit containing one main prompt,
   follow-up questions, vocabulary, metadata, and artwork.
+- **Topic pack**: a versioned `.lfpack` archive containing a manifest, license,
+  one or more topics, optional artwork, authorship, and review provenance.
+- **Installed pack**: a validated topic pack stored in the learner's browser and
+  available to the runtime catalog, including during offline practice.
+- **Review assertion**: a factual record of who reviewed which dimension of a
+  pack or topic, in which locale, and when; absence is shown as unreviewed.
+- **Facilitation guide**: teacher-facing duration, group size, objectives,
+  preparation, warm-up, teaching tips, and difficulty adaptations for a topic.
+- **Learner library**: learner-owned saved topics, private topic notes, and
+  vocabulary bookmarks that can be exported and merged on another device.
+- **Contributor preview**: the public, account-free workspace that validates an
+  `.lfpack` and renders learner, teacher, provenance, and print views.
 - **Conversation session**: independent learner practice through one topic.
 - **Room**: a teacher-led shared topic state identified by a short code.
 - **Teacher**: creates a room and controls the active question.

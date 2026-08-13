@@ -16,6 +16,7 @@ learners, teachers, and classrooms.
 [![Cloudflare Workers](https://img.shields.io/badge/deploy-Cloudflare_Workers-f38020?style=flat-square)](docs/DEPLOYMENT.md)
 
 [Quick start](#quick-start) · [How it works](#how-it-works) ·
+[Documentation](docs/README.md) · [Open platform](docs/OPEN_PLATFORM.md) ·
 [Teaching](docs/TEACHER_GUIDE.md) · [Contributing](CONTRIBUTING.md) ·
 [Deploy](docs/DEPLOYMENT.md) · [Search readiness](docs/SEO.md) ·
 [Security](SECURITY.md) · [Assets](docs/ASSETS.md)
@@ -170,6 +171,26 @@ strict schema, size, and rate checks. See the
 [architecture](docs/ARCHITECTURE.md) and
 [security model](docs/SECURITY_MODEL.md).
 
+## Open-platform direction
+
+LinguaFlow is designed as a small, complete application with explicit seams
+for curriculum, localization, room backends, experience foundations, public
+discovery, and deployment. It does not yet expose an arbitrary runtime plugin
+API or promise a stable third-party HTTP API.
+
+The first public extension contract is the versioned `.lfpack` topic-pack
+format, with CLI and browser validation, attribution, review assertions,
+compatibility information, account-free preview, and local installation.
+Teacher facilitation metadata, learner-owned data export/import, printable
+lessons, and offline self-paced access are also implemented foundations. The
+community roadmap next prioritizes deeper review tooling and self-hosting
+diagnostics. Optional identity and federated catalogs remain later explorations
+because they expand privacy, moderation, and compatibility responsibilities.
+
+Read the [open-platform guide](docs/OPEN_PLATFORM.md) for the capability model
+and proposal checklist, the [community vision](docs/VISION.md) for strategic
+decision filters, and the [roadmap](docs/ROADMAP.md) for ordered opportunities.
+
 ## Security and privacy by default
 
 - no secrets are committed or compiled into browser assets;
@@ -178,7 +199,7 @@ strict schema, size, and rate checks. See the
 - GitHub Actions dependencies are pinned to immutable commit SHAs;
 - API mutations require a matching origin;
 - payloads, names, status values, and question indexes are validated;
-- request bodies are capped at 32 KB and abusive clients are rate-limited;
+- request bodies are capped at 64 KB and abusive clients are rate-limited;
 - rooms expire after eight hours and can be ended immediately;
 - CSP, framing, MIME-sniffing, referrer, and permissions headers ship by default;
 - no audio, video, transcript, email address, password, analytics cookie, or
@@ -211,7 +232,8 @@ public/           metadata, headers, original artwork, audio, social assets
 
 Start with [the architecture guide](docs/ARCHITECTURE.md) for code changes or
 [the content guide](docs/CONTENT_GUIDE.md) to add a conversation topic. Audio
-contributors should read the [sound-design guide](docs/SOUND_DESIGN.md).
+contributors should read the [sound-design guide](docs/SOUND_DESIGN.md). The
+[documentation index](docs/README.md) maps every guide by audience and task.
 
 ## Commands
 
@@ -233,8 +255,9 @@ contributors should read the [sound-design guide](docs/SOUND_DESIGN.md).
 
 ## Contributing
 
-Code, accessibility fixes, teaching feedback, translations, new topics, and
-documentation improvements are welcome.
+Code, accessibility fixes, teaching feedback, translations, new topics,
+self-hosting improvements, and documentation work are welcome. You do not need
+to implement application code to make a meaningful contribution.
 
 1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
 2. Choose an issue form or propose a focused change.

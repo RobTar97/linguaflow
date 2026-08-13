@@ -37,6 +37,12 @@ metadata as the hosting provider.
 - third-party web fonts or browser-side AI/API requests;
 - payment information.
 
+The default build does not configure an AI provider. The proposed optional
+contributor authoring flow is separate from learner practice and must never send
+profiles, goals, saves, notes, vocabulary, rooms, or participant data. A
+self-hosted deployment that enables it must identify the provider, data sent,
+retention, and deletion behavior; see [AI_AUTHORING.md](AI_AUTHORING.md).
+
 Deployers are responsible for publishing contact details and any additional
 notice required by their jurisdiction or institution. Teachers should use
 first names, initials, or classroom nicknames and must not place sensitive

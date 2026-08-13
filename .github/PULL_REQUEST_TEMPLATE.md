@@ -13,6 +13,8 @@ Describe the user or maintainer outcome.
 - [ ] Reduced motion checked for animation changes
 - [ ] Localization/content validation checked
 - [ ] Documentation updated
+- [ ] New persistent data or shared formats include versioning, migration, export, and deletion behavior
+- [ ] New platform seams match `docs/OPEN_PLATFORM.md` or include an accepted proposal/ADR
 
 ## Screenshots
 

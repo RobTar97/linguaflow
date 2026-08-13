@@ -39,10 +39,14 @@
     "check:deploy": "node scripts/check-deploy-config.mjs",
     "smoke:deployment": "node scripts/smoke-deployment.mjs",
     "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run audit:seo && npm run audit:performance && npm run types:worker && npm run check:worker-config && npm run test:worker",
-    "check:content": "vitest run --maxWorkers=1 src/catalog/topicCatalog.test.ts"
+    "check:content": "vitest run --maxWorkers=1 src/catalog/topicCatalog.test.ts",
+    "pack:validate": "tsx scripts/topic-pack.ts validate",
+    "pack:build": "tsx scripts/topic-pack.ts build"
   },
   "dependencies": {
+    "fflate": "^0.8.3",
     "framer-motion": "^12.43.0",
+    "idb": "^8.0.3",
     "lucide-react": "^0.577.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
@@ -58,9 +62,11 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^16.3.0",
+    "tsx": "^4.23.11",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.65.0",
     "vite": "^7.1.2",
+    "vite-plugin-pwa": "^1.3.0",
     "vitest": "^3.2.4",
     "wrangler": "^4.118.0"
   }

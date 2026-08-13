@@ -11,16 +11,18 @@ import {
   Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { topicCatalog } from "../../catalog/topicCatalog";
 import { categoryCopy, localeNames } from "../../content/topics";
 import type { LanguageCode, Level, RoomSessionMode } from "../../domain/types";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
 import { buildPracticeUrl } from "../../platform/shareLinks";
 import { soundEffects } from "../../platform/soundEffects";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
+import { TopicArtwork } from "../../ui/TopicArtwork";
 import { useLearningWorkspace } from "../../workspace/context";
+import { useTopicLibrary } from "../../packs/libraryContext";
 
 export default function TeacherStudio() {
+  const { catalog } = useTopicLibrary();
   const {
     profile,
     activeRoom,
@@ -30,9 +32,9 @@ export default function TeacherStudio() {
   } = useLearningWorkspace();
   const goal = profile!.goal;
   const copy = workspaceCopy[goal.interfaceLocale];
-  const recommended = useMemo(() => topicCatalog.recommend(goal), [goal]);
+  const recommended = useMemo(() => catalog.recommend(goal), [catalog, goal]);
   const [selectedTopicId, setSelectedTopicId] = useState(
-    recommended[0]?.id ?? topicCatalog.all()[0].id,
+    recommended[0]?.id ?? catalog.all()[0].id,
   );
   const [roomName, setRoomName] = useState("Conversation practice");
   const [targetLanguage, setTargetLanguage] = useState<LanguageCode>(
@@ -48,7 +50,7 @@ export default function TeacherStudio() {
   const [creating, setCreating] = useState(false);
   const [roomError, setRoomError] = useState("");
   const [practiceCopied, setPracticeCopied] = useState(false);
-  const topic = topicCatalog.get(selectedTopicId)!;
+  const topic = catalog.get(selectedTopicId) ?? recommended[0] ?? catalog.all()[0];
 
   async function handleCreateRoom() {
     setCreating(true);
@@ -144,18 +146,7 @@ export default function TeacherStudio() {
                   className={selectedTopicId === item.id ? "selected" : ""}
                   onClick={() => setSelectedTopicId(item.id)}
                 >
-                  <span
-                    className={`topic-art art-${item.artIndex}`}
-                    data-atlas={item.atlas ?? 1}
-                    role="img"
-                    aria-label={item.title[goal.interfaceLocale]}
-                    style={
-                      {
-                        "--art-x": `${(item.artIndex % 4) * 33.333}%`,
-                        "--art-y": `${Math.floor(item.artIndex / 4) * 50}%`,
-                      } as React.CSSProperties
-                    }
-                  />
+                  <TopicArtwork topic={item} locale={goal.interfaceLocale} />
                   <span>
                     <strong>{item.title[goal.interfaceLocale]}</strong>
                     <small>{categoryCopy[item.category][goal.interfaceLocale]}</small>
@@ -169,18 +160,7 @@ export default function TeacherStudio() {
 
           <aside className="room-builder">
             <div className="room-preview">
-              <span
-                className={`topic-art art-${topic.artIndex}`}
-                data-atlas={topic.atlas ?? 1}
-                role="img"
-                aria-label={topic.title[goal.interfaceLocale]}
-                style={
-                  {
-                    "--art-x": `${(topic.artIndex % 4) * 33.333}%`,
-                    "--art-y": `${Math.floor(topic.artIndex / 4) * 50}%`,
-                  } as React.CSSProperties
-                }
-              />
+              <TopicArtwork topic={topic} locale={goal.interfaceLocale} />
               <div>
                 <span>{categoryCopy[topic.category][goal.interfaceLocale]}</span>
                 <h2>{topic.title[goal.interfaceLocale]}</h2>
@@ -303,6 +283,20 @@ export default function TeacherStudio() {
                   <Users size={15} /> 2–12
                 </span>
               </div>
+              {topic.facilitation ? <details className="facilitation-notes">
+                <summary>Teacher facilitation notes</summary>
+                <div className="lesson-sheet">
+                  <h3>{topic.title[goal.interfaceLocale]}</h3>
+                  <p><strong>{topic.facilitation.durationMinutes.min}–{topic.facilitation.durationMinutes.max} min · {topic.facilitation.groupSize.min}–{topic.facilitation.groupSize.max} learners</strong></p>
+                  <h4>Learning objectives</h4><ul>{topic.facilitation.objectives[goal.interfaceLocale].map((item) => <li key={item}>{item}</li>)}</ul>
+                  <h4>Preparation</h4><p>{topic.facilitation.preparation[goal.interfaceLocale]}</p>
+                  <h4>Warm-up</h4><p>{topic.facilitation.warmUp[goal.interfaceLocale]}</p>
+                  <h4>Make it easier</h4><p>{topic.facilitation.easier[goal.interfaceLocale]}</p>
+                  <h4>Make it harder</h4><p>{topic.facilitation.harder[goal.interfaceLocale]}</p>
+                  <p className="provenance-line">{topic.provenance?.authors.map((author) => author.displayName).join(", ")} · {topic.provenance?.license} · {topic.provenance?.reviews.length ? `${topic.provenance.reviews.length} review assertions` : "Unreviewed baseline"}</p>
+                  <button className="secondary-button no-print" type="button" onClick={() => window.print()}>Print lesson notes</button>
+                </div>
+              </details> : null}
               <div className="teaching-paths">
                 <div>
                   <strong>{copy.selfPaced}</strong>

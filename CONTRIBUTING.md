@@ -12,6 +12,10 @@ teaching feedback, tests, or documentation.
 4. Never include learner names, classroom recordings, API keys, or private data.
 5. Read [GOVERNANCE.md](GOVERNANCE.md) for decision and maintainer expectations.
 
+The [documentation index](docs/README.md) maps guides by task. The
+[open-platform guide](docs/OPEN_PLATFORM.md) explains the current extension
+seams and the [roadmap](docs/ROADMAP.md) lists useful contribution areas.
+
 ## Local development
 
 ```bash
@@ -30,6 +34,15 @@ separate browser sessions. See `docs/DEPLOYMENT.md` for the full production
 smoke test. `npm run dev` intentionally uses a local room adapter.
 
 ## Contribution paths
+
+| If you are interested in… | A useful first contribution |
+|---|---|
+| Languages or teaching | Review one topic, translation, level, or facilitation note |
+| Accessibility or design | Test one complete role flow with keyboard, mobile, muted audio, or reduced motion |
+| Web development | Fix a focused feature, state, performance, or validation issue |
+| Cloudflare or operations | Improve Worker tests, diagnostics, deployment guidance, or failure messages |
+| Open-source process | Improve issue templates, contributor docs, review queues, or release evidence |
+| Platform formats | Design a small versioned fixture and validator before building import UI |
 
 ### Code
 
@@ -52,12 +65,33 @@ vocabulary in the current release. Run `npm run check:content`.
 
 Machine translation may be used as a draft, but a proficient speaker should
 review naturalness, level, ambiguity, and cultural context before merge.
+Optional generated topic drafts follow the same rule and must include the
+non-secret generation disclosure described in
+[docs/AI_AUTHORING.md](docs/AI_AUTHORING.md). Never commit an API key, raw model
+request, hidden reasoning, learner data, or classroom data.
 
 ### Documentation
 
 Write for a first-time contributor. Prefer concrete examples, stable relative
 links, and explicit release limitations. Update the relevant guide whenever a
 public flow, data shape, command, or architectural boundary changes.
+
+### Platform function proposals
+
+Open a feature proposal before coding a new shared data format, service
+dependency, trust boundary, persistent record, backend adapter, or plugin-like
+mechanism. Include:
+
+- the affected learner, teacher, contributor, or operator and their problem;
+- evidence or one concrete scenario;
+- the smallest useful version and alternatives;
+- data, privacy, accessibility, localization, and moderation effects;
+- compatibility, migration, fallback, tests, and documentation;
+- whether the function belongs in core, a data pack, or an optional adapter.
+
+Use the detailed checklist in
+[docs/OPEN_PLATFORM.md](docs/OPEN_PLATFORM.md#proposing-a-platform-function).
+Accepted direction still needs a scoped issue or ADR before implementation.
 
 ### Sound effects
 

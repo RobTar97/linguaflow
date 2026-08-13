@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://linguaflow.org/schemas/topic-pack-manifest-1.0.json",
+  "title": "LinguaFlow topic pack manifest 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "version", "title", "description", "defaultLocale", "locales", "license", "authors", "compatibility"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 60 },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?$", "maxLength": 40 },
+    "title": { "$ref": "#/$defs/localizedText" },
+    "description": { "$ref": "#/$defs/localizedText" },
+    "defaultLocale": { "$ref": "#/$defs/locale" },
+    "locales": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/locale" } },
+    "license": {
+      "type": "object", "additionalProperties": false, "required": ["spdx", "file"],
+      "properties": { "spdx": { "type": "string", "minLength": 1, "maxLength": 80 }, "file": { "type": "string", "pattern": "^LICENSE(?:\\.[A-Za-z0-9-]+)?$" } }
+    },
+    "authors": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/contributor" } },
+    "source": {
+      "type": "object", "additionalProperties": false, "required": ["url"],
+      "properties": { "url": { "type": "string", "format": "uri", "maxLength": 500 }, "revision": { "type": "string", "maxLength": 120 } }
+    },
+    "compatibility": {
+      "type": "object", "additionalProperties": false, "required": ["linguaflow"],
+      "properties": { "linguaflow": { "type": "string", "minLength": 1, "maxLength": 40 } }
+    },
+    "reviews": { "type": "array", "items": { "$ref": "#/$defs/review" } }
+  },
+  "$defs": {
+    "locale": { "enum": ["EN", "PL", "JA"] },
+    "localizedText": { "type": "object", "additionalProperties": false, "properties": { "EN": { "type": "string" }, "PL": { "type": "string" }, "JA": { "type": "string" } } },
+    "contributor": { "type": "object", "additionalProperties": false, "required": ["displayName"], "properties": { "displayName": { "type": "string", "minLength": 1, "maxLength": 100 }, "url": { "type": "string", "format": "uri", "maxLength": 500 } } },
+    "review": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "reviewer", "reviewedAt"],
+      "properties": { "kind": { "enum": ["language", "cefr", "facilitation", "accessibility"] }, "locale": { "$ref": "#/$defs/locale" }, "reviewer": { "$ref": "#/$defs/contributor" }, "reviewedAt": { "type": "string", "format": "date-time" }, "notes": { "type": "string", "maxLength": 500 } }
+    }
+  }
+}

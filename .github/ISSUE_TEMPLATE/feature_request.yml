@@ -18,11 +18,50 @@ body:
     validations:
       required: true
   - type: textarea
+    id: scenario
+    attributes:
+      label: Concrete scenario or evidence
+      description: Show when this problem occurs and what currently happens. Do not include private classroom data.
+    validations:
+      required: true
+  - type: textarea
     id: proposal
     attributes:
-      label: Proposed approach
+      label: Smallest useful version
+      description: Describe the minimum outcome that would solve the problem.
+    validations:
+      required: true
+  - type: dropdown
+    id: extension_surface
+    attributes:
+      label: Likely platform surface
+      description: Choose the closest fit; maintainers may recommend a different boundary.
+      options:
+        - Core application behavior
+        - Curriculum or topic pack
+        - Optional adapter or integration
+        - Contributor or review tooling
+        - Deployment or operations
+        - Documentation or community process
+        - Not sure
+    validations:
+      required: true
   - type: textarea
     id: tradeoffs
     attributes:
       label: Risks and trade-offs
       description: Consider accessibility, privacy, localization, moderation, and maintenance.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Data and compatibility
+      description: What data is created, retained, exported, deleted, versioned, or migrated? Write “none” if this does not apply.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Include a process, content, or documentation solution and the option to make no change.

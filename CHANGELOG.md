@@ -17,9 +17,12 @@ All notable project changes are documented here.
 
 ### Changed
 
-- The total lazy JavaScript budget is 200 KiB gzip to include portable archive,
-  data portability, and offline modules; the stricter 90 KiB initial budget is
-  unchanged and the current entry is below 70 KiB.
+- Hardened topic-pack archive, metadata, learner-data import, installed-version,
+  and imported-room-snapshot validation; added local pack removal and clearer
+  contributor-preview accessibility and failure states.
+- The total lazy JavaScript budget is 202 KiB gzip to include portable archive,
+  hardened data import, and offline modules; the stricter 90 KiB initial budget
+  is unchanged and the current entry is below 70 KiB.
 
 ### Documentation
 
@@ -30,6 +33,8 @@ All notable project changes are documented here.
   self-hosting diagnostics.
 - Aligned product, architecture, governance, support, and contribution guides
   around explicit proposal states and compatibility rules.
+- Added a provider-neutral, draft-first BYOK AI authoring proposal and ADR with
+  explicit credential, privacy, validation, provenance, and human-review gates.
 
 ## 0.5.0 — 2026-08-04
 

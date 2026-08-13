@@ -131,7 +131,9 @@ and real 404 handling.
 3. **Version shared formats.** Topic packs, room plans, and future learner-data
    exports need explicit schema versions and migration rules.
 4. **Preserve human review.** Generated drafts may assist contributors, but
-   curriculum, translations, and level claims need accountable review.
+   curriculum, translations, and level claims need accountable review. The
+   proposed [AI authoring boundary](AI_AUTHORING.md) keeps generation optional,
+   draft-first, provider-neutral, and outside the learner-data path.
 5. **Do not turn extensions into surveillance.** State the minimum data,
    retention, threat model, and user controls before implementation.
 6. **Keep accessibility in the contract.** Keyboard use, localization,
@@ -227,6 +229,15 @@ and threat model.
 
 Why later: identity can improve continuity but would materially expand the
 privacy and moderation surface.
+
+### 10. Optional AI-assisted authoring — Proposed
+
+Offer contributor-controlled generation of topic drafts behind a small provider
+adapter. Generated output remains untrusted until it passes the ordinary pack
+validator, contributor preview, provenance disclosure, and human review. The
+default build has no configured provider and no required paid service. See the
+[AI authoring proposal](AI_AUTHORING.md) and
+[ADR 0006](adr/0006-ai-authoring-is-optional-and-draft-first.md).
 
 ## Proposing a platform function
 

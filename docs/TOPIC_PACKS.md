@@ -23,7 +23,7 @@ Authorship is not the same as review. If a pack has no review assertions, Lingua
 
 ## Safety and validation
 
-The validator rejects traversal paths, unknown schema versions, duplicate identifiers, malformed language pairs, incomplete localized prompts, duplicate questions, incomplete vocabulary, unsafe artwork, missing assets, and unreasonable lesson ranges. Archives are limited to 25 MiB compressed, 50 MiB expanded, 100 topics, and 1 MiB per image. Artwork supports PNG, JPEG, and WebP; SVG and HTML are excluded.
+The validator rejects traversal and duplicate archive paths, unknown schema versions, duplicate identifiers, malformed language pairs, incomplete localized prompts, duplicate questions, incomplete vocabulary, missing facilitation preparation and adaptation notes, malformed authorship or review metadata, unsafe artwork, missing assets, and unreasonable lesson ranges. Archives are limited to 25 MiB compressed, 50 MiB expanded, 100 topics, and 1 MiB per image. Artwork supports PNG, JPEG, and WebP; SVG and HTML are excluded.
 
 ```bash
 npm run pack:validate -- path/to/community-pack.lfpack
@@ -35,6 +35,11 @@ Open `/app/?contribute=1` to validate and preview learner content, facilitation 
 ## Installed identifiers
 
 Core identifiers remain unchanged. Installed topics use `<pack-id>:<topic-id>`, preventing collisions while keeping exports and room references readable. Installed packs live in IndexedDB and remain available for self-paced offline practice.
+
+Installing a new version replaces the locally installed version with the same
+pack ID, so only one local version contributes topics at a time. A local pack
+also takes precedence over a bundled pack with the same ID. Users can remove
+local packs from the learner-data screen without deleting saved IDs or notes.
 
 Maintainer-approved archives placed in `src/packs/bundled/` are discovered at
 build time and pass through the same runtime validator before joining the

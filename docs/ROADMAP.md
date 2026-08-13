@@ -57,6 +57,17 @@ function proposals.
 
 ## Next: teaching reach and portability
 
+### Optional AI-assisted authoring — Proposed
+
+- generate only editable contributor drafts through a provider-neutral adapter;
+- keep bring-your-own credentials in memory for the active authoring session;
+- send no learner profile, notes, vocabulary, room, or participant data;
+- require ordinary validation, preview, provenance disclosure, and human review;
+- ship no default provider dependency or mandatory paid service.
+
+The implementation boundary is specified in [AI_AUTHORING.md](AI_AUTHORING.md)
+and [ADR 0006](adr/0006-ai-authoring-is-optional-and-draft-first.md).
+
 ### Facilitation metadata — Implemented foundation
 
 - optional objectives, timing, grouping patterns, adaptation prompts, and

@@ -36,6 +36,9 @@ request size, origin, and rate limits.
 ### Credentials and build output
 
 - The application has no client-side API keys.
+- The default application has no AI provider. The proposed optional BYOK
+  authoring flow keeps a contributor-entered key in memory for the active page
+  only; it must not enter storage, URLs, logs, exports, room state, or caches.
 - Cloudflare credentials exist only in encrypted GitHub Actions secrets or the
   deployer’s authenticated Wrangler session.
 - Variables prefixed with `VITE_` are treated as public build-time values and
@@ -71,6 +74,9 @@ request size, origin, and rate limits.
 - JSON is required for mutation bodies other than `DELETE`.
 - Bodies are limited to 64 KB even when `Content-Length` is absent. Imported
   room topics are additionally limited to a 32 KB content-only snapshot.
+- Imported topic snapshots are reconstructed from allowlisted fields and must
+  match their namespaced pack ID, supported locales, bounded curriculum shape,
+  license, authorship, and pack version before room storage.
 - Room codes, language codes, CEFR levels, names, participant status, topic IDs,
   dates, and question indexes are validated.
 - Display names and room names are trimmed before storage.
@@ -125,3 +131,7 @@ After deployment, complete the two-browser smoke test in
 [`DEPLOYMENT.md`](DEPLOYMENT.md), inspect response headers, and verify that no
 credential or unexpected third-party request appears in browser developer
 tools.
+
+Any self-hosted AI authoring integration changes the network and credential
+boundary and must follow [AI_AUTHORING.md](AI_AUTHORING.md), update CSP, and
+publish its provider and data-use notice before it is enabled.

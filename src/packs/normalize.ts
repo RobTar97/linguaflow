@@ -2,6 +2,15 @@ import type { FacilitationGuide, Locale, LocalizedText, Topic } from "../domain/
 import type { InstalledPackRecord, PortableTopic, TopicPackDocument } from "./types";
 
 const supportedLocales: Locale[] = ["EN", "PL", "JA"];
+const objectUrlCache = new WeakMap<Blob, string>();
+
+function objectUrlFor(blob: Blob) {
+  const existing = objectUrlCache.get(blob);
+  if (existing) return existing;
+  const created = URL.createObjectURL(blob);
+  objectUrlCache.set(blob, created);
+  return created;
+}
 
 function text(value: Partial<Record<Locale, string>> | undefined, fallback: Locale): LocalizedText {
   const base = value?.[fallback]?.trim() || Object.values(value ?? {}).find((item) => item?.trim()) || "Untitled";
@@ -44,7 +53,7 @@ export function installedRecord(document: TopicPackDocument): InstalledPackRecor
 export function topicsFromInstalledPack(record: InstalledPackRecord): Topic[] {
   return record.topics.map((item, index) => {
     const objectUrl = item.artwork && record.assets[item.artwork.path]
-      ? URL.createObjectURL(record.assets[item.artwork.path])
+      ? objectUrlFor(record.assets[item.artwork.path])
       : undefined;
     return {
       id: `${record.manifest.id}:${item.id}`,

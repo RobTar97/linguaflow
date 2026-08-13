@@ -38,19 +38,29 @@ export function TopicLibraryProvider({ children }: { children: ReactNode }) {
     return () => { active = false; };
   }, []);
 
+  const activeBundledPacks = useMemo(
+    () => bundledPacks.filter(
+      (bundled) => !packs.some(
+        (installed) => installed.manifest.id === bundled.manifest.id,
+      ),
+    ),
+    [bundledPacks, packs],
+  );
+
   const catalog = useMemo(() => createTopicCatalog([
     ...coreTopics,
-    ...bundledPacks.flatMap(topicsFromInstalledPack),
+    ...activeBundledPacks.flatMap(topicsFromInstalledPack),
     ...packs.flatMap(topicsFromInstalledPack),
-  ]), [bundledPacks, coreTopics, packs]);
+  ]), [activeBundledPacks, coreTopics, packs]);
 
   const value = useMemo<TopicLibraryValue>(() => ({
     catalog,
-    packs: [...bundledPacks, ...packs],
+    packs: [...activeBundledPacks, ...packs],
+    bundledPackKeys: new Set(activeBundledPacks.map((pack) => pack.key)),
     ready,
-    async install(pack) { await topicPackRepository.put(installedRecord(pack)); await refresh(); },
+    async install(pack) { await topicPackRepository.replace(installedRecord(pack)); await refresh(); },
     async remove(key) { await topicPackRepository.remove(key); await refresh(); },
-  }), [bundledPacks, catalog, packs, ready, refresh]);
+  }), [activeBundledPacks, catalog, packs, ready, refresh]);
 
   if (!ready) return <main className="route-loading" role="status"><span aria-hidden="true" />LinguaFlow</main>;
   return <TopicLibraryContext.Provider value={value}>{children}</TopicLibraryContext.Provider>;

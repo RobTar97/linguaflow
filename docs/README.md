@@ -12,6 +12,7 @@ LinguaFlow. Start with the path that matches what you want to accomplish.
 | Understand the whole platform | [Open-platform guide](OPEN_PLATFORM.md) | [Architecture](ARCHITECTURE.md) |
 | Add topics or translations | [Content guide](CONTENT_GUIDE.md) | [Contributing](../CONTRIBUTING.md) |
 | Build or validate a portable pack | [Topic-pack guide](TOPIC_PACKS.md) | [Contributor preview](/app/?contribute=1) |
+| Explore optional AI drafting | [AI authoring and BYOK](AI_AUTHORING.md) | [Proposed ADR](adr/0006-ai-authoring-is-optional-and-draft-first.md) |
 | Change code or product behavior | [Architecture](ARCHITECTURE.md) | [Product guide](PRODUCT.md) and [ADRs](adr/) |
 | Propose a major new function | [Community vision](VISION.md) | [Roadmap](ROADMAP.md) and [Governance](../GOVERNANCE.md) |
 | Self-host LinguaFlow | [Deployment guide](DEPLOYMENT.md) | [Security model](SECURITY_MODEL.md) |
@@ -39,6 +40,8 @@ LinguaFlow. Start with the path that matches what you want to accomplish.
   translation review, artwork, and validation.
 - [Topic packs](TOPIC_PACKS.md) — portable archive format, validation limits,
   provenance, review assertions, CLI commands, and browser preview.
+- [AI authoring and BYOK](AI_AUTHORING.md) — proposed, provider-neutral draft
+  generation with explicit credential, privacy, validation, and review bounds.
 - [Motion](MOTION.md), [sound design](SOUND_DESIGN.md), and
   [visual assets](ASSETS.md) — experience foundations and contribution rules.
 - [Architecture decision records](adr/) — durable decisions and their context.

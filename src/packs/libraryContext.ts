@@ -5,6 +5,7 @@ import type { InstalledPackRecord, TopicPackDocument } from "./types";
 export interface TopicLibraryValue {
   catalog: TopicCatalog;
   packs: InstalledPackRecord[];
+  bundledPackKeys: ReadonlySet<string>;
   ready: boolean;
   install(pack: TopicPackDocument): Promise<void>;
   remove(key: string): Promise<void>;

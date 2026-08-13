@@ -128,6 +128,25 @@ try {
   );
   assert.equal(rejectedSharedWithPlan.response.status, 400);
 
+  const importedRoom = makeImportedRoom("TST-102");
+  const importedToken = token("imported-teacher");
+  const imported = await jsonRequest("/api/rooms", "POST", {
+    room: importedRoom,
+    teacherToken: importedToken,
+  });
+  assert.equal(imported.response.status, 201);
+  const importedBody = await parseJson(imported);
+  assert.equal(importedBody.room.topicSnapshot.provenance.packId, "community-pack");
+  assert.equal("unexpected" in importedBody.room.topicSnapshot, false);
+
+  const malformedImported = makeImportedRoom("TST-103");
+  malformedImported.topicSnapshot.vocabulary.EN[0].word = "";
+  const rejectedImported = await jsonRequest("/api/rooms", "POST", {
+    room: malformedImported,
+    teacherToken: token("malformed-imported"),
+  });
+  assert.equal(rejectedImported.response.status, 400);
+
   const created = await jsonRequest("/api/rooms", "POST", roomPayload);
   assert.equal(created.response.status, 201);
   for (const header of [
@@ -309,6 +328,33 @@ function makeRoom(code) {
     createdAt: new Date().toISOString(),
     unexpected: "drop this field",
   };
+}
+
+function makeImportedRoom(code) {
+  const room = makeRoom(code);
+  room.topicId = "community-pack:community-gardens";
+  room.topicSnapshot = {
+    id: room.topicId,
+    category: "Environment",
+    title: { EN: "Community gardens", PL: "Ogrody społeczne", JA: "コミュニティガーデン" },
+    mainPrompt: { EN: "What makes a shared garden work?", PL: "Co sprawia, że wspólny ogród działa?" },
+    followUps: {
+      EN: ["One?", "Two?", "Three?", "Four?", "Five?"],
+      PL: ["Jeden?", "Dwa?", "Trzy?", "Cztery?", "Pięć?"],
+    },
+    vocabulary: {
+      EN: ["one", "two", "three", "four", "five"].map((word) => ({ word, translation: word, part: "noun" })),
+      PL: ["jeden", "dwa", "trzy", "cztery", "pięć"].map((word) => ({ word, translation: word, part: "rzeczownik" })),
+    },
+    provenance: {
+      packId: "community-pack",
+      packVersion: "1.0.0",
+      license: "CC-BY-4.0",
+      authors: [{ displayName: "Example contributor" }],
+    },
+    unexpected: "drop this field",
+  };
+  return room;
 }
 
 async function request(pathname, options = {}) {

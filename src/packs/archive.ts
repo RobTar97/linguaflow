@@ -12,13 +12,34 @@ function safePath(path: string) {
 export function readTopicPackArchive(bytes: Uint8Array): TopicPackValidationResult {
   if (bytes.byteLength > PACK_LIMITS.archiveBytes) return failure("archive.size", "archive", "The archive exceeds 25 MiB.");
   let files: Record<string, Uint8Array>;
+  let expandedBytes = 0;
+  let rejectedPath = "";
+  let repeatedPath = "";
+  let rejectedSize = false;
+  const seenPaths = new Set<string>();
   try {
-    files = unzipSync(bytes, { filter: ({ name, originalSize }) => safePath(name) && originalSize <= PACK_LIMITS.uncompressedBytes });
+    files = unzipSync(bytes, {
+      filter: ({ name, originalSize }) => {
+        if (!safePath(name)) rejectedPath ||= name;
+        if (seenPaths.has(name)) repeatedPath ||= name;
+        seenPaths.add(name);
+        expandedBytes += originalSize;
+        if (
+          originalSize > PACK_LIMITS.uncompressedBytes ||
+          expandedBytes > PACK_LIMITS.uncompressedBytes
+        ) {
+          rejectedSize = true;
+        }
+        return !rejectedPath && !repeatedPath && !rejectedSize;
+      },
+    });
   } catch {
     return failure("archive.invalid", "archive", "The file is not a readable .lfpack ZIP archive.");
   }
+  if (rejectedPath) return failure("archive.path", rejectedPath, "The archive contains an unsafe path.");
+  if (repeatedPath) return failure("archive.duplicatePath", repeatedPath, "Archive paths must be unique.");
+  if (rejectedSize) return failure("archive.expandedSize", "archive", "Expanded archive content exceeds 50 MiB.");
   const paths = Object.keys(files);
-  if (paths.some((path) => !safePath(path))) return failure("archive.path", "archive", "The archive contains an unsafe path.");
   const total = Object.values(files).reduce((sum, value) => sum + value.byteLength, 0);
   if (total > PACK_LIMITS.uncompressedBytes) return failure("archive.expandedSize", "archive", "Expanded archive content exceeds 50 MiB.");
   const manifestBytes = files["manifest.json"];

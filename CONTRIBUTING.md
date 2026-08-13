@@ -65,6 +65,10 @@ vocabulary in the current release. Run `npm run check:content`.
 
 Machine translation may be used as a draft, but a proficient speaker should
 review naturalness, level, ambiguity, and cultural context before merge.
+Optional generated topic drafts follow the same rule and must include the
+non-secret generation disclosure described in
+[docs/AI_AUTHORING.md](docs/AI_AUTHORING.md). Never commit an API key, raw model
+request, hidden reasoning, learner data, or classroom data.
 
 ### Documentation
 

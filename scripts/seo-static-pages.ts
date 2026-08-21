@@ -523,9 +523,9 @@ function homepageContent() {
         `<li><a href="${topicPath("EN", topic)}">${escapeHtml(topic.title.EN)} conversation questions</a> <span>(${topic.level})</span></li>`,
     )
     .join("");
-  return `<main class="seo-fallback">
+  return `<main class="page seo-fallback">
     <section>
-      <p class="seo-eyebrow">Open-source language conversation platform</p>
+      <p class="eyebrow">Open-source language conversation platform</p>
       <h1>Conversation questions for English, Polish, and Japanese practice</h1>
       <p>LinguaFlow is a free, open-source conversation practice platform for language learners, teachers, tutors, classrooms, and language exchange partners. It turns a clear language goal into level-aware speaking prompts, follow-up questions, and useful vocabulary, so people can spend less time preparing and more time talking.</p>
       <p>The public library contains 48 human-reviewable topics and 288 guided questions across daily life, work, travel, relationships, technology, health, education, the environment, food, arts, science, and society. Every topic is available in English, Polish, and Japanese, with CEFR levels from A1 to C1.</p>

@@ -112,6 +112,12 @@ const homepageMain = match(homepage, /<main[^>]*>([\s\S]*?)<\/main\s*>/i);
 if (!homepageMain) {
   failures.push("Homepage is missing its public main content.");
 }
+if (!/<main\s+class="[^"]*\bpage\b[^"]*">/i.test(homepage)) {
+  failures.push("Homepage main content is missing the shared page container class.");
+}
+if (!/<p\s+class="eyebrow">/i.test(homepage)) {
+  failures.push("Homepage is missing the styled eyebrow class.");
+}
 const homepageWords = textContent(homepageMain).split(/\s+/).filter(Boolean).length;
 if (homepageWords < 500) {
   failures.push(`Homepage contains ${homepageWords} visible words; expected at least 500.`);

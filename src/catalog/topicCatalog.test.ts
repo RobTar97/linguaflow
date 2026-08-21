@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { topicCatalog, topicCategories } from "./topicCatalog";
 import type { LanguageCode, Level } from "../domain/types";
+import japaneseReadings from "../../public/data/japanese-readings.json";
 
 const pairs: Array<[LanguageCode, LanguageCode]> = [
   ["EN", "PL"],
@@ -16,6 +17,41 @@ describe("topicCatalog", () => {
 
   it("passes authored-content validation", () => {
     expect(topicCatalog.validate()).toEqual([]);
+  });
+
+  it("has generated reading support for every authored Japanese learning string", () => {
+    const texts = new Set<string>();
+    const add = (value: string | undefined) => {
+      if (value?.trim() && /[\u3040-\u30ff\u3400-\u9fff]/u.test(value)) {
+        texts.add(value.trim());
+      }
+    };
+
+    for (const topic of topicCatalog.all()) {
+      add(topic.title.JA);
+      add(topic.description.JA);
+      add(topic.mainPrompt.JA);
+      topic.followUps.JA.forEach(add);
+      topic.vocabulary.JA.forEach((item) => {
+        add(item.word);
+        add(item.translation);
+        add(item.part);
+      });
+      topic.facilitation?.objectives.JA.forEach(add);
+      topic.facilitation?.tips.JA.forEach(add);
+      add(topic.facilitation?.preparation.JA);
+      add(topic.facilitation?.warmUp.JA);
+      add(topic.facilitation?.easier.JA);
+      add(topic.facilitation?.harder.JA);
+      add(topic.facilitation?.sensitiveContent?.JA);
+    }
+
+    for (const text of texts) {
+      const entry = japaneseReadings[text as keyof typeof japaneseReadings];
+      expect(entry, `Missing generated Japanese reading for: ${text}`).toBeDefined();
+      expect(entry.segments.map((segment) => segment.text).join("")).toBe(text);
+      expect(entry.romaji.trim()).not.toBe("");
+    }
   });
 
   it.each(pairs)("supports the %s ↔ %s learning pair", (first, second) => {

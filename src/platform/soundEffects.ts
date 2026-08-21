@@ -20,6 +20,31 @@ const sources: Record<SoundCue, { src: string; volume: number }> = {
 
 const listeners = new Set<() => void>();
 let cachedEnabled: boolean | undefined;
+const playerPools = new Map<SoundCue, HTMLAudioElement[]>();
+const nextPlayer = new Map<SoundCue, number>();
+
+function prepare() {
+  if (
+    typeof window === "undefined" ||
+    typeof Audio === "undefined" ||
+    playerPools.size
+  ) {
+    return;
+  }
+  for (const [cue, sound] of Object.entries(sources) as Array<
+    [SoundCue, (typeof sources)[SoundCue]]
+  >) {
+    const pool = Array.from({ length: 2 }, () => {
+      const audio = new Audio(sound.src);
+      audio.preload = "auto";
+      audio.volume = sound.volume;
+      audio.load();
+      return audio;
+    });
+    playerPools.set(cue, pool);
+    nextPlayer.set(cue, 0);
+  }
+}
 
 function readEnabled() {
   if (cachedEnabled === undefined) {
@@ -48,15 +73,27 @@ function play(cue: SoundCue, options?: { force?: boolean }) {
   ) {
     return;
   }
-
-  const sound = sources[cue];
-  const audio = new Audio(sound.src);
-  audio.preload = "auto";
-  audio.volume = sound.volume;
-  void audio.play().catch(() => {
-    // Browsers may decline audio before a user gesture. The action still works.
-  });
+  prepare();
+  const start = () => {
+    const pool = playerPools.get(cue);
+    if (!pool?.length) return;
+    const index = nextPlayer.get(cue) ?? 0;
+    const audio = pool[index];
+    nextPlayer.set(cue, (index + 1) % pool.length);
+    audio.pause();
+    audio.currentTime = 0;
+    void audio.play().catch(() => {
+      // Browsers may decline audio before a user gesture. The action still works.
+    });
+  };
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(start);
+  } else {
+    start();
+  }
 }
+
+prepare();
 
 export const soundEffects = {
   isEnabled: readEnabled,
@@ -68,6 +105,7 @@ export const soundEffects = {
     return enabled;
   },
   play,
+  prepare,
   subscribe(listener: () => void) {
     listeners.add(listener);
     return () => listeners.delete(listener);

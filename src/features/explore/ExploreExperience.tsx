@@ -39,6 +39,8 @@ import {
 import { readShareIntent } from "../../platform/shareLinks";
 import { soundEffects } from "../../platform/soundEffects";
 import { SoundToggle } from "../../ui/SoundToggle";
+import { JapaneseReadingControls } from "../../ui/JapaneseReadingControls";
+import { JapaneseText } from "../../ui/JapaneseText";
 import { useLearningWorkspace } from "../../workspace/context";
 import { useTopicLibrary } from "../../packs/libraryContext";
 
@@ -171,6 +173,9 @@ function ExploreExperience() {
         onJoin={() => switchRole("student")}
         teachLabel={workspaceCopy[locale].teach}
         joinLabel={workspaceCopy[locale].join}
+        showJapaneseReadings={
+          activeSupportLanguage === "JA" || activeTargetLanguage === "JA"
+        }
         copy={copy}
         query={query}
         setQuery={setQuery}
@@ -358,6 +363,7 @@ interface HeaderProps {
   onJoin: () => void;
   teachLabel: string;
   joinLabel: string;
+  showJapaneseReadings: boolean;
 }
 
 function Header({
@@ -373,9 +379,12 @@ function Header({
   onJoin,
   teachLabel,
   joinLabel,
+  showJapaneseReadings,
 }: HeaderProps) {
   return (
-    <header className="global-header">
+    <header
+      className={`global-header ${showJapaneseReadings ? "has-japanese-readings" : ""}`}
+    >
       <a className="logo" href="#" aria-label="LinguaFlow home">
         <span className="logo-mark" aria-hidden="true">
           <MessageCircle size={22} fill="currentColor" />
@@ -443,6 +452,9 @@ function Header({
           </select>
           <ChevronDown size={14} aria-hidden="true" />
         </label>
+        {showJapaneseReadings ? (
+          <JapaneseReadingControls locale={locale} />
+        ) : null}
         <SoundToggle locale={locale} />
         <button
           className="profile-button"
@@ -660,8 +672,8 @@ function TopicCard({
       <button className="topic-card-hitbox" type="button" onClick={onSelect}>
         <TopicArt topic={topic} />
         <span className="topic-card-content">
-          <strong>{topic.title[locale]}</strong>
-          <span className="topic-description">{topic.description[locale]}</span>
+          <strong><JapaneseText text={topic.title[locale]} language={locale} /></strong>
+          <span className="topic-description"><JapaneseText text={topic.description[locale]} language={locale} /></span>
           {matchingQuestion ? (
             <span className="matching-question">
               <MessageCircle size={13} aria-hidden="true" />
@@ -699,7 +711,15 @@ function TopicCard({
 
 function TopicArt({ topic, large = false }: { topic: Topic; large?: boolean }) {
   if (topic.artwork?.kind === "asset" && topic.artwork.objectUrl) {
-    return <img className={`topic-art pack-topic-art ${large ? "is-large" : ""}`} src={topic.artwork.objectUrl} alt={topic.title.EN} />;
+    return (
+      <img
+        className={`topic-art pack-topic-art ${large ? "is-large" : ""}`}
+        src={topic.artwork.objectUrl}
+        alt={topic.title.EN}
+        loading="lazy"
+        decoding="async"
+      />
+    );
   }
   const column = topic.artIndex % 4;
   const row = Math.floor(topic.artIndex / 4);
@@ -808,8 +828,8 @@ function TopicDetail({
                 {topic.level}
               </span>
             </div>
-            <h2>{topic.title[locale]}</h2>
-            <p>{topic.description[locale]}</p>
+            <h2><JapaneseText text={topic.title[locale]} language={locale} /></h2>
+            <p><JapaneseText text={topic.description[locale]} language={locale} /></p>
           </div>
           <span className="language-pair">
             <Languages size={16} />
@@ -822,7 +842,7 @@ function TopicDetail({
             <MessageCircle size={17} />
             {copy.mainPrompt}
           </p>
-          <p className="main-question">{topic.mainPrompt[questionLocale]}</p>
+          <p className="main-question"><JapaneseText text={topic.mainPrompt[questionLocale]} language={questionLocale} /></p>
         </section>
 
         <section className="detail-section">
@@ -834,7 +854,7 @@ function TopicDetail({
             {topic.followUps[questionLocale].map((question, index) => (
               <li key={question}>
                 <span className="question-number">{index + 1}</span>
-                <span>{question}</span>
+                <span><JapaneseText text={question} language={questionLocale} /></span>
                 <button
                   type="button"
                   onClick={() => copyQuestion(question, index)}
@@ -860,8 +880,8 @@ function TopicDetail({
             {topic.vocabulary[questionLocale].map((item) => (
               <div className="vocabulary-item" key={`${item.word}-${item.translation}`}>
                 <span>
-                  <strong>{item.word}</strong>
-                  <small>{item.part}</small>
+                  <strong><JapaneseText text={item.word} language={questionLocale} /></strong>
+                  <small><JapaneseText text={item.part} language={questionLocale} /></small>
                 </span>
                 <span>{item.translation}</span>
                 <button
@@ -1039,7 +1059,7 @@ function ConversationMode({
           <TopicArt topic={topic} />
           <div>
             <span>{categoryCopy[topic.category][locale]}</span>
-            <h2 id="session-title">{topic.title[locale]}</h2>
+            <h2 id="session-title"><JapaneseText text={topic.title[locale]} language={locale} /></h2>
             <p>{topic.languages.join(" ↔ ")} · {topic.level}</p>
           </div>
         </div>
@@ -1081,13 +1101,13 @@ function ConversationMode({
               animate="visible"
               exit="exit"
             >
-              {questions[questionIndex]}
+              <JapaneseText text={questions[questionIndex]} language={questionLocale} />
             </motion.p>
           </AnimatePresence>
           {supportLocale !== questionLocale ? (
             <details className="session-support">
               <summary>{workspaceCopy[locale].supportTranslation}</summary>
-              <p>{supportQuestions[questionIndex]}</p>
+              <p><JapaneseText text={supportQuestions[questionIndex]} language={supportLocale} /></p>
             </details>
           ) : null}
           <small>{copy.sessionHint}</small>
@@ -1096,7 +1116,7 @@ function ConversationMode({
         <div className="session-vocab">
           {topic.vocabulary[questionLocale].slice(0, 4).map((item) => (
             <span key={item.word}>
-              <strong>{item.word}</strong>
+              <strong><JapaneseText text={item.word} language={questionLocale} /></strong>
               {item.translation}
             </span>
           ))}
@@ -1108,8 +1128,8 @@ function ConversationMode({
             type="button"
             disabled={questionIndex === 0}
             onClick={() => {
-              soundEffects.play("question-step");
               setQuestionIndex((index) => Math.max(0, index - 1));
+              soundEffects.play("question-step");
             }}
           >
             <ArrowLeft size={18} />
@@ -1119,11 +1139,11 @@ function ConversationMode({
             type="button"
             onClick={() => {
               if (isLast) {
-                soundEffects.play("action-success");
                 onClose();
+                soundEffects.play("action-success");
               } else {
-                soundEffects.play("question-step");
                 setQuestionIndex((index) => index + 1);
+                soundEffects.play("question-step");
               }
             }}
           >

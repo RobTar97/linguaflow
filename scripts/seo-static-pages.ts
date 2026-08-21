@@ -138,18 +138,30 @@ function alternateLinks(baseUrl: string, topic?: Topic) {
 
 function staticStyles() {
   return `
-    :root{color:#1e2428;background:#faf8f5;font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    *{box-sizing:border-box}body{margin:0}a{color:#b5381e}a:hover{text-decoration-thickness:2px}
+    :root{color:#10213b;background:#f7f9ff;font:16px/1.6 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f9ff}a{color:#244bd8;text-underline-offset:.18em}a:hover{text-decoration-thickness:2px}
     .page{width:min(1120px,calc(100% - 32px));margin:auto}.site-header,.site-footer{display:flex;gap:20px;align-items:center;justify-content:space-between;padding:22px 0}
-    .brand{color:#1e2428;font-size:1.25rem;font-weight:800;text-decoration:none}.brand span{color:#c93e1f}
-    nav{display:flex;gap:16px;flex-wrap:wrap}main{padding:42px 0 64px}.eyebrow{color:#b5381e;font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .site-header{position:relative;z-index:10}.brand{color:#10213b;font-size:1.25rem;font-weight:850;letter-spacing:-.04em;text-decoration:none}.brand span{color:#d94727}
+    nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}nav a{min-height:44px;padding:10px 12px;border-radius:999px;color:#394760;font-size:.9rem;font-weight:650;text-decoration:none}nav a:hover{color:#10213b;background:#eaf0ff}main{padding:42px 0 64px}.eyebrow{color:#355dff;font-size:.75rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
     h1{max-width:850px;margin:.2em 0;font-size:clamp(2rem,6vw,4.3rem);line-height:1.05;letter-spacing:-.04em}h2{margin-top:2.4rem;line-height:1.2}
-    .lede{max-width:760px;color:#4e5a60;font-size:1.15rem}.feature-visual{display:block;width:100%;height:auto;margin:28px 0;border:1px solid #e5dfd8;border-radius:24px;background:#fff;box-shadow:0 16px 42px rgba(46,35,28,.08)}.topic-visual{width:min(100%,544px)}.meta,.card,.prompt,.cta{border:1px solid #e5dfd8;border-radius:18px;background:#fff;box-shadow:0 10px 32px rgba(46,35,28,.05)}
+    .lede{max-width:760px;color:#536078;font-size:1.15rem}.feature-visual{display:block;width:100%;height:auto;margin:28px 0;border:1px solid #dfe6f5;border-radius:24px;background:#fff;box-shadow:0 16px 42px rgba(26,45,90,.08)}.topic-visual{width:min(100%,544px)}.meta,.card,.prompt,.cta{border:1px solid #dfe6f5;border-radius:18px;background:#fff;box-shadow:0 10px 32px rgba(26,45,90,.05)}
     .meta{display:flex;gap:12px;flex-wrap:wrap;padding:14px 18px}.meta span{font-weight:700}.prompt{padding:22px;font-size:1.15rem}
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.card{display:block;padding:18px;color:inherit;text-decoration:none}.card:hover{border-color:#d46a50}
     .card strong{display:block;margin-bottom:6px}.card small{color:#667177}.questions li,.steps li{margin:.65rem 0}.vocab{width:100%;border-collapse:collapse}.vocab th,.vocab td{padding:10px;border-bottom:1px solid #e5dfd8;text-align:left}
-    .cta{margin-top:32px;padding:24px}.button{display:inline-block;margin-top:10px;padding:12px 18px;border-radius:12px;color:#fff;background:#e9532b;font-weight:800;text-decoration:none}
-    .site-footer{border-top:1px solid #e5dfd8;color:#667177;font-size:.9rem}@media(max-width:640px){.site-header,.site-footer{align-items:flex-start;flex-direction:column}main{padding-top:24px}}
+    .cta{margin-top:32px;padding:24px}.button{display:inline-flex;min-height:48px;align-items:center;justify-content:center;margin-top:10px;padding:12px 18px;border-radius:14px;color:#fff;background:#355dff;font-weight:800;text-decoration:none;box-shadow:0 8px 22px rgba(53,93,255,.22);transition:transform 140ms ease,box-shadow 140ms ease}.button:hover{box-shadow:0 12px 28px rgba(53,93,255,.28);transform:translateY(-1px)}.button:active{transform:scale(.975)}
+    .site-footer{border-top:1px solid #dfe6f5;color:#66728a;font-size:.9rem}@media(max-width:640px){.site-header,.site-footer{align-items:flex-start;flex-direction:column}.site-header nav{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}.site-header nav a{white-space:nowrap}main{padding-top:24px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button{transition:none}.button:hover,.button:active{transform:none}}
+  `;
+}
+
+function homepageStyles() {
+  return `
+    .home{padding-top:20px}.home section{scroll-margin-top:24px}.home-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,.9fr);gap:clamp(38px,6vw,86px);align-items:center;min-height:660px;padding:42px 0 74px}.home-hero-copy{position:relative;z-index:2}.home-hero .eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:7px 11px;border:1px solid #cfdbff;border-radius:999px;background:#eef3ff}.home-hero .eyebrow:before{width:7px;height:7px;border-radius:50%;background:#ff6b4a;box-shadow:0 0 0 4px #ffe5de;content:""}.home h1{max-width:700px;margin:0;color:#10213b;font-family:ui-rounded,"Avenir Next Rounded","Avenir Next",system-ui,sans-serif;font-size:clamp(3.25rem,7vw,6.4rem);font-weight:850;line-height:.92;letter-spacing:-.075em}.home h1 span{color:#355dff}.home-hero-copy>.lede{max-width:610px;margin:25px 0 0;font-size:clamp(1.05rem,1.4vw,1.22rem);line-height:1.7}.home-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:30px}.home-actions .button{margin:0;padding-inline:22px}.button-secondary{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:11px 18px;border:1px solid #cbd6ed;border-radius:14px;color:#10213b;background:rgba(255,255,255,.72);font-weight:750;text-decoration:none;transition:transform 140ms ease,background 140ms ease,border-color 140ms ease}.button-secondary:hover{border-color:#9db2e6;background:#fff;transform:translateY(-1px)}.button-secondary:active{transform:scale(.975)}.home-trust{display:flex;gap:16px;flex-wrap:wrap;margin:24px 0 0;padding:0;list-style:none;color:#65718a;font-size:.86rem;font-weight:650}.home-trust li{display:flex;align-items:center;gap:6px}.home-trust li:before{width:5px;height:5px;border-radius:50%;background:#40b88a;content:""}
+    .conversation-stage{position:relative;min-height:560px;isolation:isolate}.conversation-stage:before{position:absolute;inset:6% -4% 0;border-radius:46% 54% 40% 60%/56% 40% 60% 44%;background:linear-gradient(145deg,#dfe8ff,#c9f3e3);content:""}.conversation-window{position:absolute;inset:68px 4px 44px 26px;overflow:hidden;border:1px solid rgba(255,255,255,.8);border-radius:30px;background:#fff;box-shadow:0 34px 70px rgba(28,52,108,.2);transform:rotate(1.5deg)}.conversation-window img{width:100%;height:100%;display:block;object-fit:cover}.conversation-window:after{position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(16,33,59,.12));content:""}.prompt-chip{position:absolute;z-index:2;max-width:240px;padding:13px 16px;border:1px solid rgba(255,255,255,.88);border-radius:17px;background:rgba(255,255,255,.88);box-shadow:0 15px 34px rgba(20,43,96,.16);font-weight:780;line-height:1.35;backdrop-filter:blur(15px);animation:chip-arrive 650ms cubic-bezier(.16,1,.3,1) both}.prompt-chip small{display:block;margin-bottom:2px;color:#66728a;font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.prompt-en{top:18px;right:6px;animation-delay:100ms}.prompt-pl{bottom:4px;left:0;animation-delay:180ms}.prompt-ja{top:42%;right:-18px;animation-delay:260ms}.prompt-ja strong{font-size:1.08rem}.home-proof{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid #dbe3f3}.proof-item{padding:25px 18px;text-align:center}.proof-item+.proof-item{border-inline-start:1px solid #dbe3f3}.proof-item strong{display:block;color:#10213b;font-size:1.75rem;line-height:1.1;letter-spacing:-.04em}.proof-item span{color:#5f6b82;font-size:.84rem;font-weight:650}
+    .home-section{padding:96px 0}.section-heading{display:grid;grid-template-columns:minmax(0,.8fr) minmax(300px,.55fr);gap:48px;align-items:end;margin-bottom:34px}.section-heading h2{max-width:650px;margin:6px 0 0;color:#10213b;font-size:clamp(2rem,4vw,3.5rem);line-height:1.02;letter-spacing:-.055em}.section-heading>p{margin:0;color:#5f6c84}.path-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.path-card{position:relative;min-height:270px;padding:26px;border:1px solid #dbe4f5;border-radius:24px;background:#fff;box-shadow:0 14px 38px rgba(26,45,90,.06);transition:transform 180ms cubic-bezier(.16,1,.3,1),box-shadow 180ms ease,border-color 180ms ease}.path-card:hover{border-color:#b8c9f3;box-shadow:0 20px 46px rgba(26,45,90,.12);transform:translateY(-4px)}.path-label{display:inline-flex;padding:5px 9px;border-radius:999px;color:#244bd8;background:#edf2ff;font-size:.72rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.path-card h3{margin:44px 0 10px;font-size:1.55rem;line-height:1.1;letter-spacing:-.035em}.path-card p{margin:0;color:#637088}.path-card a{position:absolute;inset-inline:26px;bottom:24px;font-weight:780;text-decoration:none}.path-card a:after{content:" →"}.path-card:nth-child(2){background:#10213b;color:#fff}.path-card:nth-child(2) .path-label{color:#dce6ff;background:#253857}.path-card:nth-child(2) p{color:#bdc9dd}.path-card:nth-child(2) a{color:#bcd0ff}
+    .sample-section{display:grid;grid-template-columns:minmax(0,.8fr) minmax(360px,1fr);gap:clamp(40px,7vw,90px);align-items:center;padding:80px clamp(28px,5vw,64px);border-radius:34px;background:#10213b;color:#fff}.sample-section h2{margin:8px 0 18px;font-size:clamp(2rem,4vw,3.5rem);line-height:1.03;letter-spacing:-.05em}.sample-section p{color:#c1ccde}.sample-section .eyebrow{color:#8eabff}.sample-deck{position:relative;min-height:400px}.sample-card{position:absolute;inset:36px 8px 24px 34px;display:flex;flex-direction:column;justify-content:space-between;padding:30px;border-radius:25px;background:#fff;color:#10213b;box-shadow:0 30px 70px rgba(0,0,0,.3);transform:rotate(2deg)}.sample-card:before,.sample-card:after{position:absolute;inset:0;border-radius:25px;background:#dce7ff;content:"";transform:rotate(-7deg) translate(-16px,8px);z-index:-1}.sample-card:after{background:#ffcfbf;transform:rotate(7deg) translate(18px,4px);z-index:-2}.sample-meta{display:flex;justify-content:space-between;color:#6a7690;font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.sample-question{margin:auto 0;font-family:ui-rounded,"Avenir Next Rounded",system-ui,sans-serif;font-size:clamp(1.55rem,3vw,2.35rem);font-weight:800;line-height:1.18;letter-spacing:-.04em}.sample-support{padding-top:16px;border-top:1px solid #e5eaf5;color:#5f6c84;font-size:.94rem}.sample-note{margin-top:18px;color:#9dacbf;font-size:.86rem}
+    .curriculum-section{padding-bottom:72px}.topic-directory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:28px 0 0;padding:0;list-style:none}.topic-directory li{min-width:0}.topic-directory a{display:flex;min-height:52px;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border:1px solid #dfe6f4;border-radius:13px;color:#24334f;background:#fff;font-size:.88rem;font-weight:650;text-decoration:none;transition:border-color 140ms ease,transform 140ms ease}.topic-directory a:hover{border-color:#9db2e6;transform:translateY(-1px)}.topic-directory span{flex:0 0 auto;padding:2px 7px;border-radius:999px;color:#244bd8;background:#edf2ff;font-size:.7rem}.open-section{display:grid;grid-template-columns:minmax(0,.8fr) minmax(300px,.55fr);gap:48px;align-items:center;margin-bottom:80px;padding:38px;border:1px solid #dbe4f4;border-radius:28px;background:linear-gradient(135deg,#fff,#edf3ff)}.open-section h2{margin:5px 0 12px;font-size:clamp(1.8rem,3vw,2.7rem);letter-spacing:-.045em}.open-links{display:flex;gap:9px;flex-wrap:wrap}.open-links a{min-height:44px;padding:9px 12px;border:1px solid #cad6ee;border-radius:12px;background:#fff;font-size:.86rem;font-weight:720;text-decoration:none}
+    @keyframes chip-arrive{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}@media(max-width:900px){.home-hero{grid-template-columns:1fr;min-height:0;padding-top:52px}.conversation-stage{min-height:520px;max-width:650px;width:100%;margin:auto}.home-proof{grid-template-columns:repeat(2,1fr)}.proof-item:nth-child(3){border-inline-start:0;border-top:1px solid #dbe3f3}.proof-item:nth-child(4){border-top:1px solid #dbe3f3}.section-heading,.open-section{grid-template-columns:1fr;gap:18px}.path-grid{grid-template-columns:1fr}.path-card{min-height:230px}.sample-section{grid-template-columns:1fr}.topic-directory{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.site-header nav a:nth-last-child(-n+2){display:none}}@media(max-width:560px){.home{width:100%;overflow:hidden}.home-hero,.home-section,.curriculum-section,.open-section{width:calc(100% - 32px);margin-inline:auto}.home-hero{padding:34px 0 52px}.home h1{font-size:clamp(3.1rem,15vw,4.2rem)}.home h1 span{display:block}.home-actions{align-items:stretch}.home-actions a{width:100%}.home-trust{gap:8px 14px}.conversation-stage{min-height:390px}.conversation-window{inset:58px 8px 40px 8px;border-radius:23px}.prompt-chip{max-width:190px;padding:10px 12px;font-size:.8rem}.prompt-en{right:0}.prompt-ja{right:0}.prompt-pl{left:0}.home-proof{width:100%;grid-template-columns:repeat(2,1fr)}.proof-item{padding:20px 8px}.proof-item strong{font-size:1.45rem}.home-section{padding:72px 0}.section-heading{margin-bottom:24px}.path-card{padding:22px}.sample-section{width:calc(100% - 24px);padding:54px 20px;border-radius:26px}.sample-deck{min-height:360px}.sample-card{inset:28px 2px 20px 10px;padding:24px}.topic-directory{grid-template-columns:1fr}.open-section{margin-bottom:56px;padding:26px 22px}.site-footer{width:calc(100% - 32px)}}@media(prefers-reduced-motion:reduce){.prompt-chip{animation:none}.path-card,.topic-directory a,.button-secondary{transition:none}.path-card:hover,.topic-directory a:hover,.button-secondary:hover,.button-secondary:active{transform:none}}
   `;
 }
 
@@ -165,6 +177,7 @@ function documentShell(options: {
   type?: string;
   image?: { path: string; alt: string; width: number; height: number };
   twitterCard?: "summary" | "summary_large_image";
+  styles?: string;
 }) {
   const { baseUrl, locale, title, description, canonicalPath, body, schema } =
     options;
@@ -205,7 +218,7 @@ function documentShell(options: {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <title>${escapeHtml(title)}</title>
-    <style>${staticStyles()}</style>
+    <style>${staticStyles()}${options.styles ?? ""}</style>
     <script type="application/ld+json">${jsonLd(schema)}</script>
   </head>
   <body>
@@ -520,36 +533,78 @@ function homepageContent() {
     .all()
     .map(
       (topic) =>
-        `<li><a href="${topicPath("EN", topic)}">${escapeHtml(topic.title.EN)} conversation questions</a> <span>(${topic.level})</span></li>`,
+        `<li><a href="${topicPath("EN", topic)}"><strong>${escapeHtml(topic.title.EN)}</strong><span>${topic.level}</span></a></li>`,
     )
     .join("");
-  return `<main class="page seo-fallback">
-    <section>
-      <p class="eyebrow">Open-source language conversation platform</p>
-      <h1>Conversation questions for English, Polish, and Japanese practice</h1>
-      <p>LinguaFlow is a free, open-source conversation practice platform for language learners, teachers, tutors, classrooms, and language exchange partners. It turns a clear language goal into level-aware speaking prompts, follow-up questions, and useful vocabulary, so people can spend less time preparing and more time talking.</p>
-      <p>The public library contains 48 human-reviewable topics and 288 guided questions across daily life, work, travel, relationships, technology, health, education, the environment, food, arts, science, and society. Every topic is available in English, Polish, and Japanese, with CEFR levels from A1 to C1.</p>
-      <p><a class="button" href="/app/">Open the LinguaFlow workspace</a></p>
-      <p><a href="/en/">Browse English conversation questions</a> · <a href="/pl/">Przeglądaj pytania po polsku</a> · <a href="/ja/">日本語の会話質問を見る</a></p>
+  return `<main class="page home seo-fallback">
+    <section class="home-hero" aria-labelledby="home-heading">
+      <div class="home-hero-copy">
+        <p class="eyebrow">Open-source conversation practice</p>
+        <h1 id="home-heading">Find the words. <span>Keep talking.</span></h1>
+        <p class="lede">LinguaFlow turns a language goal into thoughtful prompts, useful vocabulary, and guided conversation—so learners and teachers can spend less time preparing and more time speaking.</p>
+        <div class="home-actions">
+          <a class="button" href="/app/">Start a conversation&nbsp; →</a>
+          <a class="button-secondary" href="#topic-library">Explore 48 free topics</a>
+        </div>
+        <ul class="home-trust" aria-label="Product highlights">
+          <li>No account</li><li>Free and open source</li><li>English · Polski · 日本語</li>
+        </ul>
+      </div>
+      <div class="conversation-stage" aria-label="A multilingual conversation in progress">
+        <div class="conversation-window">
+          <picture>
+            <source media="(max-width: 720px)" srcset="/images/linguaflow-guided-session-720.webp" />
+            <img src="/images/linguaflow-guided-session-1200.webp" width="1200" height="675" alt="A teacher guiding three adult learners through a friendly online conversation" loading="eager" fetchpriority="high" decoding="async" />
+          </picture>
+        </div>
+        <div class="prompt-chip prompt-en"><small>English · B1</small>What makes a conversation memorable?</div>
+        <div class="prompt-chip prompt-pl"><small>Polski · wsparcie</small>Co sprawia, że rozmowę pamiętasz?</div>
+        <div class="prompt-chip prompt-ja" lang="ja"><small>日本語 · 会話</small><strong>話してみよう</strong></div>
+      </div>
     </section>
-    <section>
-      <h2>Speaking practice for learners</h2>
-      <p>Choose your interface language, support language, target language, and current CEFR level. LinguaFlow recommends compatible topics and keeps the language you want to speak separate from the language used for explanations. Guided conversation mode presents one question at a time, while optional translations and vocabulary remain available when you need support.</p>
+    <section class="home-proof" aria-label="LinguaFlow curriculum at a glance">
+      <div class="proof-item"><strong>48</strong><span>real-life topics</span></div>
+      <div class="proof-item"><strong>288</strong><span>guided questions</span></div>
+      <div class="proof-item"><strong>3</strong><span>complete languages</span></div>
+      <div class="proof-item"><strong>A1–C1</strong><span>CEFR levels</span></div>
     </section>
-    <section>
-      <h2>Classroom conversation tools for teachers and students</h2>
-      <p>Teachers can select a topic, language direction, and level, then share a self-paced practice link or create a synchronized live room. Students join with a short code and follow the teacher’s current question without creating an account. Live rooms expire automatically, and the platform does not collect recordings, transcripts, email addresses, passwords, advertising identifiers, or analytics cookies.</p>
-      <p><a href="/teachers/">Explore LinguaFlow for teachers</a></p>
+    <section class="home-section" aria-labelledby="choose-path-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">One shared curriculum</p><h2 id="choose-path-heading">A clearer path into every conversation.</h2></div>
+        <p>Choose the way you want to practise. Every path uses the same level-aware questions and keeps support available without interrupting the flow.</p>
+      </div>
+      <div class="path-grid">
+        <article class="path-card"><span class="path-label">For learners</span><h3>Speak at your own pace</h3><p>Choose your target language and CEFR level, then move through one focused prompt at a time with optional translations and vocabulary.</p><a href="/app/">Begin independent practice</a></article>
+        <article class="path-card"><span class="path-label">For teachers</span><h3>Lead the room, not the software</h3><p>Prepare a topic, share a short code, and move the whole class through questions, pauses, reflection, and completion together.</p><a href="/teachers/">Explore teacher tools</a></article>
+        <article class="path-card"><span class="path-label">For students</span><h3>Join without an account</h3><p>Enter a room code and stay synchronized with the teacher’s current prompt. No email address, password, recording, or transcript required.</p><a href="/app/">Join a live room</a></article>
+      </div>
     </section>
-    <section>
-      <h2>Open curriculum and transparent technology</h2>
-      <p>The multilingual curriculum is authored as reviewable source data and validated in continuous integration. Versioned LinguaFlow topic packs carry their license, authorship, source revision, compatibility, facilitation notes, and factual review assertions. Contributors can validate and preview a portable pack in the browser before sharing or installing it.</p>
-      <p><a href="/app/?contribute=1">Preview a LinguaFlow topic pack</a> · <a href="/about/">About the open-source project</a> · <a href="/privacy/">Read the privacy boundary</a> · <a href="${REPOSITORY_URL}">View the source on GitHub</a></p>
+    <section class="sample-section" aria-labelledby="guided-heading">
+      <div>
+        <p class="eyebrow">Guidance when you need it</p>
+        <h2 id="guided-heading">One good question can unlock the room.</h2>
+        <p>Guided conversation mode keeps attention on the current prompt instead of a crowded worksheet. Reveal support only when it helps, move naturally into follow-up questions, and keep useful vocabulary close enough to reach without taking over the discussion.</p>
+        <p class="sample-note">Language direction stays explicit: the language you want to speak is separate from the language used for support.</p>
+      </div>
+      <div class="sample-deck" aria-label="Example guided conversation card">
+        <article class="sample-card">
+          <div class="sample-meta"><span>Remote work</span><span>B2 · Question 2 of 6</span></div>
+          <p class="sample-question">What helps people feel connected when they work far apart?</p>
+          <p class="sample-support">Support is available in English, Polish, or Japanese—without replacing the question you are practising.</p>
+        </article>
+      </div>
     </section>
-    <section>
-      <h2>Free conversation topic library</h2>
-      <p>Each resource below has a central prompt, five or more follow-up questions, vocabulary support, a CEFR level, and a direct practice link. These crawlable pages make the teaching material easy to discover by topic while the interactive workspace remains focused and private.</p>
-      <ul>${topicLinks}</ul>
+    <section class="home-section curriculum-section" id="topic-library" aria-labelledby="library-heading">
+      <div class="section-heading">
+        <div><p class="eyebrow">The free conversation library</p><h2 id="library-heading">Start with something worth talking about.</h2></div>
+        <p>The public curriculum covers daily life, work, travel, relationships, technology, health, education, the environment, food, arts, science, and society. Every topic includes a central prompt, at least five follow-up questions, vocabulary support, and a direct practice link.</p>
+      </div>
+      <p><a href="/en/">Browse in English</a> · <a href="/pl/">Przeglądaj po polsku</a> · <a href="/ja/" lang="ja">日本語で見る</a></p>
+      <ul class="topic-directory">${topicLinks}</ul>
+    </section>
+    <section class="open-section" aria-labelledby="open-heading">
+      <div><p class="eyebrow">Open by design</p><h2 id="open-heading">The curriculum is inspectable, portable, and yours to improve.</h2><p>LinguaFlow publishes its multilingual curriculum as human-reviewable source data. Versioned topic packs carry license, authorship, compatibility, facilitation notes, and review assertions. Contributors can validate a pack in the browser before sharing it, while learners keep private notes and saved material on their own device.</p></div>
+      <div class="open-links"><a href="/app/?contribute=1">Preview a topic pack</a><a href="/about/">About the project</a><a href="/privacy/">Privacy boundaries</a><a href="${REPOSITORY_URL}">Source on GitHub</a></div>
     </section>
   </main>`;
 }
@@ -607,6 +662,7 @@ function homepagePage(baseUrl: string) {
     type: "website",
     alternates: alternateLinks(baseUrl),
     schema: homepageSchema(baseUrl),
+    styles: homepageStyles(),
     body: `${header(baseUrl, "EN")}${homepageContent()}${footer()}`,
   });
 }
@@ -738,7 +794,7 @@ export function seoStaticPages(baseUrlValue: string): Plugin {
           "Prepare English, Polish, and Japanese speaking lessons with free CEFR-level conversation questions, practice links, and synchronized classroom rooms.",
           "Conversation questions and live rooms for language teachers",
           `<p class="lede">LinguaFlow gives language teachers a searchable library of CEFR-level conversation material and two simple ways to share it: independent practice links and synchronized live rooms.</p>
-          <img class="feature-visual" src="/images/linguaflow-guided-session-v1.jpg" width="1672" height="941" alt="A language teacher guiding three adult learners through a structured online conversation session" loading="eager" fetchpriority="high" />
+          <picture><source media="(max-width: 720px)" srcset="/images/linguaflow-guided-session-720.webp" /><img class="feature-visual" src="/images/linguaflow-guided-session-1200.webp" width="1200" height="675" alt="A language teacher guiding three adult learners through a structured online conversation session" loading="eager" fetchpriority="high" decoding="async" /></picture>
           <h2>Prepare a speaking activity</h2><p>Choose one of 48 real-life topics or an installed portable topic pack, set the support and target languages, and select a level from A1 to C1. Each core topic includes a central question, at least five follow-up prompts, vocabulary, timing, objectives, warm-up guidance, and difficulty adaptations. Lesson notes have a print layout and installed content remains available during low connectivity.</p>
           <h2>Send self-paced conversation practice</h2><p>A practice link preserves the topic, language direction, and CEFR level without creating a shared learner record. Each student moves through the questions independently. This is useful for homework, tutoring preparation, language exchange, and groups working at different speeds.</p>
           <h2>Guide a synchronized classroom room</h2><p>Create a room, share its short code or invite link, and advance one question for everyone. Students join with a display name and do not need an account. Temporary connection loss falls back to periodic refresh, and rooms expire after eight hours. The teacher can end a room immediately.</p>
@@ -746,10 +802,10 @@ export function seoStaticPages(baseUrlValue: string): Plugin {
           <p><a class="button" href="${baseUrl}/app/">Open the teacher workspace</a></p>`,
           "WebPage",
           {
-            path: "/images/linguaflow-guided-session-v1.jpg",
+            path: "/images/linguaflow-guided-session-1200.webp",
             alt: "A language teacher guiding three adult learners through a structured online conversation session",
-            width: 1672,
-            height: 941,
+            width: 1200,
+            height: 675,
           },
         ),
       );

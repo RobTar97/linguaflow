@@ -5,6 +5,7 @@ import { workspaceCopy } from "../i18n/workspaceCopy";
 import { useLearningWorkspace } from "../workspace/context";
 import { Brand } from "./Brand";
 import { SoundToggle } from "./SoundToggle";
+import { JapaneseReadingControls } from "./JapaneseReadingControls";
 
 const roleRoutes: Array<{ role: WorkspaceRole; copyKey: "practice" | "teach" | "join" }> = [
   { role: "learner", copyKey: "practice" },
@@ -40,6 +41,11 @@ export function WorkspaceHeader() {
           {profile.goal.nativeLanguage} → <strong>{profile.goal.targetLanguage}</strong>
           <span>{profile.goal.level}</span>
         </span>
+        {profile.goal.interfaceLocale === "JA" ||
+        profile.goal.nativeLanguage === "JA" ||
+        profile.goal.targetLanguage === "JA" ? (
+          <JapaneseReadingControls locale={profile.goal.interfaceLocale} />
+        ) : null}
         <label className="compact-locale-select">
           <span className="sr-only">{copy.interfaceLanguage}</span>
           <select

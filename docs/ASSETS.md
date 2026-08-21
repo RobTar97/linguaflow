@@ -16,7 +16,8 @@ concept artwork as product evidence.
 
 ## Current generated training illustration
 
-`public/images/linguaflow-guided-session-v1.jpg` was generated for LinguaFlow
+`public/images/linguaflow-guided-session-720.webp` and
+`public/images/linguaflow-guided-session-1200.webp` were generated for LinguaFlow
 on 2026-08-04 with the built-in OpenAI image-generation workflow. The existing
 category atlas and social preview were used only as style references. It is an
 illustration, not a screenshot of the application.
@@ -30,9 +31,10 @@ Final prompt:
 > lavender, and natural green. Include no text, letters, logos, flags,
 > watermarks, children, duplicated faces, extra limbs, or simulated product UI.
 
-The committed JPEG is 1672 × 941 and approximately 215 KB. Its teacher-page
-alternative text is: “A language teacher guiding three adult learners through
-a structured online conversation session.”
+The responsive WebP exports are 1200 × 675 (approximately 71 KB) and 720 × 405
+(approximately 34 KB). The teacher-page alternative text is: “A language
+teacher guiding three adult learners through a structured online conversation
+session.”
 
 ## Topic illustration derivatives
 
@@ -73,4 +75,3 @@ showing synchronized progress.
 6. Confirm the contributor has the right to release the asset under the
    repository license. Do not submit classroom photos or personal data.
 7. Run `npm run check`, which validates SEO output and image budgets.
-

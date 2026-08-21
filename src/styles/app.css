@@ -34,10 +34,10 @@
   --shadow-panel:
     0 1px 2px rgba(57, 45, 36, 0.04),
     0 14px 38px rgba(57, 45, 36, 0.065);
-  --topic-atlas: url("/images/linguaflow-topic-atlas.jpg");
-  --topic-atlas-2: url("/images/linguaflow-topic-atlas-2.jpg");
-  --topic-atlas-3: url("/images/linguaflow-topic-atlas-3.jpg");
-  --category-atlas: url("/images/linguaflow-category-atlas.jpg");
+  --topic-atlas: url("/images/linguaflow-topic-atlas.webp");
+  --topic-atlas-2: url("/images/linguaflow-topic-atlas-2.webp");
+  --topic-atlas-3: url("/images/linguaflow-topic-atlas-3.webp");
+  --category-atlas: url("/images/linguaflow-category-atlas.webp");
   --duration-fast: 120ms;
   --duration-normal: 200ms;
   --duration-moderate: 280ms;
@@ -81,6 +81,8 @@ select {
 
 button {
   color: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .spin-icon {
@@ -783,8 +785,8 @@ a:focus-visible {
   top: 10px;
   right: 10px;
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.75);
@@ -845,8 +847,8 @@ a:focus-visible {
   top: 13px;
   right: 13px;
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   place-items: center;
   border: 1px solid rgba(255, 255, 255, 0.8);
@@ -1175,8 +1177,8 @@ a:focus-visible {
 .sheet-heading button,
 .session-topbar button {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   place-items: center;
   border: 0;
@@ -1494,7 +1496,7 @@ a:focus-visible {
 }
 
 .role-navigation button {
-  min-height: 38px;
+  min-height: 44px;
   padding: 0 15px;
   border: 0;
   border-radius: 10px;
@@ -1523,7 +1525,7 @@ a:focus-visible {
 
 .goal-summary {
   display: inline-flex;
-  min-height: 38px;
+  min-height: 44px;
   align-items: center;
   gap: 6px;
   padding: 0 10px;
@@ -1547,7 +1549,7 @@ a:focus-visible {
 }
 
 .compact-locale-select select {
-  height: 38px;
+  height: 44px;
   padding: 0 10px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -1559,8 +1561,8 @@ a:focus-visible {
 
 .header-icon-button {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   place-items: center;
   border: 1px solid var(--border);
@@ -1571,8 +1573,8 @@ a:focus-visible {
 
 .sound-toggle {
   transition:
-    color var(--motion-fast) var(--ease-out),
-    background-color var(--motion-fast) var(--ease-out);
+    color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
 }
 
 .sound-toggle[aria-pressed="true"] {
@@ -1584,6 +1586,111 @@ a:focus-visible {
   background: var(--surface-muted);
 }
 
+.japanese-reading-controls {
+  position: relative;
+}
+
+.japanese-reading-controls > summary {
+  position: relative;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--ink-2);
+  background: white;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.japanese-reading-controls > summary::-webkit-details-marker {
+  display: none;
+}
+
+.japanese-reading-controls > summary > span {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.japanese-reading-controls[open] > summary {
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.japanese-reading-menu {
+  position: absolute;
+  z-index: 90;
+  top: calc(100% + 9px);
+  right: 0;
+  display: grid;
+  width: min(250px, calc(100vw - 28px));
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 18px 48px rgba(57, 45, 36, 0.18);
+}
+
+.japanese-reading-menu strong {
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+
+.japanese-reading-menu button {
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  color: var(--ink-2);
+  background: var(--surface-muted);
+  text-align: left;
+  font-weight: 700;
+}
+
+.japanese-reading-menu button.is-active {
+  border-color: var(--brand);
+  color: var(--brand-dark);
+  background: var(--brand-soft);
+}
+
+.japanese-reading,
+.japanese-reading-primary {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.japanese-reading {
+  display: inline-grid;
+  gap: 4px;
+}
+
+.japanese-reading ruby {
+  ruby-position: over;
+}
+
+.japanese-reading rt {
+  color: var(--ink-2);
+  font-size: 0.5em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.japanese-romaji {
+  color: var(--ink-2);
+  font-size: 0.58em;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 /* Setup */
 
 .setup-shell {
@@ -1593,6 +1700,11 @@ a:focus-visible {
     radial-gradient(circle at 12% 18%, rgba(37, 99, 235, 0.08), transparent 22rem),
     radial-gradient(circle at 85% 12%, rgba(201, 62, 31, 0.09), transparent 28rem),
     var(--canvas);
+}
+
+.setup-card-motion {
+  width: min(820px, 100%);
+  margin: 0 auto;
 }
 
 .setup-header {
@@ -1612,7 +1724,7 @@ a:focus-visible {
 }
 
 .setup-card {
-  width: min(820px, 100%);
+  width: 100%;
   min-height: 680px;
   margin: 0 auto;
   padding: 28px;
@@ -2777,7 +2889,7 @@ a:focus-visible {
     position: fixed;
     z-index: 35;
     right: 14px;
-    bottom: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
     left: 14px;
     height: 56px;
     justify-content: stretch;
@@ -2871,7 +2983,7 @@ a:focus-visible {
 
   .filter-mobile-button {
     display: inline-flex;
-    min-height: 42px;
+    min-height: 44px;
     align-items: center;
     gap: 7px;
     padding: 0 13px;
@@ -2896,7 +3008,7 @@ a:focus-visible {
     position: fixed;
     z-index: 45;
     right: 14px;
-    bottom: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
     left: 14px;
     height: 58px;
     justify-content: stretch;
@@ -2911,6 +3023,7 @@ a:focus-visible {
 
   .workspace-header .role-navigation button {
     flex: 1;
+    min-width: 0;
   }
 
   .goal-summary {
@@ -2962,6 +3075,10 @@ a:focus-visible {
   .logo-mark {
     width: 33px;
     height: 33px;
+  }
+
+  .global-header.has-japanese-readings .logo-text {
+    display: none;
   }
 
   .locale-select {
@@ -3069,7 +3186,7 @@ a:focus-visible {
 
   .session-panel {
     max-height: 94vh;
-    padding: 17px;
+    padding: 17px 17px max(17px, env(safe-area-inset-bottom));
     border-radius: 24px 24px 0 0;
   }
 
@@ -3132,6 +3249,16 @@ a:focus-visible {
 
   .workspace-header {
     padding: 0 14px;
+  }
+
+  .workspace-header-actions {
+    gap: 5px;
+  }
+
+  .japanese-reading-menu {
+    position: fixed;
+    top: 70px;
+    right: 14px;
   }
 
   .workspace-header .logo-text {

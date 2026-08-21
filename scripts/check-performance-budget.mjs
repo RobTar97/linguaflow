@@ -5,8 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const DIST_DIR = fileURLToPath(new URL("../dist/", import.meta.url));
 const limits = {
-  // Includes every lazy workspace, hardened import validators, and offline update client.
-  javascriptGzip: 202 * 1024,
+  // Includes every lazy workspace, Japanese reading support, hardened import
+  // validators, and the offline update client. The initial-load cap below stays
+  // intentionally tighter because learners do not download every lazy route.
+  javascriptGzip: 204 * 1024,
   initialJavascriptGzip: 90 * 1024,
   cssGzip: 12 * 1024,
   documentAssetsGzip: 200 * 1024,

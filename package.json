@@ -41,7 +41,8 @@
     "check": "npm run audit:secrets && npm run lint && npm run test && npm run build && npm run audit:seo && npm run audit:performance && npm run types:worker && npm run check:worker-config && npm run test:worker",
     "check:content": "vitest run --maxWorkers=1 src/catalog/topicCatalog.test.ts",
     "pack:validate": "tsx scripts/topic-pack.ts validate",
-    "pack:build": "tsx scripts/topic-pack.ts build"
+    "pack:build": "tsx scripts/topic-pack.ts build",
+    "generate:japanese-readings": "tsx scripts/generate-japanese-readings.ts"
   },
   "dependencies": {
     "fflate": "^0.8.3",
@@ -62,6 +63,8 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^16.3.0",
+    "kuroshiro": "^1.2.0",
+    "kuroshiro-analyzer-kuromoji": "^1.1.0",
     "tsx": "^4.23.11",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.65.0",

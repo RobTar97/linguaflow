@@ -14,7 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { categoryCopy } from "../../content/topics";
 import {
   encodeTrainingCursor,
@@ -29,6 +29,7 @@ import { buildJoinUrl } from "../../platform/shareLinks";
 import { roomService, type RoomConnectionStatus } from "../../platform/roomService";
 import { soundEffects } from "../../platform/soundEffects";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
+import { JapaneseText } from "../../ui/JapaneseText";
 import { useLearningWorkspace } from "../../workspace/context";
 import { useTopicLibrary } from "../../packs/libraryContext";
 
@@ -64,7 +65,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
     refreshRoomRef.current = refreshRoom;
   }, [refreshRoom]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const previous = lastSoundedQuestionRef.current;
     if (!roomCode) return;
     if (
@@ -210,15 +211,15 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
 
   async function copyCode() {
     await navigator.clipboard?.writeText(activeRoom!.code);
-    soundEffects.play("action-success");
     setCopied("code");
+    soundEffects.play("action-success");
     window.setTimeout(() => setCopied(null), 1200);
   }
 
   async function copyInviteLink() {
     await navigator.clipboard?.writeText(buildJoinUrl(activeRoom!.code));
-    soundEffects.play("action-success");
     setCopied("link");
+    soundEffects.play("action-success");
     window.setTimeout(() => setCopied(null), 1200);
   }
 
@@ -269,7 +270,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
           <section className="presentation-board">
             <div className="presentation-topic">
               <span>{categoryCopy[category][profile!.goal.interfaceLocale]}</span>
-              <strong>{title[profile!.goal.interfaceLocale]}</strong>
+              <strong><JapaneseText text={title[profile!.goal.interfaceLocale]} language={profile!.goal.interfaceLocale} /></strong>
               <small>
                 {guided
                   ? `${copy.trainingStep} ${guided.stepIndex + 1} ${copy.trainingOf} ${guided.stepCount}`
@@ -332,10 +333,13 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
                   animate="visible"
                   exit="exit"
                 >
-                  {displayedQuestion ??
-                    (guided?.status === "complete"
-                      ? copy.trainingComplete
-                      : copy.trainingLobby)}
+                  {displayedQuestion ? (
+                    <JapaneseText text={displayedQuestion} language={activeRoom.targetLanguage} />
+                  ) : guided?.status === "complete" ? (
+                    copy.trainingComplete
+                  ) : (
+                    copy.trainingLobby
+                  )}
                 </motion.p>
               </AnimatePresence>
               {guided ? (
@@ -352,7 +356,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
               {displayedSupportQuestion ? (
                 <details>
                   <summary>{copy.supportTranslation}</summary>
-                  <p>{displayedSupportQuestion}</p>
+                  <p><JapaneseText text={displayedSupportQuestion} language={activeRoom.supportLanguage} /></p>
                 </details>
               ) : null}
             </div>
@@ -384,7 +388,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
             <div className="presentation-vocabulary">
               {vocabulary[activeRoom.targetLanguage]!.slice(0, 6).map((item) => (
                 <span key={item.word}>
-                  <strong>{item.word}</strong>
+                  <strong><JapaneseText text={item.word} language={activeRoom.targetLanguage} /></strong>
                   {item.translation}
                 </span>
               ))}

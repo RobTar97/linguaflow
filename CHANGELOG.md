@@ -17,6 +17,14 @@ All notable project changes are documented here.
 
 ### Changed
 
+- Rebuilt the public homepage as a faster editorial speaking experience with a
+  single multilingual motion signature, clearer role paths, fewer dashboard
+  patterns, stronger accessibility, and responsive layouts.
+- Landing-page role choices now carry safely into the three-step onboarding
+  flow while live-room invitations continue to select the student path.
+- The JavaScript-free landing visual system is emitted as a cacheable static
+  stylesheet; the total CSS budget is 16 KiB gzip while the combined document
+  asset budget remains 200 KiB gzip.
 - Hardened topic-pack archive, metadata, learner-data import, installed-version,
   and imported-room-snapshot validation; added local pack removal and clearer
   contributor-preview accessibility and failure states.
@@ -26,6 +34,8 @@ All notable project changes are documented here.
 
 ### Documentation
 
+- Added a landing-page experience contract covering hierarchy, visual and
+  motion rules, onboarding continuity, performance limits, and release QA.
 - Added a task-oriented documentation index, an open-platform capability and
   extension guide, and a north-star community product vision.
 - Reframed the roadmap around versioned topic packs, contributor preview,

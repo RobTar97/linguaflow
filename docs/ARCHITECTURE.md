@@ -47,8 +47,17 @@ duplicating curriculum data.
 
 The portable curriculum Module. It owns the `.lfpack` archive adapter, manifest
 schema, semantic validator, normalization into runtime topics, IndexedDB
-repository interface, and dynamic catalog provider. Feature code consumes the
-catalog and never parses ZIP or pack JSON directly.
+repository interface, and dynamic catalog provider. One intake Module carries
+an archive through validation and preview before it can cross the installation
+seam. Feature code consumes the catalog and never parses ZIP or pack JSON
+directly.
+
+### `learnerData`
+
+The Learner library Module. It owns the single browser record for saved Topics,
+private Topic notes, and vocabulary bookmarks, including migration from the
+three legacy records. Versioned export, deterministic merge, limits, and
+validation use the same interface as workspace commands and tests.
 
 ### `workspace`
 
@@ -59,10 +68,11 @@ and keep imports directional.
 
 ### `platform`
 
-Wrappers around environmental capabilities. Browser storage lives here so it
-can later be replaced by server persistence without teaching every feature
-about `localStorage`. The sound-effects service owns cue assets, volume, browser
-playback, and the persisted mute preference so features only name an event.
+Adapters for environmental capabilities. Browser storage lives here so it can
+later be replaced without teaching every feature about `localStorage`. Local
+and Worker Room adapters satisfy one Room interface and run the same domain
+rules. The sound-effects Module owns cue assets, volume, browser playback, and
+the persisted mute preference so features only name an event.
 
 ### `features`
 
@@ -78,17 +88,16 @@ copy, and motion. They should not import content arrays directly.
 
 ## State model
 
-The workspace stores six durable browser values:
+The workspace coordinates these durable browser values:
 
 - profile and learning goal;
-- saved topic IDs;
 - active room.
-- private topic notes;
-- vocabulary bookmarks;
+- the Learner library as one versioned record;
 - installed packs in the separate IndexedDB pack repository.
 
-Development mode uses browser-local rooms for fast UI work. Production calls
-the same-origin Worker API. Each room code maps to one SQLite-backed Durable
+Development mode selects the browser-local Room adapter once for fast UI work.
+Production selects the same-origin Worker adapter. Both use the same Room
+construction, normalization, participant, and cursor rules. Each room code maps to one SQLite-backed Durable
 Object, which serializes joins and teacher updates and automatically expires
 after eight hours. Teacher mutations require a browser-held secret token. See
 ADR 0003. A hibernating WebSocket subscription broadcasts room snapshots;

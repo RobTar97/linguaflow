@@ -1,7 +1,8 @@
 import { ArrowLeft, CheckCircle2, Download, FileJson, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTopicLibrary } from "../../packs/libraryContext";
-import { LEARNER_DATA_MAX_BYTES, LEARNER_DATA_SCHEMA_VERSION, parseLearnerData, type LearnerDataExport } from "../../learnerData/format";
+import { LEARNER_DATA_MAX_BYTES, parseLearnerData, type LearnerDataExport } from "../../learnerData/format";
+import { createLearnerDataExport } from "../../learnerData/library";
 import { WorkspaceHeader } from "../../ui/WorkspaceHeader";
 import { useLearningWorkspace } from "../../workspace/context";
 
@@ -19,18 +20,16 @@ export default function LearnerDataManager() {
   useEffect(() => { mainRef.current?.focus(); }, []);
 
   function downloadExport() {
-    const data: LearnerDataExport = {
-      schemaVersion: LEARNER_DATA_SCHEMA_VERSION,
-      exportedAt: new Date().toISOString(),
+    const data = createLearnerDataExport({
       appVersion: __APP_VERSION__,
       ...(workspace.profile ? { profile: workspace.profile } : {}),
       library: {
-        savedTopicIds: workspace.savedIds,
+        savedIds: workspace.savedIds,
         topicNotes: workspace.topicNotes,
         vocabularyBookmarks: workspace.vocabularyBookmarks,
       },
       installedPacks: packs.map(({ manifest }) => ({ id: manifest.id, version: manifest.version })),
-    };
+    });
     const url = URL.createObjectURL(new Blob([`${JSON.stringify(data, null, 2)}\n`], { type: "application/json" }));
     const anchor = document.createElement("a");
     anchor.href = url;

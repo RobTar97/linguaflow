@@ -139,7 +139,7 @@ function alternateLinks(baseUrl: string, topic?: Topic) {
 function staticStyles() {
   return `
     :root{color:#10213b;background:#f7f9ff;font:16px/1.6 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f9ff}a{color:#244bd8;text-underline-offset:.18em}a:hover{text-decoration-thickness:2px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f9ff}a{color:#244bd8;text-underline-offset:.18em}a:hover{text-decoration-thickness:2px}a:focus-visible,button:focus-visible{outline:3px solid #f45132;outline-offset:3px}
     .page{width:min(1120px,calc(100% - 32px));margin:auto}.site-header,.site-footer{display:flex;gap:20px;align-items:center;justify-content:space-between;padding:22px 0}
     .site-header{position:relative;z-index:10}.brand{color:#10213b;font-size:1.25rem;font-weight:850;letter-spacing:-.04em;text-decoration:none}.brand span{color:#d94727}
     nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}nav a{min-height:44px;padding:10px 12px;border-radius:999px;color:#394760;font-size:.9rem;font-weight:650;text-decoration:none}nav a:hover{color:#10213b;background:#eaf0ff}main{padding:42px 0 64px}.eyebrow{color:#355dff;font-size:.75rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
@@ -156,12 +156,18 @@ function staticStyles() {
 
 function homepageStyles() {
   return `
-    .home{padding-top:20px}.home section{scroll-margin-top:24px}.home-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,.9fr);gap:clamp(38px,6vw,86px);align-items:center;min-height:660px;padding:42px 0 74px}.home-hero-copy{position:relative;z-index:2}.home-hero .eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:7px 11px;border:1px solid #cfdbff;border-radius:999px;background:#eef3ff}.home-hero .eyebrow:before{width:7px;height:7px;border-radius:50%;background:#ff6b4a;box-shadow:0 0 0 4px #ffe5de;content:""}.home h1{max-width:700px;margin:0;color:#10213b;font-family:ui-rounded,"Avenir Next Rounded","Avenir Next",system-ui,sans-serif;font-size:clamp(3.25rem,7vw,6.4rem);font-weight:850;line-height:.92;letter-spacing:-.075em}.home h1 span{color:#355dff}.home-hero-copy>.lede{max-width:610px;margin:25px 0 0;font-size:clamp(1.05rem,1.4vw,1.22rem);line-height:1.7}.home-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:30px}.home-actions .button{margin:0;padding-inline:22px}.button-secondary{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:11px 18px;border:1px solid #cbd6ed;border-radius:14px;color:#10213b;background:rgba(255,255,255,.72);font-weight:750;text-decoration:none;transition:transform 140ms ease,background 140ms ease,border-color 140ms ease}.button-secondary:hover{border-color:#9db2e6;background:#fff;transform:translateY(-1px)}.button-secondary:active{transform:scale(.975)}.home-trust{display:flex;gap:16px;flex-wrap:wrap;margin:24px 0 0;padding:0;list-style:none;color:#65718a;font-size:.86rem;font-weight:650}.home-trust li{display:flex;align-items:center;gap:6px}.home-trust li:before{width:5px;height:5px;border-radius:50%;background:#40b88a;content:""}
-    .conversation-stage{position:relative;min-height:560px;isolation:isolate}.conversation-stage:before{position:absolute;inset:6% -4% 0;border-radius:46% 54% 40% 60%/56% 40% 60% 44%;background:linear-gradient(145deg,#dfe8ff,#c9f3e3);content:""}.conversation-window{position:absolute;inset:68px 4px 44px 26px;overflow:hidden;border:1px solid rgba(255,255,255,.8);border-radius:30px;background:#fff;box-shadow:0 34px 70px rgba(28,52,108,.2);transform:rotate(1.5deg)}.conversation-window img{width:100%;height:100%;display:block;object-fit:cover}.conversation-window:after{position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(16,33,59,.12));content:""}.prompt-chip{position:absolute;z-index:2;max-width:240px;padding:13px 16px;border:1px solid rgba(255,255,255,.88);border-radius:17px;background:rgba(255,255,255,.88);box-shadow:0 15px 34px rgba(20,43,96,.16);font-weight:780;line-height:1.35;backdrop-filter:blur(15px);animation:chip-arrive 650ms cubic-bezier(.16,1,.3,1) both}.prompt-chip small{display:block;margin-bottom:2px;color:#66728a;font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.prompt-en{top:18px;right:6px;animation-delay:100ms}.prompt-pl{bottom:4px;left:0;animation-delay:180ms}.prompt-ja{top:42%;right:-18px;animation-delay:260ms}.prompt-ja strong{font-size:1.08rem}.home-proof{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid #dbe3f3}.proof-item{padding:25px 18px;text-align:center}.proof-item+.proof-item{border-inline-start:1px solid #dbe3f3}.proof-item strong{display:block;color:#10213b;font-size:1.75rem;line-height:1.1;letter-spacing:-.04em}.proof-item span{color:#5f6b82;font-size:.84rem;font-weight:650}
-    .home-section{padding:96px 0}.section-heading{display:grid;grid-template-columns:minmax(0,.8fr) minmax(300px,.55fr);gap:48px;align-items:end;margin-bottom:34px}.section-heading h2{max-width:650px;margin:6px 0 0;color:#10213b;font-size:clamp(2rem,4vw,3.5rem);line-height:1.02;letter-spacing:-.055em}.section-heading>p{margin:0;color:#5f6c84}.path-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.path-card{position:relative;min-height:270px;padding:26px;border:1px solid #dbe4f5;border-radius:24px;background:#fff;box-shadow:0 14px 38px rgba(26,45,90,.06);transition:transform 180ms cubic-bezier(.16,1,.3,1),box-shadow 180ms ease,border-color 180ms ease}.path-card:hover{border-color:#b8c9f3;box-shadow:0 20px 46px rgba(26,45,90,.12);transform:translateY(-4px)}.path-label{display:inline-flex;padding:5px 9px;border-radius:999px;color:#244bd8;background:#edf2ff;font-size:.72rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.path-card h3{margin:44px 0 10px;font-size:1.55rem;line-height:1.1;letter-spacing:-.035em}.path-card p{margin:0;color:#637088}.path-card a{position:absolute;inset-inline:26px;bottom:24px;font-weight:780;text-decoration:none}.path-card a:after{content:" →"}.path-card:nth-child(2){background:#10213b;color:#fff}.path-card:nth-child(2) .path-label{color:#dce6ff;background:#253857}.path-card:nth-child(2) p{color:#bdc9dd}.path-card:nth-child(2) a{color:#bcd0ff}
-    .sample-section{display:grid;grid-template-columns:minmax(0,.8fr) minmax(360px,1fr);gap:clamp(40px,7vw,90px);align-items:center;padding:80px clamp(28px,5vw,64px);border-radius:34px;background:#10213b;color:#fff}.sample-section h2{margin:8px 0 18px;font-size:clamp(2rem,4vw,3.5rem);line-height:1.03;letter-spacing:-.05em}.sample-section p{color:#c1ccde}.sample-section .eyebrow{color:#8eabff}.sample-deck{position:relative;min-height:400px}.sample-card{position:absolute;inset:36px 8px 24px 34px;display:flex;flex-direction:column;justify-content:space-between;padding:30px;border-radius:25px;background:#fff;color:#10213b;box-shadow:0 30px 70px rgba(0,0,0,.3);transform:rotate(2deg)}.sample-card:before,.sample-card:after{position:absolute;inset:0;border-radius:25px;background:#dce7ff;content:"";transform:rotate(-7deg) translate(-16px,8px);z-index:-1}.sample-card:after{background:#ffcfbf;transform:rotate(7deg) translate(18px,4px);z-index:-2}.sample-meta{display:flex;justify-content:space-between;color:#6a7690;font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.sample-question{margin:auto 0;font-family:ui-rounded,"Avenir Next Rounded",system-ui,sans-serif;font-size:clamp(1.55rem,3vw,2.35rem);font-weight:800;line-height:1.18;letter-spacing:-.04em}.sample-support{padding-top:16px;border-top:1px solid #e5eaf5;color:#5f6c84;font-size:.94rem}.sample-note{margin-top:18px;color:#9dacbf;font-size:.86rem}
-    .curriculum-section{padding-bottom:72px}.topic-directory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:28px 0 0;padding:0;list-style:none}.topic-directory li{min-width:0}.topic-directory a{display:flex;min-height:52px;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border:1px solid #dfe6f4;border-radius:13px;color:#24334f;background:#fff;font-size:.88rem;font-weight:650;text-decoration:none;transition:border-color 140ms ease,transform 140ms ease}.topic-directory a:hover{border-color:#9db2e6;transform:translateY(-1px)}.topic-directory span{flex:0 0 auto;padding:2px 7px;border-radius:999px;color:#244bd8;background:#edf2ff;font-size:.7rem}.open-section{display:grid;grid-template-columns:minmax(0,.8fr) minmax(300px,.55fr);gap:48px;align-items:center;margin-bottom:80px;padding:38px;border:1px solid #dbe4f4;border-radius:28px;background:linear-gradient(135deg,#fff,#edf3ff)}.open-section h2{margin:5px 0 12px;font-size:clamp(1.8rem,3vw,2.7rem);letter-spacing:-.045em}.open-links{display:flex;gap:9px;flex-wrap:wrap}.open-links a{min-height:44px;padding:9px 12px;border:1px solid #cad6ee;border-radius:12px;background:#fff;font-size:.86rem;font-weight:720;text-decoration:none}
-    @keyframes chip-arrive{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}@media(max-width:900px){.home-hero{grid-template-columns:1fr;min-height:0;padding-top:52px}.conversation-stage{min-height:520px;max-width:650px;width:100%;margin:auto}.home-proof{grid-template-columns:repeat(2,1fr)}.proof-item:nth-child(3){border-inline-start:0;border-top:1px solid #dbe3f3}.proof-item:nth-child(4){border-top:1px solid #dbe3f3}.section-heading,.open-section{grid-template-columns:1fr;gap:18px}.path-grid{grid-template-columns:1fr}.path-card{min-height:230px}.sample-section{grid-template-columns:1fr}.topic-directory{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.site-header nav a:nth-last-child(-n+2){display:none}}@media(max-width:560px){.home{width:100%;overflow:hidden}.home-hero,.home-section,.curriculum-section,.open-section{width:calc(100% - 32px);margin-inline:auto}.home-hero{padding:34px 0 52px}.home h1{font-size:clamp(3.1rem,15vw,4.2rem)}.home h1 span{display:block}.home-actions{align-items:stretch}.home-actions a{width:100%}.home-trust{gap:8px 14px}.conversation-stage{min-height:390px}.conversation-window{inset:58px 8px 40px 8px;border-radius:23px}.prompt-chip{max-width:190px;padding:10px 12px;font-size:.8rem}.prompt-en{right:0}.prompt-ja{right:0}.prompt-pl{left:0}.home-proof{width:100%;grid-template-columns:repeat(2,1fr)}.proof-item{padding:20px 8px}.proof-item strong{font-size:1.45rem}.home-section{padding:72px 0}.section-heading{margin-bottom:24px}.path-card{padding:22px}.sample-section{width:calc(100% - 24px);padding:54px 20px;border-radius:26px}.sample-deck{min-height:360px}.sample-card{inset:28px 2px 20px 10px;padding:24px}.topic-directory{grid-template-columns:1fr}.open-section{margin-bottom:56px;padding:26px 22px}.site-footer{width:calc(100% - 32px)}}@media(prefers-reduced-motion:reduce){.prompt-chip{animation:none}.path-card,.topic-directory a,.button-secondary{transition:none}.path-card:hover,.topic-directory a:hover,.button-secondary:hover,.button-secondary:active{transform:none}}
+    :root{--home-ink:#0b1830;--home-paper:#f3f6fb;--home-white:#fff;--home-blue:#2855f5;--home-coral:#f45132;--home-mint:#9fe1c0;--home-lilac:#cfc3ff;--home-muted:#56647b;--home-rule:#cdd7e8}
+    body{overflow-x:hidden;background:var(--home-paper);color:var(--home-ink)}.home{padding-top:0}.home section{scroll-margin-top:24px}.home-header{padding-block:18px;border-bottom:1px solid rgba(11,24,48,.12)}.home-header nav{gap:3px}.home-header .nav-cta{margin-inline-start:8px;padding-inline:17px;color:#fff;background:var(--home-ink)}.home-header .nav-cta:hover{color:#fff;background:var(--home-blue)}
+    .skip-link{position:fixed;z-index:100;top:10px;left:10px;padding:10px 14px;color:#fff;background:var(--home-ink);font-weight:800;text-decoration:none;transform:translateY(-160%)}.skip-link:focus{transform:none}.home-hero{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(370px,.92fr);gap:clamp(40px,6vw,88px);align-items:center;min-height:calc(100svh - 82px);padding:56px 0 72px}.home-hero-copy{position:relative;z-index:2;animation:hero-enter 620ms cubic-bezier(.16,1,.3,1) both}.home .eyebrow{margin:0;color:var(--home-blue);font-size:.72rem;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.hero-kicker{display:flex;gap:10px;align-items:center;margin-bottom:22px}.hero-kicker:before{width:26px;height:2px;background:var(--home-coral);content:""}.home h1{max-width:760px;margin:0;color:var(--home-ink);font-family:"Arial Narrow","Avenir Next Condensed","Roboto Condensed",ui-sans-serif,system-ui,sans-serif;font-size:clamp(4rem,8.4vw,7.7rem);font-stretch:condensed;font-weight:900;line-height:.82;letter-spacing:-.075em;text-wrap:balance}.home h1 em{display:block;margin-top:.08em;color:var(--home-coral);font-family:Iowan Old Style,Baskerville,Georgia,serif;font-size:.78em;font-weight:500;letter-spacing:-.06em;line-height:.92}.home-hero-copy>.lede{max-width:610px;margin:30px 0 0;color:var(--home-muted);font-size:clamp(1.05rem,1.4vw,1.22rem);line-height:1.68}.home-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:32px}.home-actions .button{margin:0;padding-inline:23px;background:var(--home-blue);box-shadow:0 10px 30px rgba(40,85,245,.24)}.button-secondary{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:11px 18px;border-bottom:1px solid var(--home-ink);color:var(--home-ink);font-weight:800;text-decoration:none;transition:color 180ms ease,border-color 180ms ease}.button-secondary:hover{color:var(--home-blue);border-color:var(--home-blue)}.home-trust{display:flex;gap:10px 22px;flex-wrap:wrap;margin:24px 0 0;padding:0;list-style:none;color:#46546b;font-size:.84rem;font-weight:700}.home-trust li{display:flex;align-items:center;gap:7px}.home-trust li:before{width:7px;height:7px;border:2px solid var(--home-blue);border-radius:50%;content:""}
+    .conversation-stage{position:relative;min-height:590px;isolation:isolate;animation:visual-enter 700ms 80ms cubic-bezier(.16,1,.3,1) both}.conversation-stage:before{position:absolute;inset:2% 7% 4% -3%;background:var(--home-lilac);clip-path:polygon(12% 0,100% 4%,91% 100%,0 88%);content:""}.conversation-window{position:absolute;inset:42px 0 68px 28px;overflow:hidden;border:2px solid var(--home-ink);background:#d9e2f3;clip-path:polygon(8% 0,100% 2%,94% 100%,0 92%)}.conversation-window img{width:100%;height:100%;display:block;object-fit:cover}.conversation-window:after{position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(11,24,48,.2));content:""}.visual-index{position:absolute;z-index:2;top:4px;right:2px;color:var(--home-ink);font-family:ui-monospace,monospace;font-size:.72rem;font-weight:800;letter-spacing:.1em;writing-mode:vertical-rl}.conversation-ribbon{position:absolute;z-index:3;right:-13%;bottom:76px;left:-11%;overflow:hidden;border-block:2px solid var(--home-ink);background:var(--home-coral);color:#fff;transform:rotate(-7deg)}.ribbon-track{display:flex;width:max-content;animation:ribbon-flow 18s linear infinite}.ribbon-track span{padding:10px 18px;font-size:.78rem;font-weight:850;letter-spacing:.08em;white-space:nowrap}.ribbon-track span:after{margin-inline-start:34px;content:"✦"}.hero-prompt{position:absolute;z-index:4;right:0;bottom:0;width:min(88%,390px);padding:20px 22px;border:2px solid var(--home-ink);background:var(--home-white);box-shadow:12px 12px 0 var(--home-mint)}.hero-prompt span{display:block;color:var(--home-blue);font-size:.68rem;font-weight:850;letter-spacing:.11em;text-transform:uppercase}.hero-prompt strong{display:block;margin-top:5px;font-family:Iowan Old Style,Baskerville,Georgia,serif;font-size:1.25rem;line-height:1.26}.home-proof{display:flex;gap:16px 34px;align-items:center;justify-content:space-between;padding:24px 0;border-block:1px solid var(--home-rule)}.proof-item{display:flex;gap:8px;align-items:baseline}.proof-item strong{color:var(--home-ink);font-family:"Arial Narrow","Avenir Next Condensed",sans-serif;font-size:1.65rem;line-height:1}.proof-item span{color:var(--home-muted);font-size:.82rem;font-weight:700}
+    .home-section{padding:112px 0}.section-heading{display:grid;grid-template-columns:minmax(0,.95fr) minmax(290px,.5fr);gap:clamp(32px,7vw,92px);align-items:end;margin-bottom:52px}.section-heading h2{max-width:730px;margin:8px 0 0;color:var(--home-ink);font-family:"Arial Narrow","Avenir Next Condensed",ui-sans-serif,sans-serif;font-size:clamp(2.8rem,5.6vw,5.6rem);font-weight:900;line-height:.89;letter-spacing:-.065em;text-wrap:balance}.section-heading>p{max-width:520px;margin:0;color:var(--home-muted);font-size:1rem}.journey{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid var(--home-ink)}.journey-step{position:relative;min-height:310px;padding:28px 30px 32px 0}.journey-step+.journey-step{padding-left:30px;border-left:1px solid var(--home-rule)}.journey-number{display:block;color:var(--home-coral);font-family:ui-monospace,monospace;font-size:.72rem;font-weight:850;letter-spacing:.1em}.journey-step h3{max-width:270px;margin:72px 0 12px;font-size:clamp(1.65rem,2.6vw,2.35rem);line-height:1;letter-spacing:-.045em}.journey-step p{max-width:330px;margin:0;color:var(--home-muted)}
+    .role-section{padding-top:56px}.role-intro{display:flex;gap:30px;align-items:baseline;justify-content:space-between;margin-bottom:22px}.role-intro h2{margin:0;font-family:Iowan Old Style,Baskerville,Georgia,serif;font-size:clamp(2rem,4vw,3.8rem);font-style:italic;font-weight:500;letter-spacing:-.045em}.role-intro p{max-width:460px;margin:0;color:var(--home-muted)}.role-list{margin:0;padding:0;border-top:2px solid var(--home-ink);list-style:none}.role-list a{display:grid;grid-template-columns:minmax(180px,.55fr) minmax(280px,1fr) auto;gap:28px;align-items:center;min-height:142px;padding:24px 4px;border-bottom:1px solid var(--home-rule);color:var(--home-ink);text-decoration:none;transition:color 180ms ease,transform 180ms cubic-bezier(.16,1,.3,1)}.role-list strong{font-family:"Arial Narrow","Avenir Next Condensed",sans-serif;font-size:clamp(2.2rem,4vw,4.2rem);line-height:.9;letter-spacing:-.06em}.role-list span{max-width:530px;color:var(--home-muted)}.role-list b{font-size:1.55rem;font-weight:500}.role-list a:hover{color:var(--home-blue);transform:translateX(6px)}.role-list a:hover span{color:var(--home-ink)}
+    .studio-section{position:relative;width:100vw;margin-left:calc(50% - 50vw);padding:110px max(16px,calc((100vw - 1120px)/2));overflow:hidden;background:var(--home-ink);color:#fff}.studio-grid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(380px,1fr);gap:clamp(44px,7vw,100px);align-items:center}.studio-copy .eyebrow{color:var(--home-mint)}.studio-copy h2{max-width:580px;margin:10px 0 24px;font-family:"Arial Narrow","Avenir Next Condensed",sans-serif;font-size:clamp(3rem,6vw,6rem);font-weight:900;line-height:.86;letter-spacing:-.065em}.studio-copy p{max-width:540px;color:#bdc9dc}.studio-copy .studio-note{padding-top:22px;border-top:1px solid #34435c;color:#8fa0b9;font-size:.88rem}.studio-quote{position:relative;min-height:440px}.quote-mark{position:absolute;top:-90px;left:-28px;color:var(--home-coral);font-family:Georgia,serif;font-size:13rem;line-height:1}.quote-sheet{position:absolute;inset:48px 0 0 26px;padding:clamp(30px,5vw,62px);border:2px solid #fff;background:var(--home-paper);color:var(--home-ink);transform:rotate(1.5deg)}.quote-meta{display:flex;justify-content:space-between;color:#647189;font-family:ui-monospace,monospace;font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.quote-question{margin:80px 0 48px;font-family:Iowan Old Style,Baskerville,Georgia,serif;font-size:clamp(1.8rem,3.6vw,3.2rem);line-height:1.1;letter-spacing:-.04em}.quote-support{padding-top:18px;border-top:1px solid var(--home-rule);color:var(--home-muted);font-size:.9rem}
+    .curriculum-section{padding-bottom:84px}.language-directory{display:flex;gap:12px 24px;flex-wrap:wrap;margin:0 0 34px}.language-directory a{min-height:44px;padding-block:9px;color:var(--home-ink);font-weight:800;text-decoration-thickness:2px}.topic-directory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:0;padding:0;border-top:2px solid var(--home-ink);list-style:none}.topic-directory li:nth-child(odd){padding-right:24px}.topic-directory li:nth-child(even){padding-left:24px;border-left:1px solid var(--home-rule)}.topic-directory a{display:grid;grid-template-columns:2.2rem 1fr auto;gap:10px;align-items:center;min-height:76px;border-bottom:1px solid var(--home-rule);color:var(--home-ink);text-decoration:none}.topic-directory i{color:var(--home-coral);font-family:ui-monospace,monospace;font-size:.68rem;font-style:normal}.topic-directory strong{font-size:1rem}.topic-directory span{color:var(--home-muted);font-family:ui-monospace,monospace;font-size:.7rem}.topic-directory a:hover strong{color:var(--home-blue)}.library-cta{display:flex;gap:18px;align-items:center;justify-content:space-between;margin-top:28px}.library-cta p{max-width:650px;margin:0;color:var(--home-muted)}.library-cta a{font-weight:850;white-space:nowrap}.open-section{display:grid;grid-template-columns:minmax(0,.9fr) minmax(280px,.45fr);gap:58px;align-items:end;margin-bottom:80px;padding:56px 0;border-block:1px solid var(--home-ink)}.open-section h2{max-width:720px;margin:8px 0 16px;font-family:"Arial Narrow","Avenir Next Condensed",sans-serif;font-size:clamp(2.6rem,5vw,5rem);line-height:.9;letter-spacing:-.06em}.open-section p{color:var(--home-muted)}.open-links{display:grid;border-top:1px solid var(--home-rule)}.open-links a{display:flex;min-height:52px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--home-rule);color:var(--home-ink);font-weight:780;text-decoration:none}.open-links a:after{content:"↗"}.open-links a:hover{color:var(--home-blue)}
+    @keyframes hero-enter{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}@keyframes visual-enter{from{opacity:0;transform:translateY(28px) scale(.98)}to{opacity:1;transform:none}}@keyframes ribbon-flow{to{transform:translateX(-50%)}}@supports(animation-timeline:view()){.journey-step,.role-list li,.studio-copy,.quote-sheet,.topic-directory li{opacity:.25;transform:translateY(22px);animation:section-reveal 1ms ease-out both;animation-timeline:view();animation-range:entry 8% cover 30%}@keyframes section-reveal{to{opacity:1;transform:none}}}
+    @media(max-width:900px){.home-header nav a:not(.nav-cta):nth-child(2){display:none}.home-hero{grid-template-columns:1fr;min-height:0;padding-top:72px}.conversation-stage{min-height:570px;max-width:680px;width:100%;margin:8px auto 0}.home-proof{display:grid;grid-template-columns:repeat(2,1fr)}.section-heading,.studio-grid,.open-section{grid-template-columns:1fr}.journey{grid-template-columns:1fr}.journey-step{min-height:0;padding:28px 0 34px}.journey-step+.journey-step{padding-left:0;border-top:1px solid var(--home-rule);border-left:0}.journey-step h3{margin-top:34px}.role-list a{grid-template-columns:minmax(150px,.45fr) 1fr auto}.studio-section{padding-block:88px}.studio-quote{min-height:420px}.topic-directory{grid-template-columns:1fr}.topic-directory li:nth-child(n){padding:0;border-left:0}.library-cta{align-items:flex-start;flex-direction:column}}
+    @media(max-width:640px){.home-header{align-items:center;flex-direction:row}.home-header nav{width:auto;overflow:visible;padding:0}.home-header nav a:not(.nav-cta){display:none}.home-header .nav-cta{margin:0}.home-hero{padding:52px 0 58px}.home h1{font-size:clamp(3.55rem,17vw,5rem)}.home-hero-copy>.lede{margin-top:24px}.home-actions{align-items:stretch}.home-actions a{width:100%}.button-secondary{border:1px solid var(--home-rule)}.conversation-stage{min-height:430px;margin-top:18px;overflow:clip}.conversation-window{inset:32px 0 56px 8px}.hero-prompt{width:88%;padding:15px 17px;box-shadow:8px 8px 0 var(--home-mint)}.hero-prompt strong{font-size:1.02rem}.conversation-ribbon{bottom:65px}.ribbon-track span{padding-block:8px}.home-proof{gap:0;padding:8px 0}.proof-item{display:block;padding:15px 8px}.proof-item strong,.proof-item span{display:block}.home-section{padding:78px 0}.section-heading{margin-bottom:34px}.section-heading h2{font-size:clamp(2.7rem,13vw,4.2rem)}.role-intro{align-items:flex-start;flex-direction:column}.role-list a{grid-template-columns:1fr auto;gap:10px;min-height:0;padding:28px 0}.role-list strong{font-size:2.7rem}.role-list span{grid-column:1/-1;grid-row:2}.studio-section{padding-block:74px}.studio-copy h2{font-size:clamp(3.1rem,14vw,4.7rem)}.studio-quote{min-height:390px}.quote-sheet{inset:48px 4px 0 8px;padding:28px 24px}.quote-question{margin:64px 0 36px;font-size:1.8rem}.quote-mark{top:-60px;font-size:10rem}.topic-directory a{grid-template-columns:1.7rem 1fr auto}.open-section{margin-bottom:52px;padding-block:46px}.site-footer{width:calc(100% - 32px)}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.home-hero-copy,.conversation-stage,.ribbon-track,.journey-step,.role-list li,.studio-copy,.quote-sheet,.topic-directory li{opacity:1;animation:none;transform:none}.role-list a,.button-secondary{transition:none}.role-list a:hover{transform:none}}
   `;
 }
 
@@ -178,6 +184,7 @@ function documentShell(options: {
   image?: { path: string; alt: string; width: number; height: number };
   twitterCard?: "summary" | "summary_large_image";
   styles?: string;
+  stylesheet?: string;
 }) {
   const { baseUrl, locale, title, description, canonicalPath, body, schema } =
     options;
@@ -219,6 +226,7 @@ function documentShell(options: {
     <link rel="manifest" href="/site.webmanifest" />
     <title>${escapeHtml(title)}</title>
     <style>${staticStyles()}${options.styles ?? ""}</style>
+    ${options.stylesheet ? `<link rel="stylesheet" href="${options.stylesheet}" />` : ""}
     <script type="application/ld+json">${jsonLd(schema)}</script>
   </head>
   <body>
@@ -236,6 +244,17 @@ function header(baseUrl: string, locale: Locale) {
       <a href="${baseUrl}/teachers/">Teachers</a>
       <a href="${baseUrl}/about/">About</a>
       <a href="${baseUrl}/privacy/">Privacy</a>
+    </nav>
+  </header>`;
+}
+
+function homepageHeader() {
+  return `<header class="site-header home-header page">
+    <a class="brand" href="/" aria-label="LinguaFlow home">Lingua<span>Flow</span></a>
+    <nav aria-label="Primary">
+      <a href="#how-it-works">How it works</a>
+      <a href="/teachers/">For teachers</a>
+      <a class="nav-cta" href="/app/?role=learner">Start speaking</a>
     </nav>
   </header>`;
 }
@@ -529,37 +548,47 @@ function supportingPage(
 }
 
 function homepageContent() {
-  const topicLinks = topicCatalog
-    .all()
+  const featuredTopics = Array.from(
+    new Map(topicCatalog.all().map((topic) => [topic.category, topic])).values(),
+  );
+  const topicLinks = featuredTopics
     .map(
-      (topic) =>
-        `<li><a href="${topicPath("EN", topic)}"><strong>${escapeHtml(topic.title.EN)}</strong><span>${topic.level}</span></a></li>`,
+      (topic, index) =>
+        `<li><a href="${topicPath("EN", topic)}"><i>${String(index + 1).padStart(2, "0")}</i><strong>${escapeHtml(topic.title.EN)}</strong><span>${topic.level}</span></a></li>`,
     )
+    .join("");
+  const ribbonCopy = [
+    "English · What changed your mind?",
+    "Polski · Co ostatnio Cię zaskoczyło?",
+    "日本語 · 最近、心に残ったことは？",
+  ];
+  const ribbon = [...ribbonCopy, ...ribbonCopy]
+    .map((text) => `<span>${text}</span>`)
     .join("");
   return `<main class="page home seo-fallback">
     <section class="home-hero" aria-labelledby="home-heading">
       <div class="home-hero-copy">
-        <p class="eyebrow">Open-source conversation practice</p>
-        <h1 id="home-heading">Find the words. <span>Keep talking.</span></h1>
-        <p class="lede">LinguaFlow turns a language goal into thoughtful prompts, useful vocabulary, and guided conversation—so learners and teachers can spend less time preparing and more time speaking.</p>
+        <div class="hero-kicker"><p class="eyebrow">Open-source speaking practice</p></div>
+        <h1 id="home-heading">Talk about <em>something real.</em></h1>
+        <p class="lede">Choose a language direction, open a thoughtful prompt, and start speaking. LinguaFlow gives learners and teachers enough structure to keep a conversation moving—without accounts, ads, grading, or a wall of exercises.</p>
         <div class="home-actions">
-          <a class="button" href="/app/">Start a conversation&nbsp; →</a>
-          <a class="button-secondary" href="#topic-library">Explore 48 free topics</a>
+          <a class="button" href="/app/?role=learner">Start speaking&nbsp; →</a>
+          <a class="button-secondary" href="#how-it-works">See how it works</a>
         </div>
         <ul class="home-trust" aria-label="Product highlights">
-          <li>No account</li><li>Free and open source</li><li>English · Polski · 日本語</li>
+          <li>No account</li><li>48 reviewed topics</li><li>English · Polski · 日本語</li>
         </ul>
       </div>
-      <div class="conversation-stage" aria-label="A multilingual conversation in progress">
+      <div class="conversation-stage" role="img" aria-label="Adult learners having a multilingual guided conversation">
+        <span class="visual-index" aria-hidden="true">LINGUAFLOW / 001</span>
         <div class="conversation-window">
           <picture>
             <source media="(max-width: 720px)" srcset="/images/linguaflow-guided-session-720.webp" />
             <img src="/images/linguaflow-guided-session-1200.webp" width="1200" height="675" alt="A teacher guiding three adult learners through a friendly online conversation" loading="eager" fetchpriority="high" decoding="async" />
           </picture>
         </div>
-        <div class="prompt-chip prompt-en"><small>English · B1</small>What makes a conversation memorable?</div>
-        <div class="prompt-chip prompt-pl"><small>Polski · wsparcie</small>Co sprawia, że rozmowę pamiętasz?</div>
-        <div class="prompt-chip prompt-ja" lang="ja"><small>日本語 · 会話</small><strong>話してみよう</strong></div>
+        <div class="conversation-ribbon" aria-hidden="true"><div class="ribbon-track">${ribbon}</div></div>
+        <div class="hero-prompt"><span>Tonight’s first question · B1</span><strong>What makes a place feel like home?</strong></div>
       </div>
     </section>
     <section class="home-proof" aria-label="LinguaFlow curriculum at a glance">
@@ -568,42 +597,54 @@ function homepageContent() {
       <div class="proof-item"><strong>3</strong><span>complete languages</span></div>
       <div class="proof-item"><strong>A1–C1</strong><span>CEFR levels</span></div>
     </section>
-    <section class="home-section" aria-labelledby="choose-path-heading">
+    <section class="home-section" id="how-it-works" aria-labelledby="how-heading">
       <div class="section-heading">
-        <div><p class="eyebrow">One shared curriculum</p><h2 id="choose-path-heading">A clearer path into every conversation.</h2></div>
-        <p>Choose the way you want to practise. Every path uses the same level-aware questions and keeps support available without interrupting the flow.</p>
+        <div><p class="eyebrow">From intention to conversation</p><h2 id="how-heading">Less setup. More human exchange.</h2></div>
+        <p>LinguaFlow keeps the decisions small and the purpose obvious. You always know which language you are practising, what kind of conversation you are opening, and what to do next.</p>
       </div>
-      <div class="path-grid">
-        <article class="path-card"><span class="path-label">For learners</span><h3>Speak at your own pace</h3><p>Choose your target language and CEFR level, then move through one focused prompt at a time with optional translations and vocabulary.</p><a href="/app/">Begin independent practice</a></article>
-        <article class="path-card"><span class="path-label">For teachers</span><h3>Lead the room, not the software</h3><p>Prepare a topic, share a short code, and move the whole class through questions, pauses, reflection, and completion together.</p><a href="/teachers/">Explore teacher tools</a></article>
-        <article class="path-card"><span class="path-label">For students</span><h3>Join without an account</h3><p>Enter a room code and stay synchronized with the teacher’s current prompt. No email address, password, recording, or transcript required.</p><a href="/app/">Join a live room</a></article>
+      <div class="journey">
+        <article class="journey-step"><span class="journey-number">01 / DIRECTION</span><h3>Choose where your voice is going.</h3><p>Set the language you want to speak and a different support language. The distinction stays visible, so translation helps without quietly replacing practice.</p></article>
+        <article class="journey-step"><span class="journey-number">02 / SUBJECT</span><h3>Pick something worth discussing.</h3><p>Browse daily life, travel, work, culture, science, relationships, and more. Every topic is level-aware and written to invite real opinions rather than textbook answers.</p></article>
+        <article class="journey-step"><span class="journey-number">03 / SPEAK</span><h3>Follow the energy in the room.</h3><p>Move through one prompt at a time on your own, or let a teacher guide a shared room. Support and vocabulary are nearby, never piled in front of the conversation.</p></article>
       </div>
     </section>
-    <section class="sample-section" aria-labelledby="guided-heading">
-      <div>
-        <p class="eyebrow">Guidance when you need it</p>
-        <h2 id="guided-heading">One good question can unlock the room.</h2>
-        <p>Guided conversation mode keeps attention on the current prompt instead of a crowded worksheet. Reveal support only when it helps, move naturally into follow-up questions, and keep useful vocabulary close enough to reach without taking over the discussion.</p>
-        <p class="sample-note">Language direction stays explicit: the language you want to speak is separate from the language used for support.</p>
-      </div>
-      <div class="sample-deck" aria-label="Example guided conversation card">
-        <article class="sample-card">
-          <div class="sample-meta"><span>Remote work</span><span>B2 · Question 2 of 6</span></div>
-          <p class="sample-question">What helps people feel connected when they work far apart?</p>
-          <p class="sample-support">Support is available in English, Polish, or Japanese—without replacing the question you are practising.</p>
-        </article>
+    <section class="role-section" aria-labelledby="role-heading">
+      <div class="role-intro"><h2 id="role-heading">Enter in your own way.</h2><p>Your choice carries into a short three-step welcome, so the workspace begins with the right tools and no confusing detour.</p></div>
+      <ul class="role-list">
+        <li><a href="/app/?role=learner"><strong>Learner</strong><span>Practise independently with one question at a time, optional support, useful vocabulary, and private notes that stay on your device.</span><b aria-hidden="true">→</b></a></li>
+        <li><a href="/app/?role=teacher"><strong>Teacher</strong><span>Choose a topic, prepare a room, and guide everyone through the same authored conversation without building another slide deck.</span><b aria-hidden="true">→</b></a></li>
+        <li><a href="/app/?role=student"><strong>Student</strong><span>Join with a short room code. Stay aligned with the teacher’s current question without an account, recording, or transcript.</span><b aria-hidden="true">→</b></a></li>
+      </ul>
+    </section>
+    <section class="studio-section" aria-labelledby="studio-heading">
+      <div class="studio-grid">
+        <div class="studio-copy">
+          <p class="eyebrow">A quiet studio for speaking</p>
+          <h2 id="studio-heading">One good question can unlock a room.</h2>
+          <p>Guided mode holds attention on the current exchange instead of turning practice into a dashboard. Teachers can pace warm-up, practice, pause, reflection, and completion; independent learners can simply move forward when they are ready.</p>
+          <p class="studio-note">The default project does not grade speech, record audio, collect transcripts, require an account, or add advertising trackers. Live rooms are temporary and expire after eight hours.</p>
+        </div>
+        <div class="studio-quote" aria-label="Example LinguaFlow conversation prompt">
+          <span class="quote-mark" aria-hidden="true">“</span>
+          <article class="quote-sheet">
+            <div class="quote-meta"><span>Remote work</span><span>B2 · 02 / 06</span></div>
+            <p class="quote-question">What helps people feel connected when they work far apart?</p>
+            <p class="quote-support">Support can appear in English, Polish, or Japanese without replacing the language you are practising.</p>
+          </article>
+        </div>
       </div>
     </section>
     <section class="home-section curriculum-section" id="topic-library" aria-labelledby="library-heading">
       <div class="section-heading">
-        <div><p class="eyebrow">The free conversation library</p><h2 id="library-heading">Start with something worth talking about.</h2></div>
-        <p>The public curriculum covers daily life, work, travel, relationships, technology, health, education, the environment, food, arts, science, and society. Every topic includes a central prompt, at least five follow-up questions, vocabulary support, and a direct practice link.</p>
+        <div><p class="eyebrow">The open conversation library</p><h2 id="library-heading">Forty-eight ways past “How are you?”</h2></div>
+        <p>Every public topic includes a central prompt, at least five follow-up questions, vocabulary support, facilitation guidance, and a direct practice link. These featured starting points span all twelve curriculum categories.</p>
       </div>
-      <p><a href="/en/">Browse in English</a> · <a href="/pl/">Przeglądaj po polsku</a> · <a href="/ja/" lang="ja">日本語で見る</a></p>
+      <nav class="language-directory" aria-label="Browse curriculum by language"><a href="/en/">Browse in English</a><a href="/pl/">Przeglądaj po polsku</a><a href="/ja/" lang="ja">日本語で見る</a></nav>
       <ul class="topic-directory">${topicLinks}</ul>
+      <div class="library-cta"><p>Prefer a different subject? Explore the complete collection across daily life, work, travel, relationships, technology, health, education, environment, food, arts, science, and society.</p><a href="/en/">See all 48 topics →</a></div>
     </section>
     <section class="open-section" aria-labelledby="open-heading">
-      <div><p class="eyebrow">Open by design</p><h2 id="open-heading">The curriculum is inspectable, portable, and yours to improve.</h2><p>LinguaFlow publishes its multilingual curriculum as human-reviewable source data. Versioned topic packs carry license, authorship, compatibility, facilitation notes, and review assertions. Contributors can validate a pack in the browser before sharing it, while learners keep private notes and saved material on their own device.</p></div>
+      <div><p class="eyebrow">Open by design</p><h2 id="open-heading">A language tool you can inspect, carry, and improve.</h2><p>LinguaFlow publishes its multilingual curriculum as human-reviewable source data. Versioned topic packs carry license, authorship, compatibility, facilitation notes, and review assertions. Contributors can validate a pack in the browser before sharing it, while learners keep private notes and saved material on their own device. Schools and communities can self-host the same transparent foundation.</p></div>
       <div class="open-links"><a href="/app/?contribute=1">Preview a topic pack</a><a href="/about/">About the project</a><a href="/privacy/">Privacy boundaries</a><a href="${REPOSITORY_URL}">Source on GitHub</a></div>
     </section>
   </main>`;
@@ -662,8 +703,8 @@ function homepagePage(baseUrl: string) {
     type: "website",
     alternates: alternateLinks(baseUrl),
     schema: homepageSchema(baseUrl),
-    styles: homepageStyles(),
-    body: `${header(baseUrl, "EN")}${homepageContent()}${footer()}`,
+    stylesheet: "/landing.css",
+    body: `<a class="skip-link" href="#home-heading">Skip to content</a>${homepageHeader()}${homepageContent()}${footer()}`,
   });
 }
 
@@ -738,6 +779,7 @@ export function seoStaticPages(baseUrlValue: string): Plugin {
       const builtIndexPath = resolve(OUTPUT_DIR, "index.html");
       const builtIndex = await readFile(builtIndexPath, "utf8");
       await writeOutput("app/index.html", workspacePage(builtIndex, baseUrl));
+      await writeOutput("landing.css", homepageStyles());
       await writeOutput("index.html", homepagePage(baseUrl));
 
       for (const locale of locales) {

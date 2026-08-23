@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { createTopicCatalog } from "../catalog/createTopicCatalog";
-import { installedRecord, topicsFromInstalledPack } from "./normalize";
+import { topicsFromInstalledPack } from "./normalize";
+import { inspectTopicPackArchive } from "./intake";
 import { topicPackRepository } from "./repository";
 import type { InstalledPackRecord } from "./types";
 import { TopicLibraryContext, type TopicLibraryValue } from "./libraryContext";
@@ -24,9 +25,11 @@ export function TopicLibraryProvider({ children }: { children: ReactNode }) {
       import("./bundled"),
     ]).then(async ([records, core, bundled]) => {
       const approved = await Promise.all(bundled.bundledPackUrls.map(async (url) => {
-        const [{ readTopicPackArchive }, response] = await Promise.all([import("./archive"), fetch(url)]);
-        const result = response.ok ? readTopicPackArchive(new Uint8Array(await response.arrayBuffer())) : null;
-        return result?.pack ? installedRecord(result.pack) : null;
+        const response = await fetch(url);
+        const result = response.ok
+          ? inspectTopicPackArchive(new Uint8Array(await response.arrayBuffer()))
+          : null;
+        return result?.accepted?.record ?? null;
       }));
       if (active) {
         setPacks(records);
@@ -58,7 +61,7 @@ export function TopicLibraryProvider({ children }: { children: ReactNode }) {
     packs: [...activeBundledPacks, ...packs],
     bundledPackKeys: new Set(activeBundledPacks.map((pack) => pack.key)),
     ready,
-    async install(pack) { await topicPackRepository.replace(installedRecord(pack)); await refresh(); },
+    async install(pack) { await topicPackRepository.replace(pack.record); await refresh(); },
     async remove(key) { await topicPackRepository.remove(key); await refresh(); },
   }), [activeBundledPacks, catalog, packs, ready, refresh]);
 

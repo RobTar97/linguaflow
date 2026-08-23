@@ -28,6 +28,7 @@ import {
   uiCopy,
 } from "../../content/topics";
 import type { Category, Level, Locale, Topic } from "../../domain/types";
+import { createConversationSession } from "../../domain/conversationSession";
 import { workspaceCopy } from "../../i18n/workspaceCopy";
 import {
   contentItemVariants,
@@ -1008,16 +1009,9 @@ function ConversationMode({
   copy: (typeof uiCopy)[Locale];
   onClose: () => void;
 }) {
-  const questions = [
-    topic.mainPrompt[questionLocale],
-    ...topic.followUps[questionLocale],
-  ];
-  const supportQuestions = [
-    topic.mainPrompt[supportLocale],
-    ...topic.followUps[supportLocale],
-  ];
+  const session = createConversationSession(topic, questionLocale, supportLocale);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const isLast = questionIndex === questions.length - 1;
+  const sessionView = session.view(questionIndex);
   const reduceMotion = useReducedMotion();
 
   return (
@@ -1068,14 +1062,14 @@ function ConversationMode({
           <div>
             <span>{copy.progress}</span>
             <strong>
-              {questionIndex + 1}/{questions.length}
+              {sessionView.index + 1}/{sessionView.total}
             </strong>
           </div>
           <div className="progress-track">
             <motion.span
               style={{ transformOrigin: "left center" }}
               animate={{
-                transform: `scaleX(${(questionIndex + 1) / questions.length})`,
+                transform: `scaleX(${sessionView.progress})`,
               }}
               transition={{
                 duration: reduceMotion ? 0 : 0.24,
@@ -1083,15 +1077,15 @@ function ConversationMode({
               }}
               role="progressbar"
               aria-valuemin={1}
-              aria-valuemax={questions.length}
-              aria-valuenow={questionIndex + 1}
+              aria-valuemax={sessionView.total}
+              aria-valuenow={sessionView.index + 1}
             />
           </div>
         </div>
 
         <div className="session-question-wrap">
           <span>
-            {copy.question} {questionIndex + 1}
+            {copy.question} {sessionView.index + 1}
           </span>
           <AnimatePresence mode="sync">
             <motion.p
@@ -1101,20 +1095,20 @@ function ConversationMode({
               animate="visible"
               exit="exit"
             >
-              <JapaneseText text={questions[questionIndex]} language={questionLocale} />
+              <JapaneseText text={sessionView.question.target} language={questionLocale} />
             </motion.p>
           </AnimatePresence>
-          {supportLocale !== questionLocale ? (
+          {sessionView.question.support ? (
             <details className="session-support">
               <summary>{workspaceCopy[locale].supportTranslation}</summary>
-              <p><JapaneseText text={supportQuestions[questionIndex]} language={supportLocale} /></p>
+              <p><JapaneseText text={sessionView.question.support} language={supportLocale} /></p>
             </details>
           ) : null}
           <small>{copy.sessionHint}</small>
         </div>
 
         <div className="session-vocab">
-          {topic.vocabulary[questionLocale].slice(0, 4).map((item) => (
+          {session.vocabulary.slice(0, 4).map((item) => (
             <span key={item.word}>
               <strong><JapaneseText text={item.word} language={questionLocale} /></strong>
               {item.translation}
@@ -1126,9 +1120,9 @@ function ConversationMode({
           <button
             className="secondary-button"
             type="button"
-            disabled={questionIndex === 0}
+            disabled={sessionView.isFirst}
             onClick={() => {
-              setQuestionIndex((index) => Math.max(0, index - 1));
+              setQuestionIndex((index) => session.previous(index));
               soundEffects.play("question-step");
             }}
           >
@@ -1138,17 +1132,17 @@ function ConversationMode({
             className="primary-button"
             type="button"
             onClick={() => {
-              if (isLast) {
+              if (sessionView.isLast) {
                 onClose();
                 soundEffects.play("action-success");
               } else {
-                setQuestionIndex((index) => index + 1);
+                setQuestionIndex((index) => session.next(index));
                 soundEffects.play("question-step");
               }
             }}
           >
-            {isLast ? copy.finish : copy.next}
-            {isLast ? <Check size={18} /> : <ArrowRight size={18} />}
+            {sessionView.isLast ? copy.finish : copy.next}
+            {sessionView.isLast ? <Check size={18} /> : <ArrowRight size={18} />}
           </button>
         </div>
       </motion.section>

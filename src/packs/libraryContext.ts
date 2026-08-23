@@ -1,13 +1,14 @@
 import { createContext, useContext } from "react";
 import type { TopicCatalog } from "../catalog/createTopicCatalog";
-import type { InstalledPackRecord, TopicPackDocument } from "./types";
+import type { InstalledPackRecord } from "./types";
+import type { AcceptedTopicPack } from "./intake";
 
 export interface TopicLibraryValue {
   catalog: TopicCatalog;
   packs: InstalledPackRecord[];
   bundledPackKeys: ReadonlySet<string>;
   ready: boolean;
-  install(pack: TopicPackDocument): Promise<void>;
+  install(pack: AcceptedTopicPack): Promise<void>;
   remove(key: string): Promise<void>;
 }
 

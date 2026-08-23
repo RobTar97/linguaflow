@@ -1,9 +1,14 @@
-import type { LanguageCode, Level } from "../domain/types";
+import type { LanguageCode, Level, WorkspaceRole } from "../domain/types";
 
 const ROOM_CODE_PATTERN = /^[A-Z]{3}-[0-9]{3}$/;
-const TOPIC_ID_PATTERN = /^[a-z0-9-]{1,80}$/;
+const TOPIC_ID_PATTERN = /^[a-z0-9-]+(?::[a-z0-9-]+)?$/;
 const LANGUAGES = new Set<LanguageCode>(["EN", "PL", "JA"]);
 const LEVELS = new Set<Level>(["A1", "A2", "B1", "B2", "C1"]);
+const WORKSPACE_ROLES = new Set<WorkspaceRole>([
+  "learner",
+  "teacher",
+  "student",
+]);
 
 export interface PracticeLinkState {
   topicId: string;
@@ -36,6 +41,7 @@ export function readShareIntent(search = currentSearch()): ShareIntent | null {
   const supportLanguage = params.get("support") as LanguageCode | null;
   const level = params.get("level") as Level | null;
   if (
+    topicId.length <= 121 &&
     TOPIC_ID_PATTERN.test(topicId) &&
     targetLanguage &&
     supportLanguage &&
@@ -55,6 +61,11 @@ export function readShareIntent(search = currentSearch()): ShareIntent | null {
   }
 
   return null;
+}
+
+export function readEntryRole(search = currentSearch()): WorkspaceRole | null {
+  const role = new URLSearchParams(search).get("role") as WorkspaceRole | null;
+  return role && WORKSPACE_ROLES.has(role) ? role : null;
 }
 
 export function buildJoinUrl(code: string, base = currentUrl()) {

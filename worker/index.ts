@@ -1,8 +1,11 @@
-import type {
-  GuidedTrainingPlan,
-  LearningRoom,
-  RoomParticipant,
-} from "../src/domain/types";
+import {
+  isValidRoomCursor,
+  normalizeRoomForCreation,
+  normalizeRoomParticipant,
+  ROOM_CODE_PATTERN,
+  ROOM_LIFETIME_MS,
+} from "../src/domain/room";
+import type { LearningRoom } from "../src/domain/types";
 import { DurableObject } from "cloudflare:workers";
 
 interface Env {
@@ -18,27 +21,7 @@ interface StoredRoom {
   expiresAt: number;
 }
 
-const ROOM_LIFETIME_MS = 8 * 60 * 60 * 1000;
 const MAX_BODY_BYTES = 64 * 1024;
-const MAX_TRAINING_STEPS = 8;
-const VALID_LANGUAGES = new Set(["EN", "PL", "JA"]);
-const VALID_LEVELS = new Set(["A1", "A2", "B1", "B2", "C1"]);
-const VALID_CATEGORIES = new Set([
-  "Daily Life", "Work & Career", "Travel & Culture", "People & Relationships",
-  "Technology", "Health & Wellness", "Education", "Environment", "Food & Cooking",
-  "Arts & Media", "Science & Nature", "Society & Ideas",
-]);
-const ROOM_CODE_PATTERN = /^[A-Z]{3}-[0-9]{3}$/;
-const PARTICIPANT_ID_PATTERN = /^[0-9a-f-]{16,80}$/;
-
-function isHttpUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
 
 type ApiRoute =
   | { kind: "api-root" }
@@ -108,186 +91,6 @@ function methodsForRoute(route: ApiRoute) {
     default:
       return [];
   }
-}
-
-function isGuidedTrainingPlan(value: unknown): value is GuidedTrainingPlan {
-  if (!value || typeof value !== "object") return false;
-  const plan = value as Partial<GuidedTrainingPlan>;
-  return (
-    plan.mode === "guided-training" &&
-    plan.version === 1 &&
-    typeof plan.stepCount === "number" &&
-    Number.isInteger(plan.stepCount) &&
-    plan.stepCount >= 2 &&
-    plan.stepCount <= MAX_TRAINING_STEPS
-  );
-}
-
-function isRoom(value: unknown): value is LearningRoom {
-  if (!value || typeof value !== "object") return false;
-  const room = value as Partial<LearningRoom>;
-  return (
-    typeof room.code === "string" &&
-    ROOM_CODE_PATTERN.test(room.code) &&
-    typeof room.name === "string" &&
-    room.name.trim().length >= 1 &&
-    room.name.trim().length <= 80 &&
-    typeof room.topicId === "string" &&
-    /^[a-z0-9-]+(?::[a-z0-9-]+)?$/.test(room.topicId) &&
-    room.topicId.length <= 121 &&
-    (room.topicId.includes(":")
-      ? isTopicSnapshot(
-          room.topicSnapshot,
-          room.topicId,
-          room.targetLanguage,
-          room.supportLanguage,
-        )
-      : room.topicSnapshot === undefined) &&
-    typeof room.teacherName === "string" &&
-    room.teacherName.trim().length >= 1 &&
-    room.teacherName.trim().length <= 50 &&
-    typeof room.targetLanguage === "string" &&
-    VALID_LANGUAGES.has(room.targetLanguage) &&
-    typeof room.supportLanguage === "string" &&
-    VALID_LANGUAGES.has(room.supportLanguage) &&
-    room.targetLanguage !== room.supportLanguage &&
-    typeof room.level === "string" &&
-    VALID_LEVELS.has(room.level) &&
-    typeof room.questionIndex === "number" &&
-    Number.isInteger(room.questionIndex) &&
-    room.questionIndex >= 0 &&
-    room.questionIndex <= 20 &&
-    typeof room.createdAt === "string" &&
-    Number.isFinite(Date.parse(room.createdAt)) &&
-    Array.isArray(room.participants) &&
-    ((room.sessionMode === undefined && room.trainingPlan === undefined) ||
-      (room.sessionMode === "shared-question" &&
-        room.trainingPlan === undefined) ||
-      (room.sessionMode === "guided-training" &&
-        isGuidedTrainingPlan(room.trainingPlan)))
-  );
-}
-
-function isTopicSnapshot(
-  value: unknown,
-  topicId: string,
-  targetLanguage: string | undefined,
-  supportLanguage: string | undefined,
-) {
-  if (!value || typeof value !== "object") return false;
-  const snapshot = value as LearningRoom["topicSnapshot"];
-  if (!snapshot) return false;
-  const strings = JSON.stringify(snapshot);
-  const requiredLanguages = [targetLanguage, supportLanguage].filter(
-    (language): language is string => Boolean(language),
-  );
-  const validVocabulary = (items: unknown) =>
-    Array.isArray(items) &&
-    items.length >= 5 &&
-    items.length <= 12 &&
-    items.every((item) => {
-      if (!item || typeof item !== "object") return false;
-      const word = item as { word?: unknown; translation?: unknown; part?: unknown };
-      return (
-        typeof word.word === "string" && word.word.length >= 1 && word.word.length <= 120 &&
-        typeof word.translation === "string" && word.translation.length >= 1 && word.translation.length <= 160 &&
-        typeof word.part === "string" && word.part.length >= 1 && word.part.length <= 40
-      );
-    });
-  return (
-    strings.length <= 32_000 &&
-    snapshot.id === topicId &&
-    VALID_CATEGORIES.has(snapshot.category) &&
-    snapshot.title &&
-    ["EN", "PL", "JA"].every((locale) => {
-      const title = snapshot.title[locale as keyof typeof snapshot.title];
-      return typeof title === "string" && title.length >= 1 && title.length <= 160;
-    }) &&
-    snapshot.mainPrompt &&
-    Object.keys(snapshot.mainPrompt).every((language) => VALID_LANGUAGES.has(language)) &&
-    requiredLanguages.every((language) => {
-      const prompt = snapshot.mainPrompt[language as keyof typeof snapshot.mainPrompt];
-      return typeof prompt === "string" && prompt.length >= 1 && prompt.length <= 500;
-    }) &&
-    snapshot.followUps &&
-    Object.keys(snapshot.followUps).every((language) => VALID_LANGUAGES.has(language)) &&
-    Object.values(snapshot.followUps).every((items) => Array.isArray(items) && items.length >= 5 && items.length <= 12 && items.every((item) => typeof item === "string" && item.length >= 1 && item.length <= 500)) &&
-    requiredLanguages.every((language) => {
-      const items = snapshot.followUps[language as keyof typeof snapshot.followUps];
-      return Array.isArray(items) && items.length >= 5 && items.length <= 12 && items.every((item) => typeof item === "string" && item.length >= 1 && item.length <= 500);
-    }) &&
-    snapshot.vocabulary &&
-    Object.keys(snapshot.vocabulary).every((language) => VALID_LANGUAGES.has(language)) &&
-    Object.values(snapshot.vocabulary).every(validVocabulary) &&
-    requiredLanguages.every((language) =>
-      validVocabulary(snapshot.vocabulary[language as keyof typeof snapshot.vocabulary]),
-    ) &&
-    snapshot.provenance &&
-    typeof snapshot.provenance.packId === "string" &&
-    snapshot.provenance.packId === topicId.split(":", 1)[0] &&
-    typeof snapshot.provenance.packVersion === "string" && snapshot.provenance.packVersion.length <= 40 &&
-    typeof snapshot.provenance.license === "string" && snapshot.provenance.license.length <= 80 &&
-    Array.isArray(snapshot.provenance.authors) &&
-    snapshot.provenance.authors.length >= 1 &&
-    snapshot.provenance.authors.length <= 20 &&
-    snapshot.provenance.authors.every((author) =>
-      author &&
-      typeof author.displayName === "string" && author.displayName.length >= 1 && author.displayName.length <= 100 &&
-      (author.url === undefined || (typeof author.url === "string" && author.url.length <= 500 && isHttpUrl(author.url))),
-    )
-  );
-}
-
-function cleanTopicSnapshot(snapshot: NonNullable<LearningRoom["topicSnapshot"]>) {
-  return {
-    id: snapshot.id,
-    category: snapshot.category,
-    title: { EN: snapshot.title.EN, PL: snapshot.title.PL, JA: snapshot.title.JA },
-    mainPrompt: { ...snapshot.mainPrompt },
-    followUps: Object.fromEntries(
-      Object.entries(snapshot.followUps).map(([locale, items]) => [locale, [...items]]),
-    ),
-    vocabulary: Object.fromEntries(
-      Object.entries(snapshot.vocabulary).map(([locale, items]) => [
-        locale,
-        items.map(({ word, translation, part }) => ({ word, translation, part })),
-      ]),
-    ),
-    provenance: {
-      packId: snapshot.provenance.packId,
-      packVersion: snapshot.provenance.packVersion,
-      license: snapshot.provenance.license,
-      authors: snapshot.provenance.authors.map(({ displayName, url }) => ({
-        displayName,
-        ...(url ? { url } : {}),
-      })),
-    },
-  } satisfies NonNullable<LearningRoom["topicSnapshot"]>;
-}
-
-function cleanRoom(room: LearningRoom): LearningRoom {
-  const cleaned: LearningRoom = {
-    code: normalizeCode(room.code),
-    name: room.name.trim(),
-    topicId: room.topicId,
-    ...(room.topicSnapshot ? { topicSnapshot: cleanTopicSnapshot(room.topicSnapshot) } : {}),
-    teacherName: room.teacherName.trim(),
-    targetLanguage: room.targetLanguage,
-    supportLanguage: room.supportLanguage,
-    level: room.level,
-    questionIndex: room.questionIndex,
-    participants: [],
-    createdAt: room.createdAt,
-  };
-  if (room.sessionMode) cleaned.sessionMode = room.sessionMode;
-  if (room.trainingPlan && isGuidedTrainingPlan(room.trainingPlan)) {
-    cleaned.trainingPlan = {
-      mode: room.trainingPlan.mode,
-      version: room.trainingPlan.version,
-      stepCount: room.trainingPlan.stepCount,
-    };
-  }
-  return cleaned;
 }
 
 async function bodyExceedsLimit(request: Request) {
@@ -594,15 +397,16 @@ export class RoomCoordinator extends DurableObject<Env> {
         room?: unknown;
         teacherToken?: unknown;
       } | null;
+      const room = normalizeRoomForCreation(body?.room);
       if (
-        !isRoom(body?.room) ||
+        !room ||
         typeof body?.teacherToken !== "string" ||
         body.teacherToken.length < 32 ||
         body.teacherToken.length > 256
       ) {
         return json({ error: "Invalid room payload." }, 400);
       }
-      if (normalizeCode(body.room.code) !== body.room.code) {
+      if (normalizeCode(room.code) !== room.code) {
         return json({ error: "Invalid room code." }, 400);
       }
       if (await this.storedRoom()) {
@@ -610,7 +414,7 @@ export class RoomCoordinator extends DurableObject<Env> {
       }
       const expiresAt = Date.now() + ROOM_LIFETIME_MS;
       const stored: StoredRoom = {
-        room: cleanRoom(body.room),
+        room,
         teacherToken: body.teacherToken,
         participantTokens: {},
         expiresAt,
@@ -643,33 +447,22 @@ export class RoomCoordinator extends DurableObject<Env> {
 
     if (route.kind === "join") {
       const body = (await request.json().catch(() => null)) as {
-        participant?: RoomParticipant;
+        participant?: unknown;
         participantToken?: unknown;
       } | null;
-      const participant = body?.participant;
+      const participant = normalizeRoomParticipant(body?.participant);
       if (
         !participant ||
-        typeof participant.id !== "string" ||
-        !PARTICIPANT_ID_PATTERN.test(participant.id) ||
-        typeof participant.name !== "string" ||
-        !participant.name.trim() ||
-        participant.name.trim().length > 50 ||
-        !["ready", "speaking", "listening"].includes(participant.status) ||
         typeof body?.participantToken !== "string" ||
         body.participantToken.length < 32 ||
         body.participantToken.length > 256
       ) {
         return json({ error: "A student name is required." }, 400);
       }
-      const cleanParticipant: RoomParticipant = {
-        id: participant.id,
-        name: participant.name.trim(),
-        status: participant.status,
-      };
       const existing = stored.room.participants.find(
-        (item) => item.id === cleanParticipant.id,
+        (item) => item.id === participant.id,
       );
-      const existingToken = stored.participantTokens?.[cleanParticipant.id];
+      const existingToken = stored.participantTokens?.[participant.id];
       if (existing && existingToken && existingToken !== body.participantToken) {
         return json({ error: "Participant authorization required." }, 403);
       }
@@ -678,11 +471,11 @@ export class RoomCoordinator extends DurableObject<Env> {
       }
       stored.room.participants = existing
         ? stored.room.participants.map((item) =>
-            item.id === cleanParticipant.id ? cleanParticipant : item,
+            item.id === participant.id ? participant : item,
           )
-        : [...stored.room.participants, cleanParticipant];
+        : [...stored.room.participants, participant];
       stored.participantTokens ??= {};
-      stored.participantTokens[cleanParticipant.id] = body.participantToken;
+      stored.participantTokens[participant.id] = body.participantToken;
       await this.ctx.storage.put("room", stored);
       this.broadcast(stored.room);
       return json({ room: stored.room });
@@ -695,15 +488,10 @@ export class RoomCoordinator extends DurableObject<Env> {
       const body = (await request.json().catch(() => null)) as {
         questionIndex?: unknown;
       } | null;
-      if (
-        typeof body?.questionIndex !== "number" ||
-        !Number.isInteger(body.questionIndex) ||
-        body.questionIndex < 0 ||
-        body.questionIndex > 20
-      ) {
+      if (!isValidRoomCursor(stored.room, body?.questionIndex)) {
         return json({ error: "Invalid question index." }, 400);
       }
-      stored.room.questionIndex = body.questionIndex;
+      stored.room.questionIndex = body!.questionIndex as number;
       await this.ctx.storage.put("room", stored);
       this.broadcast(stored.room);
       return json({ room: stored.room });

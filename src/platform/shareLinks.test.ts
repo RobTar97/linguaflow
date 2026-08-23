@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildJoinUrl,
   buildPracticeUrl,
+  readEntryRole,
   readShareIntent,
 } from "./shareLinks";
 
@@ -37,6 +38,19 @@ describe("share links", () => {
     });
   });
 
+  it("round-trips an installed-pack Topic assignment", () => {
+    const url = new URL(buildPracticeUrl({
+      topicId: "community-pack:city-stories",
+      targetLanguage: "EN",
+      supportLanguage: "PL",
+      level: "B1",
+    }, "https://example.com/teacher"));
+    expect(readShareIntent(url.search)).toMatchObject({
+      kind: "practice",
+      topicId: "community-pack:city-stories",
+    });
+  });
+
   it("rejects malformed or same-language links", () => {
     expect(readShareIntent("?room=bad")).toBeNull();
     expect(
@@ -44,5 +58,14 @@ describe("share links", () => {
         "?practice=space-exploration&target=JA&support=JA&level=B2",
       ),
     ).toBeNull();
+  });
+
+  it("reads only supported landing-page role hints", () => {
+    expect(readEntryRole("?role=learner")).toBe("learner");
+    expect(readEntryRole("?role=teacher")).toBe("teacher");
+    expect(readEntryRole("?role=student")).toBe("student");
+    expect(readEntryRole("?role=admin")).toBeNull();
+    expect(readEntryRole("?role=Teacher")).toBeNull();
+    expect(readEntryRole("?room=ABC-123")).toBeNull();
   });
 });

@@ -10,7 +10,9 @@ const limits = {
   // intentionally tighter because learners do not download every lazy route.
   javascriptGzip: 204 * 1024,
   initialJavascriptGzip: 90 * 1024,
-  cssGzip: 12 * 1024,
+  // Includes the interactive workspace stylesheet and the cacheable,
+  // JavaScript-free public landing-page stylesheet.
+  cssGzip: 16 * 1024,
   documentAssetsGzip: 200 * 1024,
   largestHtmlGzip: 8 * 1024,
   totalHtml: 2.5 * 1024 * 1024,

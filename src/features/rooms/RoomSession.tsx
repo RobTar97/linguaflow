@@ -23,6 +23,7 @@ import {
   previousTrainingCursor,
   type GuidedTrainingStepKind,
 } from "../../domain/trainingSession";
+import { createConversationSession } from "../../domain/conversationSession";
 import { workspaceCopy, type WorkspaceCopy } from "../../i18n/workspaceCopy";
 import { motionEaseInOut, questionVariants } from "../../motion/presets";
 import { buildJoinUrl } from "../../platform/shareLinks";
@@ -97,15 +98,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
       setConnectionStatus,
       () => void refreshRoomRef.current(),
     );
-    const interval = window.setInterval(() => {
-      if (document.visibilityState === "visible") {
-        void refreshRoomRef.current();
-      }
-    }, import.meta.env.DEV ? 1_500 : 10_000);
-    return () => {
-      stop();
-      window.clearInterval(interval);
-    };
+    return stop;
   }, [roomCode]);
 
   if (!activeRoom) return null;
@@ -130,26 +123,21 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
   const vocabulary = topic?.vocabulary ?? snapshot!.vocabulary;
   const title = topic?.title ?? snapshot!.title;
   const category = topic?.category ?? snapshot!.category;
-  const questions = [
-    mainPrompt[activeRoom.targetLanguage]!,
-    ...followUps[activeRoom.targetLanguage]!,
-  ];
-  const supportQuestions = [
-    mainPrompt[activeRoom.supportLanguage]!,
-    ...followUps[activeRoom.supportLanguage]!,
-  ];
-  const guided = guidedTrainingView(activeRoom);
-  const sharedQuestionIndex = Math.min(
-    activeRoom.questionIndex,
-    questions.length - 1,
+  const conversation = createConversationSession(
+    { mainPrompt, followUps, vocabulary },
+    activeRoom.targetLanguage,
+    activeRoom.supportLanguage,
   );
+  const guided = guidedTrainingView(activeRoom);
+  const sharedView = conversation.view(activeRoom.questionIndex);
+  const sharedQuestionIndex = sharedView.index;
   const questionIndex = guided?.questionIndex ?? sharedQuestionIndex;
   const isLast = guided
     ? guided.status === "complete"
-    : sharedQuestionIndex === questions.length - 1;
-  const question = questionIndex === null ? null : questions[questionIndex];
-  const supportQuestion =
-    questionIndex === null ? null : supportQuestions[questionIndex];
+    : sharedView.isLast;
+  const questionView = questionIndex === null ? null : conversation.view(questionIndex);
+  const question = questionView?.question.target ?? null;
+  const supportQuestion = questionView?.question.support ?? null;
   const displayedQuestion = guided
     ? guided.status === "active" || guided.status === "paused"
       ? question
@@ -274,7 +262,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
               <small>
                 {guided
                   ? `${copy.trainingStep} ${guided.stepIndex + 1} ${copy.trainingOf} ${guided.stepCount}`
-                  : `${sharedQuestionIndex + 1}/${questions.length}`}
+                  : `${sharedQuestionIndex + 1}/${sharedView.total}`}
               </small>
             </div>
             {guided ? (
@@ -301,7 +289,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
               className="presentation-progress"
               role="progressbar"
               aria-valuemin={1}
-              aria-valuemax={guided?.stepCount ?? questions.length}
+              aria-valuemax={guided?.stepCount ?? sharedView.total}
               aria-valuenow={(guided?.stepIndex ?? sharedQuestionIndex) + 1}
               aria-label={
                 guided
@@ -312,7 +300,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
               <motion.span
                 style={{ transformOrigin: "left center" }}
                 animate={{
-                  transform: `scaleX(${guided?.progress ?? (sharedQuestionIndex + 1) / questions.length})`,
+                  transform: `scaleX(${guided?.progress ?? sharedView.progress})`,
                 }}
                 transition={{
                   duration: reduceMotion ? 0 : 0.24,
@@ -386,7 +374,7 @@ export default function RoomSession({ mode }: { mode: "teacher" | "student" }) {
               </div>
             ) : null}
             <div className="presentation-vocabulary">
-              {vocabulary[activeRoom.targetLanguage]!.slice(0, 6).map((item) => (
+              {conversation.vocabulary.slice(0, 6).map((item) => (
                 <span key={item.word}>
                   <strong><JapaneseText text={item.word} language={activeRoom.targetLanguage} /></strong>
                   {item.translation}

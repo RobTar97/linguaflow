@@ -3,7 +3,14 @@ import type {
   LearningRoom,
   WorkspaceProfile,
 } from "../domain/types";
-import { GUIDED_TRAINING_PLAN } from "../domain/trainingSession";
+import { buildLearningRoom, normalizeRoomSnapshot } from "../domain/room";
+import {
+  createLearnerLibraryRepository,
+  mergeLearnerLibrary,
+  toggleSavedTopic,
+  toggleVocabularyBookmark,
+  writeTopicNote,
+} from "../learnerData/library";
 import { browserStorage } from "../platform/storage";
 import { RoomServiceError, roomService } from "../platform/roomService";
 import { secureRandomInt } from "../platform/secureRandom";
@@ -18,10 +25,8 @@ import {
 } from "./contracts";
 
 const PROFILE_KEY = "linguaflow-profile-v2";
-const SAVED_KEY = "linguaflow-saved";
 const ACTIVE_ROOM_KEY = "linguaflow-active-room";
-const NOTES_KEY = "linguaflow-topic-notes-v1";
-const VOCABULARY_KEY = "linguaflow-vocabulary-bookmarks-v1";
+const learnerLibraryRepository = createLearnerLibraryRepository(browserStorage);
 
 function createRoomCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -35,6 +40,10 @@ function createRoomCode() {
 
 function initialProfile() {
   return browserStorage.get<WorkspaceProfile | null>(PROFILE_KEY, null);
+}
+
+function initialActiveRoom() {
+  return normalizeRoomSnapshot(browserStorage.get<unknown>(ACTIVE_ROOM_KEY, null));
 }
 
 function initialRoute(
@@ -58,20 +67,14 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
   const [route, setRoute] = useState<ExtendedWorkspaceRoute>(() =>
     initialRoute(
       initialProfile(),
-      browserStorage.get<LearningRoom | null>(ACTIVE_ROOM_KEY, null),
+      initialActiveRoom(),
     ),
   );
-  const [savedIds, setSavedIds] = useState<string[]>(() =>
-    browserStorage.get<string[]>(SAVED_KEY, []),
+  const [learnerLibrary, setLearnerLibrary] = useState(() =>
+    learnerLibraryRepository.load(),
   );
   const [activeRoom, setActiveRoom] = useState<LearningRoom | null>(() =>
-    browserStorage.get<LearningRoom | null>(ACTIVE_ROOM_KEY, null),
-  );
-  const [topicNotes, setTopicNotes] = useState<Record<string, string>>(() =>
-    browserStorage.get<Record<string, string>>(NOTES_KEY, {}),
-  );
-  const [vocabularyBookmarks, setVocabularyBookmarks] = useState<string[]>(() =>
-    browserStorage.get<string[]>(VOCABULARY_KEY, []),
+    initialActiveRoom(),
   );
 
   useEffect(() => {
@@ -83,9 +86,9 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
     () => ({
       profile,
       route,
-      savedIds,
-      topicNotes,
-      vocabularyBookmarks,
+      savedIds: learnerLibrary.savedIds,
+      topicNotes: learnerLibrary.topicNotes,
+      vocabularyBookmarks: learnerLibrary.vocabularyBookmarks,
       activeRoom,
       canControlActiveRoom: Boolean(
         activeRoom && roomService.canControl(activeRoom.code),
@@ -121,42 +124,36 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
       },
       navigate: setRoute,
       toggleSaved(topicId) {
-        setSavedIds((current) => {
-          const next = current.includes(topicId)
-            ? current.filter((id) => id !== topicId)
-            : [...current, topicId];
-          browserStorage.set(SAVED_KEY, next);
-          return next;
-        });
+        const next = learnerLibraryRepository.save(
+          toggleSavedTopic(learnerLibrary, topicId),
+        );
+        setLearnerLibrary(next);
       },
       setTopicNote(topicId, note) {
-        setTopicNotes((current) => {
-          const next = { ...current };
-          if (note.trim()) next[topicId] = note;
-          else delete next[topicId];
-          browserStorage.set(NOTES_KEY, next);
-          return next;
-        });
+        const next = learnerLibraryRepository.save(
+          writeTopicNote(learnerLibrary, topicId, note),
+        );
+        setLearnerLibrary(next);
       },
       toggleVocabularyBookmark(key) {
-        setVocabularyBookmarks((current) => {
-          const next = current.includes(key) ? current.filter((item) => item !== key) : [...current, key];
-          browserStorage.set(VOCABULARY_KEY, next);
-          return next;
-        });
+        const next = learnerLibraryRepository.save(
+          toggleVocabularyBookmark(learnerLibrary, key),
+        );
+        setLearnerLibrary(next);
       },
       importLearnerLibrary(input) {
-        const nextSaved = Array.from(new Set([...savedIds, ...input.savedIds]));
-        const nextNotes = input.replaceConflicts
-          ? { ...topicNotes, ...input.topicNotes }
-          : { ...input.topicNotes, ...topicNotes };
-        const nextVocabulary = Array.from(new Set([...vocabularyBookmarks, ...input.vocabularyBookmarks]));
-        setSavedIds(nextSaved);
-        setTopicNotes(nextNotes);
-        setVocabularyBookmarks(nextVocabulary);
-        browserStorage.set(SAVED_KEY, nextSaved);
-        browserStorage.set(NOTES_KEY, nextNotes);
-        browserStorage.set(VOCABULARY_KEY, nextVocabulary);
+        const next = learnerLibraryRepository.save(
+          mergeLearnerLibrary(
+            learnerLibrary,
+            {
+              savedTopicIds: input.savedIds,
+              topicNotes: input.topicNotes,
+              vocabularyBookmarks: input.vocabularyBookmarks,
+            },
+            input.replaceConflicts,
+          ),
+        );
+        setLearnerLibrary(next);
         if (input.replaceProfile && input.profile) {
           setProfile(input.profile);
           browserStorage.set(PROFILE_KEY, input.profile);
@@ -168,47 +165,19 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
         }
         for (let attempt = 0; attempt < 5; attempt += 1) {
           const selectedTopic = catalog.get(input.topicId);
-          const room: LearningRoom = {
+          if (!selectedTopic) {
+            throw new Error("The selected topic is no longer available.");
+          }
+          const room = buildLearningRoom({
             code: createRoomCode(),
             name: input.name,
-            topicId: input.topicId,
-            ...(input.topicId.includes(":") && selectedTopic
-              ? { topicSnapshot: {
-                  id: selectedTopic.id,
-                  category: selectedTopic.category,
-                  title: selectedTopic.title,
-                  mainPrompt: {
-                    [input.targetLanguage]: selectedTopic.mainPrompt[input.targetLanguage],
-                    [input.supportLanguage]: selectedTopic.mainPrompt[input.supportLanguage],
-                  },
-                  followUps: {
-                    [input.targetLanguage]: selectedTopic.followUps[input.targetLanguage],
-                    [input.supportLanguage]: selectedTopic.followUps[input.supportLanguage],
-                  },
-                  vocabulary: {
-                    [input.targetLanguage]: selectedTopic.vocabulary[input.targetLanguage],
-                    [input.supportLanguage]: selectedTopic.vocabulary[input.supportLanguage],
-                  },
-                  provenance: {
-                    packId: selectedTopic.provenance!.packId,
-                    packVersion: selectedTopic.provenance!.packVersion,
-                    license: selectedTopic.provenance!.license,
-                    authors: selectedTopic.provenance!.authors,
-                  },
-                } }
-              : {}),
+            topic: selectedTopic,
             teacherName: profile?.name || "Teacher",
             targetLanguage: input.targetLanguage,
             supportLanguage: input.supportLanguage,
             level: input.level,
             sessionMode: input.sessionMode,
-            ...(input.sessionMode === "guided-training"
-              ? { trainingPlan: { ...GUIDED_TRAINING_PLAN } }
-              : {}),
-            questionIndex: 0,
-            participants: [],
-            createdAt: new Date().toISOString(),
-          };
+          });
           try {
             const created = await roomService.create(room, crypto.randomUUID());
             browserStorage.set(ACTIVE_ROOM_KEY, created);
@@ -294,7 +263,7 @@ export function LearningWorkspaceProvider({ children }: { children: ReactNode })
         setRoute("setup");
       },
     }),
-    [activeRoom, catalog, profile, route, savedIds, topicNotes, vocabularyBookmarks],
+    [activeRoom, catalog, learnerLibrary, profile, route],
   );
 
   return (

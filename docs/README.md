@@ -10,6 +10,7 @@ LinguaFlow. Start with the path that matches what you want to accomplish.
 | Practise independently | [Learner guide](LEARNER_GUIDE.md) | [Product guide](PRODUCT.md) |
 | Prepare or lead a class | [Teacher guide](TEACHER_GUIDE.md) | [Content guide](CONTENT_GUIDE.md) |
 | Understand the whole platform | [Open-platform guide](OPEN_PLATFORM.md) | [Architecture](ARCHITECTURE.md) |
+| Evolve the public first impression | [Landing-page experience](LANDING_PAGE.md) | [Motion](MOTION.md) and [SEO readiness](SEO.md) |
 | Add topics or translations | [Content guide](CONTENT_GUIDE.md) | [Contributing](../CONTRIBUTING.md) |
 | Build or validate a portable pack | [Topic-pack guide](TOPIC_PACKS.md) | [Contributor preview](/app/?contribute=1) |
 | Explore optional AI drafting | [AI authoring and BYOK](AI_AUTHORING.md) | [Proposed ADR](adr/0006-ai-authoring-is-optional-and-draft-first.md) |
@@ -44,6 +45,8 @@ LinguaFlow. Start with the path that matches what you want to accomplish.
   generation with explicit credential, privacy, validation, and review bounds.
 - [Motion](MOTION.md), [sound design](SOUND_DESIGN.md), and
   [visual assets](ASSETS.md) — experience foundations and contribution rules.
+- [Landing-page experience](LANDING_PAGE.md) — public-page hierarchy, visual
+  language, role-aware onboarding, motion limits, and review checklist.
 - [Architecture decision records](adr/) — durable decisions and their context.
 - [Contributing](../CONTRIBUTING.md) — contribution paths, proposal
   expectations, checks, and pull-request evidence.

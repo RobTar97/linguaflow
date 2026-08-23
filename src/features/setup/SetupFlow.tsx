@@ -20,7 +20,7 @@ import type {
 import { workspaceCopy } from "../../i18n/workspaceCopy";
 import { motionEase } from "../../motion/presets";
 import { AmicroFadeUp } from "../../motion/AmicroFadeUp";
-import { readShareIntent } from "../../platform/shareLinks";
+import { readEntryRole, readShareIntent } from "../../platform/shareLinks";
 import { soundEffects } from "../../platform/soundEffects";
 import { useLearningWorkspace } from "../../workspace/context";
 import { workspaceDefaults } from "../../workspace/contracts";
@@ -54,10 +54,12 @@ export default function SetupFlow() {
   const { profile, completeSetup } = useLearningWorkspace();
   const shareIntent = readShareIntent();
   const practiceIntent = shareIntent?.kind === "practice" ? shareIntent : null;
+  const entryRole = readEntryRole();
   const [step, setStep] = useState(0);
   const [name, setName] = useState(profile?.name ?? "");
   const [role, setRole] = useState<WorkspaceRole>(
-    profile?.role ?? (shareIntent?.kind === "join" ? "student" : "learner"),
+    profile?.role ??
+      (shareIntent?.kind === "join" ? "student" : entryRole ?? "learner"),
   );
   const [interfaceLocale, setInterfaceLocale] = useState<Locale>(
     profile?.goal.interfaceLocale ?? workspaceDefaults.goal.interfaceLocale,
